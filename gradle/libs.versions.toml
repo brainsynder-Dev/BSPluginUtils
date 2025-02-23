@@ -1,0 +1,22 @@
+[versions]
+# Dependencies
+spigot = "1.21.4-R0.1-SNAPSHOT"
+nbtapi = "2.14.1"
+paperlib = "1.0.8"
+scheduler = "0.1.6"
+
+minimaljson = "0.11.0"
+
+# Plugins
+shadow = "9.0.0-beta8"
+
+[libraries]
+spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+nbtapi = { module = "de.tr7zw:item-nbt-api", version.ref = "nbtapi" }
+paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
+scheduler = { module = "com.github.Anon8281:UniversalScheduler", version.ref = "scheduler" }
+
+minimaljson = { module = "com.github.tonivade:minimal-json", version.ref = "minimaljson" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
