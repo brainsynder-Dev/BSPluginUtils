@@ -251,7 +251,6 @@ public final class CompoundTag implements Tag {
      */
     public CompoundTag setBoolean(String key, boolean value) {
         tagMap.put(key, new ByteTag((byte) ((value) ? 1 : 0)));
-        booleans.add(key);
         return this;
     }
 
@@ -283,10 +282,10 @@ public final class CompoundTag implements Tag {
     }
 
     public CompoundTag setColor(String key, Color color) {
-        return setColor(key, color, StorageColorType.COMPOUND);
+        return setColor(key, color, ColorStorageType.COMPOUND);
     }
 
-    public CompoundTag setColor(String key, Color color, StorageColorType type) {
+    public CompoundTag setColor(String key, Color color, ColorStorageType type) {
         switch (type) {
             case HEX:
                 setString(key, Colorize.toHex(color.getRed(), color.getGreen(), color.getBlue()));
@@ -513,5 +512,12 @@ public final class CompoundTag implements Tag {
         }
 
         return "";
+    }
+
+    public enum ColorStorageType {
+        COMPOUND,
+        INT,
+        HEX,
+        STRING
     }
 }
