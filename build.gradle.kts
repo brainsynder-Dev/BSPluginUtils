@@ -140,7 +140,7 @@ tasks.register("incrementPatchVersion") {
 }
 
 // Task to update README.md with the new version and commit changes.
-// This task depends on incrementPatchVersion so that the version is updated first.
+// This task runs the incrementPatchVersion task so that the version is prepared for the next release.
 tasks.register("updateReadmeVersion") {
     group = "versioning"
     description = "Updates README.md with the new version and commits changes to README.md."
@@ -160,8 +160,8 @@ tasks.register("updateReadmeVersion") {
             throw GradleException("README.md file not found!")
         }
         // Replace the version string in README.md (adjust the regex if needed).
-        val versionPattern = Regex("Version:\\s*\\S+")
-        val updatedContent = readmeFile.readText().replace(versionPattern, "Version: $currentVersion")
+        val versionRegex = Regex("""\d+\.\d+\.\d+(?:-SNAPSHOT)?""")
+        val updatedContent = readmeFile.readText().replace(versionRegex, currentVersion)
         readmeFile.writeText(updatedContent)
         println("README.md updated with version: $currentVersion")
 
@@ -172,7 +172,7 @@ tasks.register("updateReadmeVersion") {
                 "git",
                 "commit",
                 "-m",
-                "chore: updated version listed in README.md file to: $currentVersion",
+                "docs: updated version listed in README.md file to: $currentVersion",
                 "README.md"
             ),
             listOf("git", "push")
