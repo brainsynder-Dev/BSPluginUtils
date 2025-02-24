@@ -8,7 +8,7 @@ scheduler = "0.1.6"
 minimaljson = "0.11.0"
 
 # Plugins
-shadow = "9.0.0-beta8"
+shadow = "9.0.0-SNAPSHOT"
 
 [libraries]
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
