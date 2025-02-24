@@ -34,7 +34,6 @@ import java.util.Set;
  * </pre>
  */
 public class ItemBuilder {
-
     private ItemStack item;
     private ItemMeta meta;
 
@@ -65,7 +64,6 @@ public class ItemBuilder {
      */
     public ItemBuilder(Material material, int amount) {
         item = new ItemStack(material, amount);
-
         meta = item.getItemMeta();
     }
 
@@ -82,10 +80,8 @@ public class ItemBuilder {
      */
     public static ItemBuilder fromItem(ItemStack item) {
         var builder = new ItemBuilder(item.getType(), item.getAmount());
-
         builder.item = item;
         builder.meta = item.getItemMeta();
-
         return builder;
     }
 
@@ -101,7 +97,6 @@ public class ItemBuilder {
      */
     public ItemStack build() {
         item.setItemMeta(meta);
-
         return item.clone();
     }
 
@@ -120,7 +115,6 @@ public class ItemBuilder {
      */
     public ItemBuilder withName(String name) {
         meta.setDisplayName(translate(name, false));
-
         return this;
     }
 
@@ -138,7 +132,6 @@ public class ItemBuilder {
      */
     public String getName() {
         if (meta.hasDisplayName()) return meta.getDisplayName();
-
         return WordUtils.capitalizeFully(item.getType().name().toLowerCase().replace("_", " "));
     }
 
@@ -158,7 +151,6 @@ public class ItemBuilder {
      */
     public ItemBuilder withEnchant(Enchantment enchant, int level) {
         item.addUnsafeEnchantment(enchant, level);
-
         return this;
     }
 
@@ -175,7 +167,6 @@ public class ItemBuilder {
      */
     public ItemBuilder removeEnchant(Enchantment enchant) {
         item.removeEnchantment(enchant);
-
         return this;
     }
 
@@ -224,7 +215,6 @@ public class ItemBuilder {
      */
     public ItemBuilder removeFlag(ItemFlag flag) {
         meta.removeItemFlags(flag);
-
         return this;
     }
 
@@ -257,7 +247,6 @@ public class ItemBuilder {
      */
     public ItemBuilder setUnbreakable(boolean unbreakable) {
         meta.setUnbreakable(unbreakable);
-
         return this;
     }
 
@@ -290,7 +279,6 @@ public class ItemBuilder {
      */
     public ItemBuilder withLore(List<String> lore) {
         meta.setLore(translate(lore, false));
-
         return this;
     }
 
@@ -312,9 +300,7 @@ public class ItemBuilder {
 
         List<String> finalItemLore = itemLore;
         Arrays.asList(lore).forEach(s -> finalItemLore.add(translate(s, false)));
-
         meta.setLore(finalItemLore);
-
         return this;
     }
 
@@ -329,9 +315,7 @@ public class ItemBuilder {
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder clearLore() {
-        if (meta.hasLore())
-            meta.getLore().clear();
-
+        if (meta.hasLore()) meta.getLore().clear();
         return this;
     }
 
@@ -349,13 +333,10 @@ public class ItemBuilder {
     public ItemBuilder removeLore(String lore) {
         List<String> itemLore = new ArrayList<>();
 
-        if (meta.hasLore())
-            itemLore = meta.getLore();
+        if (meta.hasLore()) itemLore = meta.getLore();
 
         itemLore.remove(translate(lore, false));
-
         meta.setLore(itemLore);
-
         return this;
     }
 
