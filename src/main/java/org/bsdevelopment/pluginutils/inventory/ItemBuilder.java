@@ -1,13 +1,19 @@
 package org.bsdevelopment.pluginutils.inventory;
 
+import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bsdevelopment.pluginutils.nbt.serialization.NBTJSON;
+import org.bsdevelopment.pluginutils.nbt.types.CompoundTag;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.text.WordUtils;
+import org.bsdevelopment.pluginutils.utilities.PlayerProfileHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +30,7 @@ import java.util.Set;
  * <p><b>Examples:</b>
  * <pre>
  * // Create an ItemStack of DIAMOND_SWORD with a custom name, lore, enchantments, and flags.
- * ItemStack sword = new ItemBuilder(Material.DIAMOND_SWORD)
+ * ItemStack sword = ItemBuilder.of(Material.DIAMOND_SWORD)
  *     .withName("&aEpic Sword")
  *     .withLore(Arrays.asList("&7This sword is", "&7truly epic!"))
  *     .withEnchant(Enchantment.DAMAGE_ALL, 5)
@@ -37,51 +43,71 @@ public class ItemBuilder {
     private ItemStack item;
     private ItemMeta meta;
 
-    /**
-     * Creates a new ItemBuilder with the specified material and a default amount of 1.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * ItemBuilder builder = new ItemBuilder(Material.DIAMOND);
-     * </pre>
-     *
-     * @param material the material for the item
-     */
-    public ItemBuilder(Material material) {
-        this(material, 1);
-    }
-
-    /**
-     * Creates a new ItemBuilder with the specified material and amount.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * ItemBuilder builder = new ItemBuilder(Material.DIAMOND, 5);
-     * </pre>
-     *
-     * @param material the material for the item
-     * @param amount   the amount of items in the stack
-     */
-    public ItemBuilder(Material material, int amount) {
+    private ItemBuilder(Material material, int amount) {
         item = new ItemStack(material, amount);
         meta = item.getItemMeta();
     }
 
     /**
-     * Creates a new ItemBuilder based on an existing ItemStack.
+     * Creates a new ItemBuilder with the specified material and a default amount of 1.
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * ItemBuilder builder = ItemBuilder.fromItem(existingItem);
-     * </pre>
-     *
-     * @param item the existing ItemStack to base the builder on
-     * @return a new ItemBuilder instance representing the item
+     * @param material the material for the item
+     * @return a new ItemBuilder instance
      */
-    public static ItemBuilder fromItem(ItemStack item) {
+    public static ItemBuilder of(Material material) {
+        return of(material, 1);
+    }
+
+    /**
+     * Creates a new ItemBuilder with the specified material and amount.
+     *
+     * @param material the material for the item
+     * @param amount   the amount for the item
+     * @return a new ItemBuilder instance
+     */
+    public static ItemBuilder of(Material material, int amount) {
+        return new ItemBuilder(material, amount);
+    }
+
+    /**
+     * Creates a new ItemBuilder from an existing ItemStack.
+     *
+     * @param item the ItemStack to copy
+     * @return a new ItemBuilder with the same material, amount, and meta as the provided item
+     */
+    public static ItemBuilder of(ItemStack item) {
         var builder = new ItemBuilder(item.getType(), item.getAmount());
         builder.item = item;
         builder.meta = item.getItemMeta();
+        return builder;
+    }
+
+    /**
+     * Creates a new ItemBuilder from a given CompoundTag.
+     *
+     * @param tag the CompoundTag to convert
+     * @return a new ItemBuilder created from the NBT data in the tag
+     */
+    public static ItemBuilder of(CompoundTag tag) {
+        var item = NBTItem.convertNBTtoItem(new NBTContainer(tag.toString()));
+        var builder = new ItemBuilder(item.getType(), item.getAmount());
+        builder.item = item;
+        builder.meta = item.getItemMeta();
+        return builder;
+    }
+
+    /**
+     * Creates a new ItemBuilder for a player skull with the specified texture.
+     *
+     * @param texture the texture url to set
+     * @return a new ItemBuilder for a PLAYER_HEAD with the custom texture applied
+     */
+    public static ItemBuilder playerSkull(String texture) {
+        var builder = new ItemBuilder(Material.PLAYER_HEAD, 1);
+        builder.handleMeta(SkullMeta.class, meta -> {
+            meta.setOwnerProfile(PlayerProfileHelper.setSkin(meta.getOwnerProfile(), texture));
+            return meta;
+        });
         return builder;
     }
 
@@ -98,6 +124,23 @@ public class ItemBuilder {
     public ItemStack build() {
         item.setItemMeta(meta);
         return item.clone();
+    }
+
+    /**
+     * Converts the current ItemStack into a CompoundTag representation.
+     *
+     * @return the CompoundTag representing the ItemStack's NBT data
+     * @throws RuntimeException if an error occurs during conversion
+     */
+    public CompoundTag toTag() {
+        String json = NBTItem.convertItemtoNBT(item).toString();
+        CompoundTag compound = new CompoundTag();
+        try {
+            compound = (CompoundTag) NBTJSON.readFromJsonString(json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return compound;
     }
 
     // --- DISPLAY NAME METHODS --- //
@@ -119,9 +162,8 @@ public class ItemBuilder {
     }
 
     /**
-     * Retrieves the display name of the item.
-     *
-     * <p>If no display name is set, returns a capitalized version of the item's material name.
+     * Retrieves the display name of the item. If no display name is set, returns a capitalized
+     * version of the item's material name.
      *
      * <p><b>Example:</b>
      * <pre>
@@ -171,7 +213,7 @@ public class ItemBuilder {
     }
 
     /**
-     * Retrieves all enchantments on the item.
+     * Retrieves a map of all enchantments on the item.
      *
      * <p><b>Example:</b>
      * <pre>
@@ -219,14 +261,14 @@ public class ItemBuilder {
     }
 
     /**
-     * Retrieves all item flags from the item.
+     * Retrieves all item flags present on the item.
      *
      * <p><b>Example:</b>
      * <pre>
      * Set&lt;ItemFlag&gt; flags = builder.getFlags();
      * </pre>
      *
-     * @return a set of item flags present on the item
+     * @return a set of item flags
      */
     public Set<ItemFlag> getFlags() {
         return meta.getItemFlags();
@@ -235,14 +277,14 @@ public class ItemBuilder {
     // --- UNBREAKABLE METHODS --- //
 
     /**
-     * Sets the item to be unbreakable.
+     * Sets whether the item is unbreakable.
      *
      * <p><b>Example:</b>
      * <pre>
      * builder.setUnbreakable(true);
      * </pre>
      *
-     * @param unbreakable true to make the item unbreakable; false otherwise
+     * @param unbreakable true to mark the item as unbreakable; false otherwise
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder setUnbreakable(boolean unbreakable) {
@@ -267,14 +309,14 @@ public class ItemBuilder {
     // --- LORE METHODS --- //
 
     /**
-     * Sets the lore of the item.
+     * Sets the lore (list of text lines) of the item.
      *
      * <p><b>Example:</b>
      * <pre>
      * builder.withLore(Arrays.asList("&7This is a cool item", "&7Use it wisely"));
      * </pre>
      *
-     * @param lore a list of lore strings (each line can contain color codes)
+     * @param lore a list of lore lines (supports color codes)
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder withLore(List<String> lore) {
@@ -283,14 +325,14 @@ public class ItemBuilder {
     }
 
     /**
-     * Appends one or more lines to the existing lore of the item.
+     * Appends additional lore lines to the current lore.
      *
      * <p><b>Example:</b>
      * <pre>
      * builder.addLore("&7Extra lore line 1", "&7Extra lore line 2");
      * </pre>
      *
-     * @param lore one or more lore strings to add (supports color codes)
+     * @param lore one or more lore lines (supports color codes)
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder addLore(String... lore) {
@@ -327,7 +369,7 @@ public class ItemBuilder {
      * builder.removeLore("&7Extra lore line");
      * </pre>
      *
-     * @param lore the lore string to remove (supports color codes)
+     * @param lore the lore line to remove (supports color codes)
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder removeLore(String lore) {
@@ -343,11 +385,11 @@ public class ItemBuilder {
     // --- STATIC UTILITY METHODS --- //
 
     /**
-     * Checks if the given material is considered an air type.
+     * Checks if the given material is considered "air".
      *
      * <p><b>Example:</b>
      * <pre>
-     * boolean air = ItemBuilder.isAir(Material.AIR);
+     * boolean isAir = ItemBuilder.isAir(Material.AIR);
      * </pre>
      *
      * @param mat the material to check
@@ -358,47 +400,45 @@ public class ItemBuilder {
     }
 
     /**
-     * Checks if the given ItemStack is null or represents an air item.
+     * Checks if the given ItemStack is null or represents air.
      *
      * <p><b>Example:</b>
      * <pre>
-     * boolean air = ItemBuilder.isAir(itemStack);
+     * boolean isAir = ItemBuilder.isAir(itemStack);
      * </pre>
      *
      * @param item the ItemStack to check
-     * @return true if the item is null or its type is air
+     * @return true if the item is null or its material is considered air
      */
     public static boolean isAir(ItemStack item) {
         return item == null || isAir(item.getType());
     }
 
     /**
-     * Allows handling of the ItemMeta by applying a custom function.
+     * Applies a transformation to the {@link ItemMeta} if it matches the specified class.
      *
      * <p><b>Example:</b>
      * <pre>
-     * builder.handleMeta(SomeItemMeta.class, meta -&gt; {
-     *     // modify meta as needed
+     * builder.handleMeta(SkullMeta.class, meta -&gt; {
+     *     // Modify meta as needed
      *     return meta;
      * });
      * </pre>
      *
-     * @param clazz the class type of the meta to handle
-     * @param meta  a function that accepts the current meta and returns a modified meta
-     * @param <T>   the type of ItemMeta
+     * @param clazz the meta class to transform
+     * @param meta  a function that transforms the meta
+     * @param <T>   the type of the meta
      * @return this ItemBuilder for chaining
      */
     public <T extends ItemMeta> ItemBuilder handleMeta(Class<T> clazz, ItemMetaValue<T> meta) {
         if (!clazz.isAssignableFrom(this.meta.getClass())) return this;
 
-        this.meta = meta.accept(this.meta);
-
+        this.meta = meta.accept(clazz.cast(this.meta));
         item.setItemMeta(this.meta);
-
         return this;
     }
 
-    // --- PRIVATE METHODS (No JavaDocs) --- //
+    // --- PRIVATE METHODS --- //
 
     private List<String> translate(List<String> message, boolean strip) {
         var newLore = new ArrayList<String>();
@@ -410,10 +450,8 @@ public class ItemBuilder {
             } else {
                 msg = Colorize.translateBungeeHex(msg);
             }
-
             newLore.add(msg);
         });
-
         return newLore;
     }
 
@@ -424,11 +462,15 @@ public class ItemBuilder {
         } else {
             message = Colorize.translateBungeeHex(message);
         }
-
         return message;
     }
 
+    /**
+     * Functional interface for transforming an {@link ItemMeta} object.
+     *
+     * @param <T> the type of item meta
+     */
     private interface ItemMetaValue<T> {
-        T accept(ItemMeta value);
+        T accept(T value);
     }
 }
