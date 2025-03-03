@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -9,11 +9,11 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  * <p>In Minecraft, EndTag often serves as a sentinel value. It typically doesn't
  * hold data and is not stored in normal user data structures.</p>
  */
-public final class EndTag implements Tag {
+public final class EndData implements BasicData {
     // Typically, there's only one instance of EndTag in real usage
-    public static final EndTag INSTANCE = new EndTag();
+    public static final EndData INSTANCE = new EndData();
 
-    private EndTag() {}
+    private EndData() {}
 
     @Override
     public TagType getType() {
@@ -21,7 +21,7 @@ public final class EndTag implements Tag {
     }
 
     @Override
-    public Tag copy() {
+    public BasicData copy() {
         // Return the same instance; it holds no data
         return INSTANCE;
     }

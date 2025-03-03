@@ -4,7 +4,7 @@ package org.bsdevelopment.pluginutils.nbt;
  * Enum representing possible NBT tag types.
  * 
  * <p>This can be used for (de)serialization, validation, or switching
- * on the particular subclass of {@link Tag} you’re dealing with.</p>
+ * on the particular subclass of {@link BasicData} you’re dealing with.</p>
  */
 public enum TagType {
     END(0),

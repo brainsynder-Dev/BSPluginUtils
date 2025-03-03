@@ -1,9 +1,20 @@
 package org.bsdevelopment.pluginutils.nbt.serialization;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
-import org.bsdevelopment.pluginutils.nbt.types.*;
-import org.bsdevelopment.pluginutils.nbt.types.array.*;
+import org.bsdevelopment.pluginutils.nbt.types.ByteData;
+import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
+import org.bsdevelopment.pluginutils.nbt.types.DoubleData;
+import org.bsdevelopment.pluginutils.nbt.types.EndData;
+import org.bsdevelopment.pluginutils.nbt.types.FloatData;
+import org.bsdevelopment.pluginutils.nbt.types.IntData;
+import org.bsdevelopment.pluginutils.nbt.types.ListData;
+import org.bsdevelopment.pluginutils.nbt.types.LongData;
+import org.bsdevelopment.pluginutils.nbt.types.ShortData;
+import org.bsdevelopment.pluginutils.nbt.types.StringData;
+import org.bsdevelopment.pluginutils.nbt.types.array.ByteArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.IntArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.LongArrayData;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -15,86 +26,77 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A stream for reading NBT tags from a binary input source.
+ * A stream for reading a single NBT tag (the root or any nested tag)
+ * from a binary input source in standard NBT format.
  *
- * <p>Follows the typical NBT format:
+ * <p>The root Data is stored with:
  * <ul>
  *   <li>1 byte: TagType ID</li>
- *   <li>For named tags (TagType != END): 2-byte name length (unsigned short), followed by bytes for the name</li>
- *   <li>Payload depends on tag type</li>
+ *   <li>2 bytes: name length (unsigned short) + name bytes (UTF-8) – which we discard</li>
+ *   <li>Payload: depends on data type</li>
  * </ul>
+ * If the type is END (0), there is no name or payload.
  */
 public class NBTInputStream implements AutoCloseable {
-
     private final DataInputStream dataIn;
 
     /**
      * Constructs a new NBTInputStream that reads from the given InputStream.
-     * 
-     * @param inputStream The InputStream to read from.
+     *
+     * @param inputStream the underlying input stream.
      */
     public NBTInputStream(InputStream inputStream) {
         this.dataIn = new DataInputStream(inputStream);
     }
 
     /**
-     * Reads an entire named tag from the stream (type ID + name + payload).
-     * This is usually how you'd read the "root" tag in an NBT file.
-     * 
-     * @return A Tag read from the stream, or null if TagType is END (which can occur in certain contexts).
-     * @throws IOException If an I/O error occurs.
+     * Reads the "root" data from the stream.
+     * The root name is read and discarded.
+     *
+     * @return the root Data.
+     * @throws IOException if an I/O error occurs or if the data is invalid.
      */
-    public NamedTag readNamedTag() throws IOException {
-        byte typeId = dataIn.readByte();  
+    public BasicData readRootData() throws IOException {
+        // Read the type ID
+        byte typeId = dataIn.readByte();
         TagType type = TagType.fromId(typeId);
-
         if (type == null) {
-            throw new IOException("Unknown tag type ID: " + typeId);
+            throw new IOException("Unknown tag type ID at root: " + typeId);
         }
         if (type == TagType.END) {
-            // No name or payload for END tag
-            return new NamedTag("", EndTag.INSTANCE);
+            return EndData.INSTANCE;
         }
 
-        // Read the name (2-byte length + UTF-8 bytes)
-        String name = readString();
-        
-        // Read the payload
-        Tag tag = readTagPayload(type);
-        return new NamedTag(name, tag);
+        // Read and discard the name
+        int nameLength = dataIn.readUnsignedShort();
+        if (nameLength > 0) {
+            dataIn.skipBytes(nameLength);
+        }
+
+        // Read the payload according to its type
+        return readDataPayload(type);
     }
 
-    /**
-     * Reads a tag payload of the given type (excluding name).
-     * 
-     * @param type The type of the tag to read.
-     * @return A Tag instance (matching the type).
-     * @throws IOException If an I/O error occurs or if the format is invalid.
-     */
-    private Tag readTagPayload(TagType type) throws IOException {
+    // Reads the payload for a given tag type (no name).
+    private BasicData readDataPayload(TagType type) throws IOException {
         return switch (type) {
-            case END -> EndTag.INSTANCE; 
-            case BYTE -> new ByteTag(dataIn.readByte());
-            case SHORT -> new ShortTag(dataIn.readShort());
-            case INT -> new IntTag(dataIn.readInt());
-            case LONG -> new LongTag(dataIn.readLong());
-            case FLOAT -> new FloatTag(dataIn.readFloat());
-            case DOUBLE -> new DoubleTag(dataIn.readDouble());
-            case BYTE_ARRAY -> readByteArrayTag();
-            case STRING -> new StringTag(readString());
-            case LIST -> readListTag();
-            case COMPOUND -> readCompoundTag();
-            case INT_ARRAY -> readIntArrayTag();
-            case LONG_ARRAY -> readLongArrayTag();
+            case END -> EndData.INSTANCE;
+            case BYTE -> new ByteData(dataIn.readByte());
+            case SHORT -> new ShortData(dataIn.readShort());
+            case INT -> new IntData(dataIn.readInt());
+            case LONG -> new LongData(dataIn.readLong());
+            case FLOAT -> new FloatData(dataIn.readFloat());
+            case DOUBLE -> new DoubleData(dataIn.readDouble());
+            case BYTE_ARRAY -> readByteArrayData();
+            case STRING -> new StringData(readString());
+            case LIST -> readListData();
+            case COMPOUND -> readCompoundData();
+            case INT_ARRAY -> readIntArrayData();
+            case LONG_ARRAY -> readLongArrayData();
         };
     }
 
-    /**
-     * Reads a string (2-byte length, then UTF-8 data).
-     * 
-     * @return The decoded string.
-     * @throws IOException If an I/O error occurs.
-     */
+    // Reads a UTF-8 string (2-byte length then bytes).
     private String readString() throws IOException {
         int length = dataIn.readUnsignedShort();
         byte[] bytes = new byte[length];
@@ -102,72 +104,52 @@ public class NBTInputStream implements AutoCloseable {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    /**
-     * Reads a ByteArrayTag.
-     */
-    private ByteArrayTag readByteArrayTag() throws IOException {
-        int length = dataIn.readInt();  // The array length
+    // Reads a ByteArrayData.
+    private ByteArrayData readByteArrayData() throws IOException {
+        int length = dataIn.readInt();
         byte[] bytes = new byte[length];
         dataIn.readFully(bytes);
-        return new ByteArrayTag(bytes);
+        return new ByteArrayData(bytes);
     }
 
-    /**
-     * Reads an IntArrayTag.
-     */
-    private IntArrayTag readIntArrayTag() throws IOException {
-        int length = dataIn.readInt(); 
+    // Reads an IntArrayData.
+    private IntArrayData readIntArrayData() throws IOException {
+        int length = dataIn.readInt();
         int[] ints = new int[length];
         for (int i = 0; i < length; i++) {
             ints[i] = dataIn.readInt();
         }
-        return new IntArrayTag(ints);
+        return new IntArrayData(ints);
     }
 
-    /**
-     * Reads a LongArrayTag.
-     */
-    private LongArrayTag readLongArrayTag() throws IOException {
+    // Reads a LongArrayData.
+    private LongArrayData readLongArrayData() throws IOException {
         int length = dataIn.readInt();
         long[] longs = new long[length];
         for (int i = 0; i < length; i++) {
             longs[i] = dataIn.readLong();
         }
-        return new LongArrayTag(longs);
+        return new LongArrayData(longs);
     }
 
-    /**
-     * Reads a ListTag, which includes:
-     * <ul>
-     *   <li>1 byte: element type ID</li>
-     *   <li>4 bytes: length</li>
-     *   <li>That many elements, each read with {@code readTagPayload(elementType)}</li>
-     * </ul>
-     */
-    private ListTag readListTag() throws IOException {
+    // Reads a ListData.
+    private ListData readListData() throws IOException {
         byte elementTypeId = dataIn.readByte();
         TagType elementType = TagType.fromId(elementTypeId);
-        int length = dataIn.readInt();
-
         if (elementType == null) {
-            throw new IOException("Unknown element type in ListTag: " + elementTypeId);
+            throw new IOException("Unknown element type in ListData: " + elementTypeId);
         }
-
-        List<Tag> listData = new ArrayList<>(length);
+        int length = dataIn.readInt();
+        List<BasicData> listData = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
-            Tag element = readTagPayload(elementType);
-            listData.add(element);
+            listData.add(readDataPayload(elementType));
         }
-        // Use the specialized constructor from the example that requires element type
-        return new ListTag(elementType, listData);
+        return new ListData(elementType, listData);
     }
 
-    /**
-     * Reads a CompoundTag, which is a series of named tags until an END tag is encountered.
-     */
-    private CompoundTag readCompoundTag() throws IOException {
-        Map<String, Tag> tagMap = new HashMap<>();
-        
+    // Reads a CompoundData.
+    private CompoundData readCompoundData() throws IOException {
+        Map<String, BasicData> dataMap = new HashMap<>();
         while (true) {
             byte typeId = dataIn.readByte();
             TagType innerType = TagType.fromId(typeId);
@@ -175,15 +157,13 @@ public class NBTInputStream implements AutoCloseable {
                 throw new IOException("Unknown tag type in Compound: " + typeId);
             }
             if (innerType == TagType.END) {
-                // End of compound
-                break;
+                break; // End of compound
             }
-            String name = readString();
-            Tag payload = readTagPayload(innerType);
-            tagMap.put(name, payload);
+            String key = readString();
+            BasicData payload = readDataPayload(innerType);
+            dataMap.put(key, payload);
         }
-        
-        return new CompoundTag(tagMap);
+        return new CompoundData(dataMap);
     }
 
     @Override

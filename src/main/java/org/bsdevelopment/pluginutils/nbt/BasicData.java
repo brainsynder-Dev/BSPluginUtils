@@ -6,7 +6,7 @@ package org.bsdevelopment.pluginutils.nbt;
  * <p>This interface defines the common methods all NBT tag types
  * should support.</p>
  */
-public interface Tag {
+public interface BasicData {
     
     /**
      * Returns the type of this tag, corresponding to an entry in {@link TagType}.
@@ -21,5 +21,5 @@ public interface Tag {
      * 
      * @return A deep copy of this tag.
      */
-    Tag copy();
+    BasicData copy();
 }

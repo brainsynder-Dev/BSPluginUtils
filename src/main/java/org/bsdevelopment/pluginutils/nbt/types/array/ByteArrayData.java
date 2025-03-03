@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types.array;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 import java.util.Arrays;
@@ -13,12 +13,12 @@ import java.util.Arrays;
  *
  * @param value The byte array stored by this tag.
  */
-public record ByteArrayTag(byte[] value) implements Tag {
+public record ByteArrayData(byte[] value) implements BasicData {
 
     /**
      * Primary constructor to store a <strong>copy</strong> of the provided array.
      */
-    public ByteArrayTag {
+    public ByteArrayData {
         // If null is passed, treat it as an empty array.
         if (value == null) {
             value = new byte[0];
@@ -33,8 +33,8 @@ public record ByteArrayTag(byte[] value) implements Tag {
     }
 
     @Override
-    public ByteArrayTag copy() {
-        return new ByteArrayTag(this.value);
+    public ByteArrayData copy() {
+        return new ByteArrayData(this.value);
     }
 
     @Override

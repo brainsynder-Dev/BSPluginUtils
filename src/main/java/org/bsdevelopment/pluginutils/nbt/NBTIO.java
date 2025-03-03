@@ -2,53 +2,80 @@ package org.bsdevelopment.pluginutils.nbt;
 
 import org.bsdevelopment.pluginutils.nbt.serialization.NBTInputStream;
 import org.bsdevelopment.pluginutils.nbt.serialization.NBTOutputStream;
-import org.bsdevelopment.pluginutils.nbt.serialization.NamedTag;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
- * Utility class for reading and writing NBT data from/to files.
+ * Utility class for reading and writing a single root NBT tag to/from files.
+ * Supports both uncompressed and GZIP-compressed formats.
  *
- * <p>In Minecraft, NBT files are often (but not always) compressed (GZIP).
- * If you need GZIP, wrap your streams accordingly.</p>
+ * <p>Note: The root name is written as an empty string.</p>
  */
 public final class NBTIO {
-
-    private NBTIO() {
-        // Utility class; no instantiation
-    }
+    // ----- Uncompressed File I/O -----
 
     /**
-     * Reads a NamedTag from the given file. Typically this will be a CompoundTag as the root,
-     * but it can be any tag type.
-     * 
-     * @param file The file to read from.
-     * @return The NamedTag read from the file, or null if no valid data.
-     * @throws IOException If an I/O error or format error occurs.
+     * Reads the root Data from an uncompressed NBT file.
+     *
+     * @param file the file to read from.
+     * @return the root Data.
+     * @throws IOException if an I/O error occurs.
      */
-    public static NamedTag readFromFile(File file) throws IOException {
-        try (FileInputStream fis = new FileInputStream(file);
-             NBTInputStream nbtIn = new NBTInputStream(fis)) {
-
-            return nbtIn.readNamedTag();
+    public static BasicData readFromFile(File file) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(file);
+             NBTInputStream nbtIn = new NBTInputStream(inputStream)) {
+            return nbtIn.readRootData();
         }
     }
 
     /**
-     * Writes a NamedTag to the given file in NBT binary format. Overwrites existing file data.
+     * Writes the root Data to an uncompressed NBT file.
      *
-     * @param namedTag The NamedTag to write.
-     * @param file     The file to write to.
-     * @throws IOException If an I/O error occurs.
+     * @param data  the Data to write.
+     * @param file the file to write to.
+     * @throws IOException if an I/O error occurs.
      */
-    public static void writeToFile(NamedTag namedTag, File file) throws IOException {
+    public static void writeToFile(BasicData data, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file);
              NBTOutputStream nbtOut = new NBTOutputStream(fos)) {
+            nbtOut.writeRootTag(data);
+        }
+    }
 
-            nbtOut.writeNamedTag(namedTag);
+    // ----- GZIP-Compressed File I/O -----
+
+    /**
+     * Reads the root Tag from a GZIP-compressed NBT file.
+     *
+     * @param file the compressed file to read from.
+     * @return the root Data.
+     * @throws IOException if an I/O error occurs.
+     */
+    public static BasicData readFromCompressedFile(File file) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(file);
+             GZIPInputStream gzipIn = new GZIPInputStream(inputStream);
+             NBTInputStream nbtIn = new NBTInputStream(gzipIn)) {
+            return nbtIn.readRootData();
+        }
+    }
+
+    /**
+     * Writes the root Tag to a GZIP-compressed NBT file.
+     *
+     * @param data  the Data to write.
+     * @param file the file to write to.
+     * @throws IOException if an I/O error occurs.
+     */
+    public static void writeToCompressedFile(BasicData data, File file) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(file);
+             GZIPOutputStream gzipOut = new GZIPOutputStream(fos);
+             NBTOutputStream nbtOut = new NBTOutputStream(gzipOut)) {
+            nbtOut.writeRootTag(data);
         }
     }
 }

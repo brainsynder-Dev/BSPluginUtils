@@ -1,9 +1,9 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
-import org.bsdevelopment.pluginutils.nbt.types.array.ByteArrayTag;
-import org.bsdevelopment.pluginutils.nbt.types.array.IntArrayTag;
+import org.bsdevelopment.pluginutils.nbt.types.array.ByteArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.IntArrayData;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
  *
  * <p><b>Example Usage:</b>
  * <pre>
- * // Create and store multiple tags
- * CompoundTag compound = new CompoundTag();
+ * // Create and store multiple data tags
+ * CompoundData compound = new CompoundData();
  * compound.setInteger("Level", 42);
  * compound.setString("Message", "Hello!");
  *
@@ -32,73 +32,74 @@ import java.util.regex.Pattern;
  * String message = compound.getString("Message");
  * </pre>
  */
-public final class CompoundTag implements Tag {
+public class CompoundData implements BasicData {
     private static final Pattern PATTERN = Pattern.compile("[A-Za-z0-9._+-]+");
-    private final Map<String, Tag> tagMap = new HashMap<>();
+    private final Map<String, BasicData> dataMap = new HashMap<>();
 
-    public CompoundTag() {}
+    public CompoundData() {
+    }
 
     /**
-     * Constructs a {@code CompoundTag} with an existing map of tags.
+     * Constructs a {@code CompoundData} with an existing map of tags.
      *
      * <p>A defensive copy is created to avoid external mutation of internal data.
      *
-     * @param tagMap a map of name-to-tag entries
+     * @param dataMap a map of name-to-data entries
      */
-    public CompoundTag(Map<String, Tag> tagMap) {
-        this.tagMap.putAll(tagMap);
+    public CompoundData(Map<String, BasicData> dataMap) {
+        this.dataMap.putAll(dataMap);
     }
 
     /**
-     * Checks if this compound tag has a specific named key.
+     * Checks if this compound has a specific named key.
      *
-     * @param key the tag name
+     * @param key the data name
      * @return true if the name is present, otherwise false
      */
-    public boolean hasTag(String key) {
-        return tagMap.containsKey(key);
+    public boolean hasData(String key) {
+        return dataMap.containsKey(key);
     }
 
     /**
-     * Adds or replaces a named tag in this compound.
+     * Adds or replaces a named data in this compound.
      *
-     * @param name the tag name
-     * @param tag  the tag to insert
-     * @param <T>  the type of the tag
-     * @return the previous tag associated with the name, or {@code null} if none
+     * @param name the data name
+     * @param data the data to insert
+     * @param <T>  the type of the data
+     * @return the previous data associated with the name, or {@code null} if none
      */
-    public <T extends Tag> T setTag(String name, Tag tag) {
-        return (T) tagMap.put(name, tag);
+    public <T extends BasicData> T setData(String name, BasicData data) {
+        return (T) dataMap.put(name, data);
     }
 
     /**
-     * Retrieves a tag from this compound by name.
+     * Retrieves a data from this compound by name.
      *
-     * @param name the tag name
-     * @param <T>  the type of the tag
-     * @return the requested tag, or {@code null} if none
+     * @param name the data name
+     * @param <T>  the type of the data
+     * @return the requested data, or {@code null} if none
      */
-    public <T extends Tag> T getTag(String name) {
-        return (T) tagMap.get(name);
+    public <T extends BasicData> T getData(String name) {
+        return (T) dataMap.get(name);
     }
 
     /**
      * Returns a set of all keys in this compound.
      *
-     * @return the set of tag names
+     * @return the set of data names
      */
     public Set<String> getKeys() {
-        return tagMap.keySet();
+        return dataMap.keySet();
     }
 
     /**
-     * Removes a tag entry by name.
+     * Removes a data entry by name.
      *
-     * @param name the tag name
-     * @return the removed tag, or null if not found
+     * @param name the data name
+     * @return the removed data, or null if not found
      */
-    public Tag remove(String name) {
-        return tagMap.remove(name);
+    public BasicData remove(String name) {
+        return dataMap.remove(name);
     }
 
     /**
@@ -107,7 +108,7 @@ public final class CompoundTag implements Tag {
      * @return the size of this compound tag
      */
     public int size() {
-        return tagMap.size();
+        return dataMap.size();
     }
 
     /**
@@ -126,10 +127,10 @@ public final class CompoundTag implements Tag {
      * @return a new {@code CompoundTag} with cloned data
      */
     @Override
-    public CompoundTag copy() {
-        var copyMap = new HashMap<String, Tag>();
-        for (var entry : tagMap.entrySet()) copyMap.put(entry.getKey(), entry.getValue().copy());
-        return new CompoundTag(copyMap);
+    public CompoundData copy() {
+        var copyMap = new HashMap<String, BasicData>();
+        for (var entry : dataMap.entrySet()) copyMap.put(entry.getKey(), entry.getValue().copy());
+        return new CompoundData(copyMap);
     }
 
     /**
@@ -137,8 +138,8 @@ public final class CompoundTag implements Tag {
      *
      * @return a copy of the internal map data
      */
-    public Map<String, Tag> copyMap() {
-        return new HashMap<>(tagMap);
+    public Map<String, BasicData> copyMap() {
+        return new HashMap<>(dataMap);
     }
 
     /**
@@ -149,11 +150,11 @@ public final class CompoundTag implements Tag {
     @Override
     public String toString() {
         var stringbuilder = new StringBuilder("{");
-        var collection = tagMap.keySet();
+        var collection = dataMap.keySet();
 
         for (var s : collection) {
             if (stringbuilder.length() != 1) stringbuilder.append(',');
-            stringbuilder.append(match(s)).append(':').append(tagMap.get(s));
+            stringbuilder.append(match(s)).append(':').append(dataMap.get(s));
         }
         return stringbuilder.append('}').toString();
     }
@@ -174,50 +175,50 @@ public final class CompoundTag implements Tag {
     // --- BULK QOL METHODS --- //
 
     /**
-     * Inserts a {@link ByteTag} with the specified value.
+     * Inserts a {@link ByteData} with the specified value.
      *
      * @param key   the key
      * @param value the byte value
      * @return this compound for chaining
      */
-    public CompoundTag setByte(String key, byte value) {
-        tagMap.put(key, new ByteTag(value));
+    public CompoundData setByte(String key, byte value) {
+        dataMap.put(key, new ByteData(value));
         return this;
     }
 
     /**
-     * Inserts a {@link ShortTag} with the specified value.
+     * Inserts a {@link ShortData} with the specified value.
      *
      * @param key   the key
      * @param value the short value
      * @return this compound for chaining
      */
-    public CompoundTag setShort(String key, short value) {
-        tagMap.put(key, new ShortTag(value));
+    public CompoundData setShort(String key, short value) {
+        dataMap.put(key, new ShortData(value));
         return this;
     }
 
     /**
-     * Inserts an {@link IntTag} with the specified integer value.
+     * Inserts an {@link IntData} with the specified integer value.
      *
      * @param key   the key
      * @param value the int value
      * @return this compound for chaining
      */
-    public CompoundTag setInteger(String key, int value) {
-        tagMap.put(key, new IntTag(value));
+    public CompoundData setInteger(String key, int value) {
+        dataMap.put(key, new IntData(value));
         return this;
     }
 
     /**
-     * Inserts a {@link LongTag} with the specified long value.
+     * Inserts a {@link LongData} with the specified long value.
      *
      * @param key   the key
      * @param value the long value
      * @return this compound for chaining
      */
-    public CompoundTag setLong(String key, long value) {
-        tagMap.put(key, new LongTag(value));
+    public CompoundData setLong(String key, long value) {
+        dataMap.put(key, new LongData(value));
         return this;
     }
 
@@ -228,7 +229,7 @@ public final class CompoundTag implements Tag {
      * @param value the UUID to store
      * @return this compound for chaining
      */
-    public CompoundTag setUniqueId(String key, UUID value) {
+    public CompoundData setUniqueId(String key, UUID value) {
         setString(key, value.toString());
         return this;
     }
@@ -240,84 +241,85 @@ public final class CompoundTag implements Tag {
      * @return the retrieved or newly generated UUID
      */
     public UUID getUniqueId(String key) {
-        if (hasTag(key)) {
+        if (hasData(key)) {
             var raw = getString(key);
             try {
                 return UUID.fromString(raw);
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         return UUID.randomUUID();
     }
 
     /**
-     * Inserts a {@link FloatTag} with the specified float value.
+     * Inserts a {@link FloatData} with the specified float value.
      *
      * @param key   the key
      * @param value the float value
      * @return this compound for chaining
      */
-    public CompoundTag setFloat(String key, float value) {
-        tagMap.put(key, new FloatTag(value));
+    public CompoundData setFloat(String key, float value) {
+        dataMap.put(key, new FloatData(value));
         return this;
     }
 
     /**
-     * Inserts a {@link DoubleTag} with the specified double value.
+     * Inserts a {@link DoubleData} with the specified double value.
      *
      * @param key   the key
      * @param value the double value
      * @return this compound for chaining
      */
-    public CompoundTag setDouble(String key, double value) {
-        tagMap.put(key, new DoubleTag(value));
+    public CompoundData setDouble(String key, double value) {
+        dataMap.put(key, new DoubleData(value));
         return this;
     }
 
     /**
-     * Inserts a {@link StringTag} with the specified string value.
+     * Inserts a {@link StringData} with the specified string value.
      *
      * @param key   the key
      * @param value the string value
      * @return this compound for chaining
      */
-    public CompoundTag setString(String key, String value) {
-        tagMap.put(key, new StringTag(value));
+    public CompoundData setString(String key, String value) {
+        dataMap.put(key, new StringData(value));
         return this;
     }
 
     /**
-     * Inserts a {@link ByteArrayTag} with the specified byte array value.
+     * Inserts a {@link ByteArrayData} with the specified byte array value.
      *
      * @param key   the key
      * @param value the byte array
      * @return this compound for chaining
      */
-    public CompoundTag setByteArray(String key, byte[] value) {
-        tagMap.put(key, new ByteArrayTag(value));
+    public CompoundData setByteArray(String key, byte[] value) {
+        dataMap.put(key, new ByteArrayData(value));
         return this;
     }
 
     /**
-     * Inserts an {@link IntArrayTag} with the specified int array value.
+     * Inserts an {@link IntArrayData} with the specified int array value.
      *
      * @param key   the key
      * @param value the int array
      * @return this compound for chaining
      */
-    public CompoundTag setIntArray(String key, int[] value) {
-        tagMap.put(key, new IntArrayTag(value));
+    public CompoundData setIntArray(String key, int[] value) {
+        dataMap.put(key, new IntArrayData(value));
         return this;
     }
 
     /**
-     * Inserts a boolean value as a {@link ByteTag}, storing 1 for {@code true} and 0 for {@code false}.
+     * Inserts a boolean value as a {@link ByteData}, storing 1 for {@code true} and 0 for {@code false}.
      *
      * @param key   the key
      * @param value the boolean value
      * @return this compound for chaining
      */
-    public CompoundTag setBoolean(String key, boolean value) {
-        tagMap.put(key, new ByteTag((byte) (value ? 1 : 0)));
+    public CompoundData setBoolean(String key, boolean value) {
+        dataMap.put(key, new ByteData((byte) (value ? 1 : 0)));
         return this;
     }
 
@@ -328,15 +330,15 @@ public final class CompoundTag implements Tag {
      * @param location the {@link Location} to store
      * @return this compound for chaining
      */
-    public CompoundTag setLocation(String key, Location location) {
-        var compound = new CompoundTag();
+    public CompoundData setLocation(String key, Location location) {
+        var compound = new CompoundData();
         compound.setString("world", location.getWorld().getName());
         compound.setDouble("x", location.getX());
         compound.setDouble("y", location.getY());
         compound.setDouble("z", location.getZ());
         compound.setFloat("yaw", location.getYaw());
         compound.setFloat("pitch", location.getPitch());
-        setTag(key, compound);
+        setData(key, compound);
         return this;
     }
 
@@ -347,7 +349,7 @@ public final class CompoundTag implements Tag {
      * @return the constructed {@link Location} object
      */
     public Location getLocation(String key) {
-        CompoundTag compound = getTag(key);
+        CompoundData compound = getData(key);
         var world = Bukkit.getWorld(compound.getString("world", "world"));
         var x = compound.getDouble("x", 0);
         var y = compound.getDouble("y", 0);
@@ -365,7 +367,7 @@ public final class CompoundTag implements Tag {
      * @return the found {@link Location} or {@code fallback}
      */
     public Location getLocation(String key, Location fallback) {
-        return hasTag(key) ? getLocation(key) : fallback;
+        return hasData(key) ? getLocation(key) : fallback;
     }
 
     /**
@@ -375,19 +377,19 @@ public final class CompoundTag implements Tag {
      * @param color the {@link Color}
      * @return this compound for chaining
      */
-    public CompoundTag setColor(String key, Color color) {
+    public CompoundData setColor(String key, Color color) {
         return setColor(key, color, ColorStorageType.COMPOUND);
     }
 
     /**
      * Inserts a {@link Color} under the given key in the specified {@link ColorStorageType} format.
      *
-     * @param key  the key
+     * @param key   the key
      * @param color the {@link Color}
-     * @param type the storage type format
+     * @param type  the storage type format
      * @return this compound for chaining
      */
-    public CompoundTag setColor(String key, Color color, ColorStorageType type) {
+    public CompoundData setColor(String key, Color color, ColorStorageType type) {
         switch (type) {
             case HEX -> setString(key, Colorize.toHex(color.getRed(), color.getGreen(), color.getBlue()));
             case INT -> setInteger(key, color.asRGB());
@@ -396,11 +398,11 @@ public final class CompoundTag implements Tag {
                 setString(key, joined);
             }
             case COMPOUND -> {
-                var compound = new CompoundTag();
+                var compound = new CompoundData();
                 compound.setInteger("r", color.getRed());
                 compound.setInteger("g", color.getGreen());
                 compound.setInteger("b", color.getBlue());
-                setTag(key, compound);
+                setData(key, compound);
             }
         }
         return this;
@@ -424,12 +426,12 @@ public final class CompoundTag implements Tag {
      * @return the retrieved color or the fallback
      */
     public Color getColor(String key, Color fallback) {
-        if (!hasTag(key)) return fallback;
+        if (!hasData(key)) return fallback;
 
-        var base = getTag(key);
+        var base = getData(key);
 
         // Stored as a compound with r,g,b
-        if (base instanceof CompoundTag compound) {
+        if (base instanceof CompoundData compound) {
             var r = compound.getInteger("r", 0);
             if (r > 255) r = 255;
             if (r < 0) r = 0;
@@ -445,10 +447,10 @@ public final class CompoundTag implements Tag {
         }
 
         // Stored as an int
-        if (base instanceof IntTag(int value)) return Color.fromRGB(value);
+        if (base instanceof IntData(int value)) return Color.fromRGB(value);
 
         // Stored as a string
-        if (base instanceof StringTag(String value)) {
+        if (base instanceof StringData(String value)) {
             // If it's hex
             if (value.startsWith("#")) {
                 return Color.fromRGB(
@@ -460,7 +462,9 @@ public final class CompoundTag implements Tag {
             // If it's "r,g,b"
             if (value.contains(",")) {
                 var args = value.split(",");
-                var r = 255; var g = 255; var b = 255;
+                var r = 255;
+                var g = 255;
+                var b = 255;
                 if (args.length >= 3) {
                     r = Integer.parseInt(args[0].trim());
                     g = Integer.parseInt(args[1].trim());
@@ -479,13 +483,13 @@ public final class CompoundTag implements Tag {
     }
 
     /**
-     * Stores an enum value by name using a {@link StringTag}.
+     * Stores an enum value by name using a {@link StringData}.
      *
      * @param key    the key
      * @param anEnum the enum value
      * @return this compound for chaining
      */
-    public CompoundTag setEnum(String key, Enum<?> anEnum) {
+    public CompoundData setEnum(String key, Enum<?> anEnum) {
         setString(key, anEnum.name());
         return this;
     }
@@ -512,7 +516,7 @@ public final class CompoundTag implements Tag {
      * @return the retrieved enum or the fallback
      */
     public <E extends Enum<E>> E getEnum(String key, Class<E> type, E fallback) {
-        if (!hasTag(key)) return fallback;
+        if (!hasData(key)) return fallback;
         return E.valueOf(type, getString(key));
     }
 
@@ -523,8 +527,8 @@ public final class CompoundTag implements Tag {
      * @return the byte value, defaulting to 0
      */
     public byte getByte(String key) {
-        var storage = tagMap.get(key);
-        if (storage != null && storage.getType() == TagType.BYTE) return ((ByteTag) storage).value();
+        var storage = dataMap.get(key);
+        if (storage != null && storage.getType() == TagType.BYTE) return ((ByteData) storage).value();
         return 0;
     }
 
@@ -536,7 +540,7 @@ public final class CompoundTag implements Tag {
      * @return the found value or fallback
      */
     public byte getByte(String key, byte fallback) {
-        return hasTag(key) ? getByte(key) : fallback;
+        return hasData(key) ? getByte(key) : fallback;
     }
 
     /**
@@ -560,7 +564,7 @@ public final class CompoundTag implements Tag {
      * @return the found value or fallback
      */
     public short getShort(String key, short fallback) {
-        return hasTag(key) ? getShort(key) : fallback;
+        return hasData(key) ? getShort(key) : fallback;
     }
 
     /**
@@ -584,7 +588,7 @@ public final class CompoundTag implements Tag {
      * @return the integer or fallback
      */
     public int getInteger(String key, int fallback) {
-        return hasTag(key) ? getInteger(key) : fallback;
+        return hasData(key) ? getInteger(key) : fallback;
     }
 
     /**
@@ -605,7 +609,7 @@ public final class CompoundTag implements Tag {
      * @return the long or fallback
      */
     public long getLong(String key, long fallback) {
-        return hasTag(key) ? getLong(key) : fallback;
+        return hasData(key) ? getLong(key) : fallback;
     }
 
     /**
@@ -626,7 +630,7 @@ public final class CompoundTag implements Tag {
      * @return the float or fallback
      */
     public float getFloat(String key, float fallback) {
-        return hasTag(key) ? getFloat(key) : fallback;
+        return hasData(key) ? getFloat(key) : fallback;
     }
 
     /**
@@ -647,7 +651,7 @@ public final class CompoundTag implements Tag {
      * @return the double or fallback
      */
     public double getDouble(String key, double fallback) {
-        return hasTag(key) ? getDouble(key) : fallback;
+        return hasData(key) ? getDouble(key) : fallback;
     }
 
     /**
@@ -668,33 +672,34 @@ public final class CompoundTag implements Tag {
      * @return the string or fallback
      */
     public String getString(String key, String fallback) {
-        return hasTag(key) ? getValue(key) : fallback;
+        return hasData(key) ? getValue(key) : fallback;
     }
 
     private String getValue(String key) {
         try {
-            if (hasTag(key)) return fetchValue(tagMap.get(key));
-        } catch (ClassCastException ignored) {}
+            if (hasData(key)) return fetchValue(dataMap.get(key));
+        } catch (ClassCastException ignored) {
+        }
         return "";
     }
 
-    private String fetchValue(Tag base) {
-        if (base instanceof ByteTag(byte value)) {
+    private String fetchValue(BasicData base) {
+        if (base instanceof ByteData(byte value)) {
             if (value == 0 || value == 1) return String.valueOf(value == 1);
             return String.valueOf(value);
         }
-        if (base instanceof ByteArrayTag(byte[] value)) return Arrays.toString(value);
-        if (base instanceof DoubleTag(double value)) return String.valueOf(value);
-        if (base instanceof FloatTag(float value)) return String.valueOf(value);
-        if (base instanceof IntTag(int value)) return String.valueOf(value);
-        if (base instanceof IntArrayTag(int[] value)) return Arrays.toString(value);
-        if (base instanceof LongTag(long value)) return String.valueOf(value);
-        if (base instanceof ShortTag(short value)) return String.valueOf(value);
-        if (base instanceof StringTag(String value)) return value;
-        if (base instanceof ListTag listTag) {
+        if (base instanceof ByteArrayData(byte[] value)) return Arrays.toString(value);
+        if (base instanceof DoubleData(double value)) return String.valueOf(value);
+        if (base instanceof FloatData(float value)) return String.valueOf(value);
+        if (base instanceof IntData(int value)) return String.valueOf(value);
+        if (base instanceof IntArrayData(int[] value)) return Arrays.toString(value);
+        if (base instanceof LongData(long value)) return String.valueOf(value);
+        if (base instanceof ShortData(short value)) return String.valueOf(value);
+        if (base instanceof StringData(String value)) return value;
+        if (base instanceof ListData listData) {
             var builder = new StringBuilder();
-            for (var i = 0; i < listTag.size(); i++) {
-                builder.append(fetchValue(listTag.get(i)));
+            for (var i = 0; i < listData.size(); i++) {
+                builder.append(fetchValue(listData.get(i)));
             }
             return builder.toString();
         }
@@ -705,13 +710,21 @@ public final class CompoundTag implements Tag {
      * Different ways to store {@link Color} data in a CompoundTag.
      */
     public enum ColorStorageType {
-        /** Stores color in a separate compound as r, g, b integer tags. */
+        /**
+         * Stores color in a separate compound as r, g, b integer tags.
+         */
         COMPOUND,
-        /** Stores color as a single integer using {@link Color#asRGB()}. */
+        /**
+         * Stores color as a single integer using {@link Color#asRGB()}.
+         */
         INT,
-        /** Stores color as a hex string (#RRGGBB). */
+        /**
+         * Stores color as a hex string (#RRGGBB).
+         */
         HEX,
-        /** Stores color as a comma-delimited string: "R,G,B". */
+        /**
+         * Stores color as a comma-delimited string: "R,G,B".
+         */
         STRING
     }
 }

@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -10,7 +10,7 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The float value stored by this tag.
  */
-public record FloatTag(float value) implements Tag {
+public record FloatData(float value) implements BasicData {
 
     @Override
     public TagType getType() {
@@ -18,8 +18,8 @@ public record FloatTag(float value) implements Tag {
     }
 
     @Override
-    public FloatTag copy() {
-        return new FloatTag(this.value);
+    public FloatData copy() {
+        return new FloatData(this.value);
     }
 
     @Override

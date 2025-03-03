@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -10,7 +10,7 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The short value stored by this tag.
  */
-public record ShortTag(short value) implements Tag {
+public record ShortData(short value) implements BasicData {
 
     @Override
     public TagType getType() {
@@ -18,8 +18,8 @@ public record ShortTag(short value) implements Tag {
     }
 
     @Override
-    public ShortTag copy() {
-        return new ShortTag(this.value);
+    public ShortData copy() {
+        return new ShortData(this.value);
     }
 
     @Override

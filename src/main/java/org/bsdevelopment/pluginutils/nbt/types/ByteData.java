@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -10,7 +10,7 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The byte value stored by this tag.
  */
-public record ByteTag(byte value) implements Tag {
+public record ByteData(byte value) implements BasicData {
 
     @Override
     public TagType getType() {
@@ -18,9 +18,8 @@ public record ByteTag(byte value) implements Tag {
     }
 
     @Override
-    public ByteTag copy() {
-        // Byte is primitive, so a copy is just a new record with the same value
-        return new ByteTag(this.value);
+    public ByteData copy() {
+        return new ByteData(this.value);
     }
 
     @Override

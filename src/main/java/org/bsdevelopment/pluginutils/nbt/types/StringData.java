@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -11,13 +11,13 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The string value stored by this tag (never null).
  */
-public record StringTag(String value) implements Tag {
+public record StringData(String value) implements BasicData {
 
     /**
      * Constructs a new StringTag with the specified string value.
      * An empty string is used if null is passed.
      */
-    public StringTag {
+    public StringData {
         if (value == null) {
             value = "";
         }
@@ -29,8 +29,8 @@ public record StringTag(String value) implements Tag {
     }
 
     @Override
-    public StringTag copy() {
-        return new StringTag(this.value);
+    public StringData copy() {
+        return new StringData(this.value);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -10,7 +10,7 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The long value stored by this tag.
  */
-public record LongTag(long value) implements Tag {
+public record LongData(long value) implements BasicData {
 
     @Override
     public TagType getType() {
@@ -18,8 +18,8 @@ public record LongTag(long value) implements Tag {
     }
 
     @Override
-    public LongTag copy() {
-        return new LongTag(this.value);
+    public LongData copy() {
+        return new LongData(this.value);
     }
 
     @Override

@@ -1,9 +1,19 @@
 package org.bsdevelopment.pluginutils.nbt.serialization;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
-import org.bsdevelopment.pluginutils.nbt.types.*;
-import org.bsdevelopment.pluginutils.nbt.types.array.*;
+import org.bsdevelopment.pluginutils.nbt.types.ByteData;
+import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
+import org.bsdevelopment.pluginutils.nbt.types.DoubleData;
+import org.bsdevelopment.pluginutils.nbt.types.FloatData;
+import org.bsdevelopment.pluginutils.nbt.types.IntData;
+import org.bsdevelopment.pluginutils.nbt.types.ListData;
+import org.bsdevelopment.pluginutils.nbt.types.LongData;
+import org.bsdevelopment.pluginutils.nbt.types.ShortData;
+import org.bsdevelopment.pluginutils.nbt.types.StringData;
+import org.bsdevelopment.pluginutils.nbt.types.array.ByteArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.IntArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.LongArrayData;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,14 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * A stream for writing NBT tags to a binary output source.
+ * A stream for writing a single root NBT tag (type, empty name, and payload)
+ * to an OutputStream in standard NBT format.
  *
- * <p>Follows the typical NBT format:
- * <ul>
- *   <li>1 byte: TagType ID</li>
- *   <li>For named tags (TagType != END): 2-byte name length (unsigned short), followed by bytes for the name</li>
- *   <li>Payload depends on tag type</li>
- * </ul>
+ * <p>We write an empty string for the root name to comply with the spec,
+ * but then ignore it when reading.</p>
  */
 public class NBTOutputStream implements AutoCloseable {
 
@@ -27,125 +34,89 @@ public class NBTOutputStream implements AutoCloseable {
 
     /**
      * Constructs a new NBTOutputStream that writes to the given OutputStream.
-     * 
-     * @param outputStream The OutputStream to write to.
+     *
+     * @param outputStream the underlying output stream.
      */
     public NBTOutputStream(OutputStream outputStream) {
         this.dataOut = new DataOutputStream(outputStream);
     }
 
     /**
-     * Writes a named tag (type, name, payload) to the stream.
-     * 
-     * @param namedTag The NamedTag object containing a name and a Tag.
-     * @throws IOException If an I/O error occurs.
+     * Writes the root data to the stream.
+     * The root data is written with an empty name.
+     *
+     * @param data the root Data.
+     * @throws IOException if an I/O error occurs.
      */
-    public void writeNamedTag(NamedTag namedTag) throws IOException {
-        TagType type = namedTag.tag().getType();
+    public void writeRootTag(BasicData data) throws IOException {
+        TagType type = data.getType();
         dataOut.writeByte(type.getId());
         if (type != TagType.END) {
-            writeString(namedTag.name());
-            writeTagPayload(namedTag.tag());
+            // Write an empty name (length 0)
+            dataOut.writeShort(0);
+            writeTagPayload(data);
         }
     }
 
-    /**
-     * Writes only the payload (no type ID, no name).
-     * 
-     * @param tag The tag to write.
-     * @throws IOException If an I/O error occurs.
-     */
-    private void writeTagPayload(Tag tag) throws IOException {
-        switch (tag.getType()) {
-            case END -> {
-                // EndTag has no payload
-            }
-            case BYTE -> {
-                ByteTag byteTag = (ByteTag) tag;
-                dataOut.writeByte(byteTag.value());
-            }
-            case SHORT -> {
-                ShortTag shortTag = (ShortTag) tag;
-                dataOut.writeShort(shortTag.value());
-            }
-            case INT -> {
-                IntTag intTag = (IntTag) tag;
-                dataOut.writeInt(intTag.value());
-            }
-            case LONG -> {
-                LongTag longTag = (LongTag) tag;
-                dataOut.writeLong(longTag.value());
-            }
-            case FLOAT -> {
-                FloatTag floatTag = (FloatTag) tag;
-                dataOut.writeFloat(floatTag.value());
-            }
-            case DOUBLE -> {
-                DoubleTag doubleTag = (DoubleTag) tag;
-                dataOut.writeDouble(doubleTag.value());
-            }
+    // Writes the payload for a given data (no name).
+    private void writeTagPayload(BasicData data) throws IOException {
+        switch (data.getType()) {
+            case END -> { /* no payload */ }
+            case BYTE -> dataOut.writeByte(((ByteData) data).value());
+            case SHORT -> dataOut.writeShort(((ShortData) data).value());
+            case INT -> dataOut.writeInt(((IntData) data).value());
+            case LONG -> dataOut.writeLong(((LongData) data).value());
+            case FLOAT -> dataOut.writeFloat(((FloatData) data).value());
+            case DOUBLE -> dataOut.writeDouble(((DoubleData) data).value());
+            case STRING -> writeString(((StringData) data).value());
             case BYTE_ARRAY -> {
-                ByteArrayTag baTag = (ByteArrayTag) tag;
-                dataOut.writeInt(baTag.value().length);
-                dataOut.write(baTag.value());
+                ByteArrayData arrayData = (ByteArrayData) data;
+                dataOut.writeInt(arrayData.value().length);
+                dataOut.write(arrayData.value());
             }
-            case STRING -> {
-                StringTag strTag = (StringTag) tag;
-                writeString(strTag.value());
+            case INT_ARRAY -> {
+                IntArrayData arrayData = (IntArrayData) data;
+                dataOut.writeInt(arrayData.value().length);
+                for (int v : arrayData.value()) {
+                    dataOut.writeInt(v);
+                }
+            }
+            case LONG_ARRAY -> {
+                LongArrayData arrayData = (LongArrayData) data;
+                dataOut.writeInt(arrayData.value().length);
+                for (long v : arrayData.value()) {
+                    dataOut.writeLong(v);
+                }
             }
             case LIST -> {
-                ListTag listTag = (ListTag) tag;
-                TagType elemType = listTag.getElementType();
-                dataOut.writeByte(elemType.getId());
-                dataOut.writeInt(listTag.size());
-                for (Tag elem : listTag.getValue()) {
-                    // Write just the payload of each element (List doesn't store names)
+                ListData listData = (ListData) data;
+                dataOut.writeByte(listData.getElementType().getId());
+                dataOut.writeInt(listData.size());
+                for (BasicData elem : listData.getValue()) {
                     writeTagPayload(elem);
                 }
             }
             case COMPOUND -> {
-                CompoundTag compoundTag = (CompoundTag) tag;
-                // Write each named sub-tag until we finish, then write END
-                for (Map.Entry<String, Tag> entry : compoundTag.copyMap().entrySet()) {
-                    Tag subTag = entry.getValue();
-                    TagType subType = subTag.getType();
-                    dataOut.writeByte(subType.getId());
-                    if (subType != TagType.END) {
+                CompoundData compound = (CompoundData) data;
+                for (Map.Entry<String, BasicData> entry : compound.copyMap().entrySet()) {
+                    BasicData subData = entry.getValue();
+                    dataOut.writeByte(subData.getType().getId());
+                    if (subData.getType() != TagType.END) {
                         writeString(entry.getKey());
-                        writeTagPayload(subTag);
+                        writeTagPayload(subData);
                     }
                 }
-                // Finally, write an END tag to close the compound
+                // Write END to close the compound.
                 dataOut.writeByte(TagType.END.getId());
-            }
-            case INT_ARRAY -> {
-                IntArrayTag intArrayTag = (IntArrayTag) tag;
-                dataOut.writeInt(intArrayTag.value().length);
-                for (int i : intArrayTag.value()) {
-                    dataOut.writeInt(i);
-                }
-            }
-            case LONG_ARRAY -> {
-                LongArrayTag longArrayTag = (LongArrayTag) tag;
-                dataOut.writeInt(longArrayTag.value().length);
-                for (long l : longArrayTag.value()) {
-                    dataOut.writeLong(l);
-                }
             }
         }
     }
 
-    /**
-     * Writes a string to the stream: unsigned short length + UTF-8 bytes.
-     *
-     * @param str The string to write.
-     * @throws IOException If an I/O error occurs.
-     */
-    private void writeString(String str) throws IOException {
-        if (str == null) {
-            str = "";
-        }
-        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+    // Writes a string as a 2-byte length followed by UTF-8 bytes.
+    private void writeString(String string) throws IOException {
+        if (string == null) string = "";
+
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         dataOut.writeShort(bytes.length);
         dataOut.write(bytes);
     }

@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 import java.util.ArrayList;
@@ -14,16 +14,16 @@ import java.util.List;
  * <p>Minecraft's ListTag requires that all elements be of the same type,
  * though some implementations may relax this requirement.</p>
  */
-public final class ListTag implements Tag {
+public final class ListData implements BasicData {
 
-    private final LinkedList<Tag> value;
+    private final LinkedList<BasicData> value;
     private final TagType elementType;
 
     /**
      * Creates an empty ListTag that is <em>not</em> restricted to a specific element type yet.
      * It will become restricted once the first element is added.
      */
-    public ListTag() {
+    public ListData() {
         this.value = new LinkedList<>();
         this.elementType = TagType.END; // sentinel that means "no elements yet"
     }
@@ -34,13 +34,13 @@ public final class ListTag implements Tag {
      * @param elementType The element type for all tags in this list.
      * @param initialTags The tags to store in this list. Must all match elementType.
      */
-    public ListTag(TagType elementType, List<Tag> initialTags) {
+    public ListData(TagType elementType, List<BasicData> initialTags) {
         if (elementType == null) {
             throw new IllegalArgumentException("elementType cannot be null");
         }
         this.elementType = elementType;
         // Validate that all tags match the given elementType
-        for (Tag tag : initialTags) {
+        for (BasicData tag : initialTags) {
             if (tag.getType() != elementType && elementType != TagType.END) {
                 throw new IllegalArgumentException("All tags must match the element type: " + elementType);
             }
@@ -55,7 +55,7 @@ public final class ListTag implements Tag {
      *
      * @param tag The tag to add.
      */
-    public ListTag add(Tag tag) {
+    public ListData add(BasicData tag) {
         if (tag == null) throw new IllegalArgumentException("Cannot add null tag to ListTag");
 
 //        if (this.elementType == TagType.END) {
@@ -75,7 +75,7 @@ public final class ListTag implements Tag {
      * @param index The index of the desired tag.
      * @return The tag at the given index.
      */
-    public Tag get(int index) {
+    public BasicData get(int index) {
         return value.get(index);
     }
 
@@ -85,7 +85,7 @@ public final class ListTag implements Tag {
      * @param index The index of the tag to remove.
      * @return The removed tag.
      */
-    public Tag remove(int index) {
+    public BasicData remove(int index) {
         return value.remove(index);
     }
 
@@ -103,7 +103,7 @@ public final class ListTag implements Tag {
      *
      * @return An unmodifiable list of tags.
      */
-    public List<Tag> getValue() {
+    public List<BasicData> getValue() {
         return Collections.unmodifiableList(value);
     }
 
@@ -122,13 +122,13 @@ public final class ListTag implements Tag {
     }
 
     @Override
-    public ListTag copy() {
-        List<Tag> copiedList = new ArrayList<>(value.size());
-        for (Tag tag : value) {
+    public ListData copy() {
+        List<BasicData> copiedList = new ArrayList<>(value.size());
+        for (BasicData tag : value) {
             copiedList.add(tag.copy());
         }
         // Return a new ListTag with the same element type
-        return new ListTag(elementType, copiedList);
+        return new ListData(elementType, copiedList);
     }
 
     @Override

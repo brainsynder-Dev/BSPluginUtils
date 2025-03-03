@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -10,7 +10,7 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The double value stored by this tag.
  */
-public record DoubleTag(double value) implements Tag {
+public record DoubleData(double value) implements BasicData {
 
     @Override
     public TagType getType() {
@@ -18,8 +18,8 @@ public record DoubleTag(double value) implements Tag {
     }
 
     @Override
-    public DoubleTag copy() {
-        return new DoubleTag(this.value);
+    public DoubleData copy() {
+        return new DoubleData(this.value);
     }
 
     @Override

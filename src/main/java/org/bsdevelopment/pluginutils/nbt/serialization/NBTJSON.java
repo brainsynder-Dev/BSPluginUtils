@@ -5,12 +5,21 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import com.eclipsesource.json.WriterConfig;
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
-import org.bsdevelopment.pluginutils.nbt.types.*;
-import org.bsdevelopment.pluginutils.nbt.types.array.ByteArrayTag;
-import org.bsdevelopment.pluginutils.nbt.types.array.IntArrayTag;
-import org.bsdevelopment.pluginutils.nbt.types.array.LongArrayTag;
+import org.bsdevelopment.pluginutils.nbt.types.ByteData;
+import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
+import org.bsdevelopment.pluginutils.nbt.types.DoubleData;
+import org.bsdevelopment.pluginutils.nbt.types.EndData;
+import org.bsdevelopment.pluginutils.nbt.types.FloatData;
+import org.bsdevelopment.pluginutils.nbt.types.IntData;
+import org.bsdevelopment.pluginutils.nbt.types.ListData;
+import org.bsdevelopment.pluginutils.nbt.types.LongData;
+import org.bsdevelopment.pluginutils.nbt.types.ShortData;
+import org.bsdevelopment.pluginutils.nbt.types.StringData;
+import org.bsdevelopment.pluginutils.nbt.types.array.ByteArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.IntArrayData;
+import org.bsdevelopment.pluginutils.nbt.types.array.LongArrayData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,25 +28,25 @@ import java.util.Map;
 
 public final class NBTJSON {
     /**
-     * Converts an NBT {@link Tag} into a JSON string.
+     * Converts an NBT {@link BasicData} into a JSON string.
      *
      * @param tag The NBT Tag to serialize.
      * @param pretty If true, output is pretty-printed (indented).
      * @return A JSON string representation.
      */
-    public static String writeToJsonString(Tag tag, boolean pretty) {
+    public static String writeToJsonString(BasicData tag, boolean pretty) {
         JsonValue rootValue = tagToJsonValue(tag);
         return pretty ? rootValue.toString(WriterConfig.PRETTY_PRINT) : rootValue.toString();
     }
 
     /**
-     * Parses a JSON string back into an NBT {@link Tag}, using type inference.
+     * Parses a JSON string back into an NBT {@link BasicData}, using type inference.
      *
      * @param json The JSON string to parse.
      * @return The NBT Tag inferred from the JSON data.
      * @throws com.eclipsesource.json.ParseException if the JSON is invalid
      */
-    public static Tag readFromJsonString(String json) {
+    public static BasicData readFromJsonString(String json) {
         JsonValue rootValue = Json.parse(json);
         return jsonValueToTag(rootValue);
     }
@@ -46,25 +55,25 @@ public final class NBTJSON {
     // A) Convert NBT -> JSON (Tag -> JsonValue)
     // ------------------------------------------------------------------------
 
-    private static JsonValue tagToJsonValue(Tag tag) {
+    private static JsonValue tagToJsonValue(BasicData tag) {
         return switch (tag.getType()) {
             case END -> Json.NULL;  // represent EndTag as null in JSON
-            case BYTE -> Json.value(((ByteTag) tag).value());
-            case SHORT -> Json.value(((ShortTag) tag).value());
-            case INT -> Json.value(((IntTag) tag).value());
-            case LONG -> Json.value(((LongTag) tag).value());
-            case FLOAT -> Json.value(((FloatTag) tag).value());
-            case DOUBLE -> Json.value(((DoubleTag) tag).value());
-            case STRING -> Json.value(((StringTag) tag).value());
-            case BYTE_ARRAY -> byteArrayToJsonValue((ByteArrayTag) tag);
-            case INT_ARRAY -> intArrayToJsonValue((IntArrayTag) tag);
-            case LONG_ARRAY -> longArrayToJsonValue((LongArrayTag) tag);
-            case LIST -> listTagToJsonValue((ListTag) tag);
-            case COMPOUND -> compoundTagToJsonValue((CompoundTag) tag);
+            case BYTE -> Json.value(((ByteData) tag).value());
+            case SHORT -> Json.value(((ShortData) tag).value());
+            case INT -> Json.value(((IntData) tag).value());
+            case LONG -> Json.value(((LongData) tag).value());
+            case FLOAT -> Json.value(((FloatData) tag).value());
+            case DOUBLE -> Json.value(((DoubleData) tag).value());
+            case STRING -> Json.value(((StringData) tag).value());
+            case BYTE_ARRAY -> byteArrayToJsonValue((ByteArrayData) tag);
+            case INT_ARRAY -> intArrayToJsonValue((IntArrayData) tag);
+            case LONG_ARRAY -> longArrayToJsonValue((LongArrayData) tag);
+            case LIST -> listTagToJsonValue((ListData) tag);
+            case COMPOUND -> compoundTagToJsonValue((CompoundData) tag);
         };
     }
 
-    private static JsonArray byteArrayToJsonValue(ByteArrayTag ba) {
+    private static JsonArray byteArrayToJsonValue(ByteArrayData ba) {
         JsonArray array = Json.array();
         for (byte b : ba.value()) {
             array.add(b);
@@ -72,7 +81,7 @@ public final class NBTJSON {
         return array;
     }
 
-    private static JsonArray intArrayToJsonValue(IntArrayTag ia) {
+    private static JsonArray intArrayToJsonValue(IntArrayData ia) {
         JsonArray array = Json.array();
         for (int i : ia.value()) {
             array.add(i);
@@ -80,7 +89,7 @@ public final class NBTJSON {
         return array;
     }
 
-    private static JsonArray longArrayToJsonValue(LongArrayTag la) {
+    private static JsonArray longArrayToJsonValue(LongArrayData la) {
         JsonArray array = Json.array();
         for (long l : la.value()) {
             array.add(l);
@@ -88,17 +97,17 @@ public final class NBTJSON {
         return array;
     }
 
-    private static JsonArray listTagToJsonValue(ListTag list) {
+    private static JsonArray listTagToJsonValue(ListData list) {
         JsonArray array = Json.array();
-        for (Tag element : list.getValue()) {
+        for (BasicData element : list.getValue()) {
             array.add(tagToJsonValue(element));
         }
         return array;
     }
 
-    private static JsonObject compoundTagToJsonValue(CompoundTag compound) {
+    private static JsonObject compoundTagToJsonValue(CompoundData compound) {
         JsonObject obj = Json.object();
-        for (Map.Entry<String, Tag> e : compound.copyMap().entrySet()) {
+        for (Map.Entry<String, BasicData> e : compound.copyMap().entrySet()) {
             obj.add(e.getKey(), tagToJsonValue(e.getValue()));
         }
         return obj;
@@ -108,17 +117,17 @@ public final class NBTJSON {
     // B) Convert JSON -> NBT (JsonValue -> Tag) using type inference
     // ------------------------------------------------------------------------
 
-    private static Tag jsonValueToTag(JsonValue value) {
+    private static BasicData jsonValueToTag(JsonValue value) {
         if (value.isNull()) {
-            return EndTag.INSTANCE;
+            return EndData.INSTANCE;
         } else if (value.isBoolean()) {
             // Convert booleans to ByteTag(1 or 0)
             boolean bool = value.asBoolean();
-            return new ByteTag((byte) (bool ? 1 : 0));
+            return new ByteData((byte) (bool ? 1 : 0));
         } else if (value.isNumber()) {
             return numberToTag(value.asDouble());
         } else if (value.isString()) {
-            return new StringTag(value.asString());
+            return new StringData(value.asString());
         } else if (value.isArray()) {
             return jsonArrayToTag(value.asArray());
         } else if (value.isObject()) {
@@ -135,26 +144,26 @@ public final class NBTJSON {
      *   <li>If fractional, choose Float if no precision lost, else Double</li>
      * </ul>
      */
-    private static Tag numberToTag(double d) {
+    private static BasicData numberToTag(double d) {
         if (d % 1 == 0) {
             // integral
             long lv = (long) d;
             if (lv >= Byte.MIN_VALUE && lv <= Byte.MAX_VALUE) {
-                return new ByteTag((byte) lv);
+                return new ByteData((byte) lv);
             } else if (lv >= Short.MIN_VALUE && lv <= Short.MAX_VALUE) {
-                return new ShortTag((short) lv);
+                return new ShortData((short) lv);
             } else if (lv >= Integer.MIN_VALUE && lv <= Integer.MAX_VALUE) {
-                return new IntTag((int) lv);
+                return new IntData((int) lv);
             } else {
-                return new LongTag(lv);
+                return new LongData(lv);
             }
         } else {
             // fractional -> compare float vs double
             float f = (float) d;
             if (Double.compare(d, f) == 0) {
-                return new FloatTag(f);
+                return new FloatData(f);
             } else {
-                return new DoubleTag(d);
+                return new DoubleData(d);
             }
         }
     }
@@ -163,10 +172,10 @@ public final class NBTJSON {
      * Infers whether a JSON array is suitable for a numeric array tag
      * or must be a ListTag.
      */
-    private static Tag jsonArrayToTag(JsonArray arr) {
+    private static BasicData jsonArrayToTag(JsonArray arr) {
         if (arr.isEmpty()) {
             // empty => ListTag with no elements
-            return new ListTag(TagType.END, List.of());
+            return new ListData(TagType.END, List.of());
         }
 
         // Check if all elements are numbers
@@ -212,7 +221,7 @@ public final class NBTJSON {
             for (int i = 0; i < arr.size(); i++) {
                 bytes[i] = (byte) longs[i];
             }
-            return new ByteArrayTag(bytes);
+            return new ByteArrayData(bytes);
         }
 
         // If all fit in int range
@@ -221,40 +230,40 @@ public final class NBTJSON {
             for (int i = 0; i < arr.size(); i++) {
                 ints[i] = (int) longs[i];
             }
-            return new IntArrayTag(ints);
+            return new IntArrayData(ints);
         }
 
         // Otherwise -> LongArrayTag
-        return new LongArrayTag(longs);
+        return new LongArrayData(longs);
     }
 
-    private static Tag arrayAsListTag(JsonArray arr) {
-        List<Tag> elements = new ArrayList<>(arr.size());
+    private static BasicData arrayAsListTag(JsonArray arr) {
+        List<BasicData> elements = new ArrayList<>(arr.size());
         for (JsonValue v : arr) {
             elements.add(jsonValueToTag(v));
         }
         // We'll guess the "element type" as the first element's type if uniform
         if (elements.isEmpty()) {
-            return new ListTag(TagType.END, List.of());
+            return new ListData(TagType.END, List.of());
         }
         TagType first = elements.get(0).getType();
         // Check if all are the same
-        for (Tag t : elements) {
+        for (BasicData t : elements) {
             if (t.getType() != first) {
                 first = TagType.END;
                 break;
             }
         }
-        return new ListTag(first, elements);
+        return new ListData(first, elements);
     }
 
-    private static CompoundTag jsonObjectToCompound(JsonObject obj) {
-        Map<String, Tag> map = new HashMap<>();
+    private static CompoundData jsonObjectToCompound(JsonObject obj) {
+        Map<String, BasicData> map = new HashMap<>();
         for (String key : obj.names()) {
             JsonValue val = obj.get(key);
-            Tag subTag = jsonValueToTag(val);
+            BasicData subTag = jsonValueToTag(val);
             map.put(key, subTag);
         }
-        return new CompoundTag(map);
+        return new CompoundData(map);
     }
 }

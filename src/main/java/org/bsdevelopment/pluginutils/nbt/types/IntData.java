@@ -1,6 +1,6 @@
 package org.bsdevelopment.pluginutils.nbt.types;
 
-import org.bsdevelopment.pluginutils.nbt.Tag;
+import org.bsdevelopment.pluginutils.nbt.BasicData;
 import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
@@ -10,7 +10,7 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
  *
  * @param value The int value stored by this tag.
  */
-public record IntTag(int value) implements Tag {
+public record IntData(int value) implements BasicData {
 
     @Override
     public TagType getType() {
@@ -18,8 +18,8 @@ public record IntTag(int value) implements Tag {
     }
 
     @Override
-    public IntTag copy() {
-        return new IntTag(this.value);
+    public IntData copy() {
+        return new IntData(this.value);
     }
 
     @Override
