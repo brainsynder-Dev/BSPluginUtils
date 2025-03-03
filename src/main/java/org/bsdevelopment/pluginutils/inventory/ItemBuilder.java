@@ -3,7 +3,7 @@ package org.bsdevelopment.pluginutils.inventory;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bsdevelopment.pluginutils.nbt.serialization.NBTJSON;
-import org.bsdevelopment.pluginutils.nbt.types.CompoundTag;
+import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.text.WordUtils;
 import org.bsdevelopment.pluginutils.utilities.PlayerProfileHelper;
@@ -88,7 +88,7 @@ public class ItemBuilder {
      * @param tag the CompoundTag to convert
      * @return a new ItemBuilder created from the NBT data in the tag
      */
-    public static ItemBuilder of(CompoundTag tag) {
+    public static ItemBuilder of(CompoundData tag) {
         var item = NBTItem.convertNBTtoItem(new NBTContainer(tag.toString()));
         var builder = new ItemBuilder(item.getType(), item.getAmount());
         builder.item = item;
@@ -132,11 +132,11 @@ public class ItemBuilder {
      * @return the CompoundTag representing the ItemStack's NBT data
      * @throws RuntimeException if an error occurs during conversion
      */
-    public CompoundTag toTag() {
+    public CompoundData toTag() {
         String json = NBTItem.convertItemtoNBT(item).toString();
-        CompoundTag compound = new CompoundTag();
+        CompoundData compound = new CompoundData();
         try {
-            compound = (CompoundTag) NBTJSON.readFromJsonString(json);
+            compound = (CompoundData) NBTJSON.readFromJsonString(json);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

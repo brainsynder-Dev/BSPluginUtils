@@ -572,7 +572,7 @@ public final class AnvilGUI {
 
                 if (preserveRenameText) {
                     var firstItem = oldState.leftItem();
-                    var builder = ItemBuilder.fromItem(firstItem);
+                    var builder = ItemBuilder.of(firstItem);
                     if (firstItem != null && firstItem.getType() != Material.AIR) {
                         builder.withName(oldState.text);
                         newInventory.setItem(Slot.INPUT_LEFT, builder.build());
