@@ -43,6 +43,7 @@ public class DataFile extends CompoundData {
         if (!file.exists()) {
             try {
                 file.createNewFile();
+                NBTIO.writeToCompressedFile(this, file);
             } catch (IOException ignored) {}
         }
 
@@ -50,7 +51,7 @@ public class DataFile extends CompoundData {
             var compound = (CompoundData) NBTIO.readFromCompressedFile(file);
             compound.copyMap().forEach(this::setData);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // File was empty
         }
     }
 
