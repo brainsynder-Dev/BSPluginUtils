@@ -323,6 +323,12 @@ public class CompoundData implements BasicData {
         return this;
     }
 
+    public boolean getBoolean(String key) {
+        ByteData data = (ByteData) dataMap.getOrDefault(key, null);
+        if (data == null) return false;
+        return data.value() == 1;
+    }
+
     /**
      * Inserts a {@link Location} value under the given key, storing its coordinates and world name.
      *
