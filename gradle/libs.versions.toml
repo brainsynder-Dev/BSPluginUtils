@@ -3,7 +3,7 @@
 spigot = "1.21.4-R0.1-SNAPSHOT"
 nbtapi = "2.14.1"
 paperlib = "1.0.8"
-scheduler = "0.1.6"
+scheduler = "0.1.7"
 
 minimaljson = "0.11.0"
 
