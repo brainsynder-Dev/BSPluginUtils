@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.bsdevelopment:your-artifact:0.1.6' // This version is automatically updated
+    implementation 'com.bsdevelopment.pluginutils:BSPluginUtils:0.1.6' // This version is automatically updated
 }
 ```
 
@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.bsdevelopment:your-artifact:0.1.6") // This version is automatically updated
+    implementation("com.bsdevelopment.pluginutils:BSPluginUtils:0.1.6") // This version is automatically updated
 }
 ```
 
