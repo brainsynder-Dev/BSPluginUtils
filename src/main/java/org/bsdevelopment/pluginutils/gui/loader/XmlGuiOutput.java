@@ -1,7 +1,12 @@
 package org.bsdevelopment.pluginutils.gui.loader;
 
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
+import org.bukkit.NamespacedKey;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.profile.PlayerProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -23,7 +28,10 @@ import java.util.Map;
  *
  * <p>Usage:
  * <pre>{@code
- * XmlGuiOutput out = new XmlGuiOutput("&eMy GUI", 9, 3);
+ * XmlGuiOutput out = new XmlGuiOutput("&eMy GUI", 3);
+ * // Alternate:
+ * XmlGuiOutput out2 = new XmlGuiOutput("&eMy GUI", InventoryType.DROPPER);
+ *
  * // 1) add definitions
  * out.addDefinition("poweredSword", ItemBuilder.of(Material.DIAMOND_SWORD)
  *     .withName("&bPowered Sword")
@@ -42,20 +50,31 @@ import java.util.Map;
  */
 public class XmlGuiOutput {
     private final String title;
-    private final int width, height;
+    private final InventorySpecification specification;
 
     private final Map<String, ItemBuilder> definitions = new LinkedHashMap<>();
     private final List<Component> components = new ArrayList<>();
 
     /**
-     * @param title  the GUI title (with & color codes)
-     * @param width  number of columns (1–54)
-     * @param height number of rows (1–6)
+     * Creates an output using a named inventory type.
+     *
+     * @param title         the GUI title (supports '&' color codes)
+     * @param inventoryType the Bukkit InventoryType, e.g. "CHEST", "ENDER_CHEST"
      */
-    public XmlGuiOutput(String title, int width, int height) {
+    public XmlGuiOutput(String title, InventoryType inventoryType) {
         this.title = title;
-        this.width = width;
-        this.height = height;
+        this.specification = new InventorySpecification(inventoryType, -1);
+    }
+
+    /**
+     * Creates an output using a chest-style inventory with the given rows.
+     *
+     * @param title the GUI title (supports '&' color codes)
+     * @param rows  number of rows (1–6) in a chest inventory (9 columns each)
+     */
+    public XmlGuiOutput(String title, int rows) {
+        this.title = title;
+        this.specification = new InventorySpecification(null, rows);
     }
 
     /**
@@ -91,8 +110,11 @@ public class XmlGuiOutput {
         // root <gui>
         Element guiElement = doc.createElement("gui");
         guiElement.setAttribute("title", title);
-        guiElement.setAttribute("width", String.valueOf(width));
-        guiElement.setAttribute("height", String.valueOf(height));
+        if (specification.inventoryType != null) {
+            guiElement.setAttribute("inventory-type", specification.inventoryType.name());
+        } else {
+            guiElement.setAttribute("rows", Integer.toString(specification.rows));
+        }
         doc.appendChild(guiElement);
 
         // <definitions>
@@ -131,6 +153,12 @@ public class XmlGuiOutput {
 
         // unbreakable
         if (meta.isUnbreakable()) itemDefinition.setAttribute("unbreakable", "true");
+
+        if (meta instanceof SkullMeta skull && skull.getOwnerProfile() != null) {
+            // assumes PlayerProfileHelper can extract the texture URL
+            PlayerProfile profile = skull.getOwnerProfile();
+            itemDefinition.setAttribute("skull-texture", profile.getTextures().getSkin().toString());
+        }
 
         // lore
         if (meta.hasLore()) {
@@ -189,28 +217,8 @@ public class XmlGuiOutput {
         }
 
         // persistent-data (string & int only)
-        var pdc = meta.getPersistentDataContainer();
-        if (!pdc.getKeys().isEmpty()) {
-            Element pdcElement = doc.createElement("persistent-data-list");
-            for (var key : pdc.getKeys()) {
-                Object val = pdc.get(key, PersistentDataType.STRING);
-                String type = "STRING";
-
-                if (val == null) {
-                    val = pdc.get(key, PersistentDataType.INTEGER);
-                    type = "INT";
-                }
-
-                if (val != null) {
-                    Element element = doc.createElement("persistent-data");
-                    element.setAttribute("key", key.getKey());
-                    element.setAttribute("type", type);
-                    element.setTextContent(val.toString());
-                    pdcElement.appendChild(element);
-                }
-            }
-            itemDefinition.appendChild(pdcElement);
-        }
+        Element pdcList = buildPersistentDataList(doc, meta);
+        if (pdcList != null) itemDefinition.appendChild(pdcList);
 
         // raw NBT JSON?
         try {
@@ -226,8 +234,7 @@ public class XmlGuiOutput {
     private Element buildComponentElement(Document doc, Component comp) {
         Element componentElement = doc.createElement("component");
         componentElement.setAttribute("type", "item");
-        componentElement.setAttribute("x", String.valueOf(comp.x));
-        componentElement.setAttribute("y", String.valueOf(comp.y));
+        componentElement.setAttribute("slot", Integer.toString(comp.slot));
 
         if (comp.itemId != null) {
             componentElement.setAttribute("item-id", comp.itemId);
@@ -261,15 +268,72 @@ public class XmlGuiOutput {
         return componentElement;
     }
 
+    /**
+     * Builds a <persistent-data-list> element from the given ItemMeta’s
+     * PersistentDataContainer, covering STRING, BOOLEAN, INT, BYTE,
+     * DOUBLE, FLOAT, LONG, and SHORT. Returns null if the container is empty.
+     *
+     * @param doc  the XML Document
+     * @param meta the ItemMeta holding the data
+     * @return an Element ready to append, or null if no data
+     */
+    private Element buildPersistentDataList(Document doc, ItemMeta meta) {
+        var pdc = meta.getPersistentDataContainer();
+        if (pdc.getKeys().isEmpty()) return null;
+
+        Element listElement = doc.createElement("persistent-data-list");
+        for (NamespacedKey key : pdc.getKeys()) {
+            String type;
+            String value;
+
+            if (pdc.has(key, PersistentDataType.STRING)) {
+                type  = "STRING";
+                value = pdc.get(key, PersistentDataType.STRING);
+            } else if (pdc.has(key, PersistentDataType.BOOLEAN)) {
+                type  = "BOOLEAN";
+                value = Boolean.toString(pdc.get(key, PersistentDataType.BOOLEAN));
+            } else if (pdc.has(key, PersistentDataType.INTEGER)) {
+                type  = "INT";
+                value = Integer.toString(pdc.get(key, PersistentDataType.INTEGER));
+            } else if (pdc.has(key, PersistentDataType.BYTE)) {
+                type  = "BYTE";
+                value = Byte.toString(pdc.get(key, PersistentDataType.BYTE));
+            } else if (pdc.has(key, PersistentDataType.DOUBLE)) {
+                type  = "DOUBLE";
+                value = Double.toString(pdc.get(key, PersistentDataType.DOUBLE));
+            } else if (pdc.has(key, PersistentDataType.FLOAT)) {
+                type  = "FLOAT";
+                value = Float.toString(pdc.get(key, PersistentDataType.FLOAT));
+            } else if (pdc.has(key, PersistentDataType.LONG)) {
+                type  = "LONG";
+                value = Long.toString(pdc.get(key, PersistentDataType.LONG));
+            } else if (pdc.has(key, PersistentDataType.SHORT)) {
+                type  = "SHORT";
+                value = Short.toString(pdc.get(key, PersistentDataType.SHORT));
+            } else continue;
+
+            Element pdElement = doc.createElement("persistent-data");
+            pdElement.setAttribute("key",  key.getKey());
+            pdElement.setAttribute("type", type);
+            pdElement.setTextContent(value);
+            listElement.appendChild(pdElement);
+        }
+
+        return listElement;
+    }
+
+
     //───────────────────────────────────────────────────────────────────────────
     // Public model classes
     //───────────────────────────────────────────────────────────────────────────
+
+    private record InventorySpecification(InventoryType inventoryType, int rows) {}
 
     /**
      * A slot in the GUI.
      */
     public static class Component {
-        public final int x, y;
+        public final int slot;
         public final String itemId;       // null if inline
         public final ItemBuilder builder; // only if itemId==null
         public final List<Action> actions = new ArrayList<>();
@@ -277,9 +341,8 @@ public class XmlGuiOutput {
         /**
          * Use a defined template.
          */
-        public Component(int x, int y, String itemId) {
-            this.x = x;
-            this.y = y;
+        public Component(int slot, String itemId) {
+            this.slot = slot;
             this.itemId = itemId;
             this.builder = null;
         }
@@ -287,9 +350,8 @@ public class XmlGuiOutput {
         /**
          * Inline‐build the item here.
          */
-        public Component(int x, int y, ItemBuilder builder) {
-            this.x = x;
-            this.y = y;
+        public Component(int slot, ItemBuilder builder) {
+            this.slot = slot;
             this.builder = builder;
             this.itemId = null;
         }

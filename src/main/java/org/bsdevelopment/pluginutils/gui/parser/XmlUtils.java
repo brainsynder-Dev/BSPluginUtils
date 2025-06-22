@@ -7,6 +7,10 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.w3c.dom.Element;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
 /**
  * Helpers for validating and parsing XML attributes and enums.
  */
@@ -52,6 +56,20 @@ public final class XmlUtils {
             return Enum.valueOf(clazz, raw.toUpperCase());
         } catch (Exception ex) {
             throw new XmlValidationException(element, "Invalid " + clazz.getSimpleName() + ": " + raw, hint);
+        }
+    }
+
+    public static URL parseTextureUrl (String name, Element element, String hint) {
+        String raw = requireAttribute(element, name);
+
+        if (!raw.startsWith("http://textures.minecraft.net/texture/"))
+            throw new XmlValidationException(element, "Invalid Texture URL: " + raw, hint);
+
+        try {
+            // Use URI.create() to parse the string and then convert to URL.
+            return URI.create(raw).toURL();
+        } catch (MalformedURLException e) {
+            throw new XmlValidationException(element, "Invalid Texture URL: " + raw, hint);
         }
     }
 

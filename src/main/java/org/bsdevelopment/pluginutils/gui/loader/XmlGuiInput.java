@@ -16,6 +16,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -49,10 +50,17 @@ public class XmlGuiInput {
             XmlUtils.requireTag(guiElement, "gui");
 
             String title = Colorize.translateBungeeHex(XmlUtils.requireAttribute(guiElement, "title"));
-            int width = XmlUtils.parseIntAttribute(guiElement, "width", 1, 54, "Width must be 1–54");
-            int height = XmlUtils.parseIntAttribute(guiElement, "height", 1, 6, "Height must be 1–6");
-            
-            Inventory inv = Bukkit.createInventory(null, width * height, title);
+
+            Inventory inv;
+            if (guiElement.hasAttribute("inventory-type")) {
+                String typeRaw = XmlUtils.requireAttribute(guiElement, "inventory-type");
+                InventoryType invType = XmlUtils.parseEnum(InventoryType.class, typeRaw, guiElement,
+                        "Use a valid InventoryType, e.g. CHEST, DROPPER, WORKBENCH");
+                inv = Bukkit.createInventory(null, invType, title);
+            } else {
+                int rows = XmlUtils.parseIntAttribute(guiElement, "rows", 1, 6, "Rows must be between 1 and 6");
+                inv = Bukkit.createInventory(null, rows * 9, title);
+            }
 
             // item definitions
             definitions.clear();
@@ -73,9 +81,8 @@ public class XmlGuiInput {
                 Element component = (Element) components.item(i);
                 XmlUtils.requireTag(component, "component");
 
-                int x = XmlUtils.parseIntAttribute(component, "x", 0, width - 1, "x must be 0–" + (width - 1));
-                int y = XmlUtils.parseIntAttribute(component, "y", 0, height - 1, "y must be 0–" + (height - 1));
-                int slot = y * width + x;
+                int slot = XmlUtils.parseIntAttribute(component, "slot", 0, inv.getSize() - 1,
+                        "slot must be between 0 and " + (inv.getSize()-1));
 
                 ItemBuilder builder;
                 if (component.hasAttribute("item-id")) {
@@ -137,8 +144,9 @@ public class XmlGuiInput {
             builder = ItemBuilder.of(tag);
         }
         // 2) skull
-        else if (element.hasAttribute("skull-owner")) {
-            builder = ItemBuilder.playerSkull(element.getAttribute("skull-owner"));
+        else if (element.hasAttribute("skull-texture")) {
+            builder = ItemBuilder.playerSkull(XmlUtils.parseTextureUrl("skull-texture", element,
+                    "Use texture URL like, e.g. http://textures.minecraft.net/texture/5eedfaf69ff40304faad7ea4dbf10ed8a7a49245108199f222ee9d77b45a2f6d").toString());
         }
         // 3) material & amount
         else {
@@ -243,16 +251,22 @@ public class XmlGuiInput {
             String key = XmlUtils.requireAttribute(pd, "key");
             String type = XmlUtils.requireAttribute(pd, "type");
             String val = pd.getTextContent().trim();
-            NamespacedKey namespacedKey = new NamespacedKey(plugin, key);
+            NamespacedKey namespacedKey = NamespacedKey.fromString(key);
 
             builder.handleMeta(ItemMeta.class, meta -> {
-                var c = meta.getPersistentDataContainer();
+                var container = meta.getPersistentDataContainer();
                 switch (type.toUpperCase()) {
                     // TODO: Add the other PDC types (at least the common ones)
-                    case "STRING" -> c.set(namespacedKey, PersistentDataType.STRING, val);
-                    case "INT" -> c.set(namespacedKey, PersistentDataType.INTEGER, Integer.parseInt(val));
+                    case "STRING" -> container.set(namespacedKey, PersistentDataType.STRING, val);
+                    case "BOOLEAN" -> container.set(namespacedKey, PersistentDataType.BOOLEAN, Boolean.parseBoolean(val));
+                    case "INT" -> container.set(namespacedKey, PersistentDataType.INTEGER, Integer.parseInt(val));
+                    case "BYTE" -> container.set(namespacedKey, PersistentDataType.BYTE, Byte.parseByte(val));
+                    case "DOUBLE" -> container.set(namespacedKey, PersistentDataType.DOUBLE, Double.parseDouble(val));
+                    case "FLOAT" -> container.set(namespacedKey, PersistentDataType.FLOAT, Float.parseFloat(val));
+                    case "LONG" -> container.set(namespacedKey, PersistentDataType.LONG, Long.parseLong(val));
+                    case "SHORT" -> container.set(namespacedKey, PersistentDataType.SHORT, Short.parseShort(val));
 
-                    default -> throw new XmlValidationException(pd, "Unsupported PDC type='" + type + "'", "Use STRING or INT");
+                    default -> throw new XmlValidationException(pd, "Unsupported PDC type='" + type + "'", "Use STRING, INT, BOOLEAN, DOUBLE, FLOAT, LONG, SHORT, or BYTE");
                 }
                 return meta;
             });
