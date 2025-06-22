@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui title="&eExample GUI v2" inventory-type="CHEST">
+
+    <definitions>
+        <!-- Powerful custom sword with all features -->
+        <item-definition id="poweredSword" material="DIAMOND_SWORD" amount="1" name="&cPowered Sword" unbreakable="true">
+            <lore>
+                <line>Electrified</line>
+                <line>Handle with care</line>
+            </lore>
+
+            <flags>
+                <flag>HIDE_ENCHANTS</flag>
+                <flag>HIDE_ATTRIBUTES</flag>
+            </flags>
+
+            <enchants>
+                <enchant type="minecraft:sharpness" level="5"/>
+                <enchant type="minecraft:unbreaking" level="3"/>
+            </enchants>
+
+            <attributes>
+                <attribute attribute="minecraft:generic_attack_damage" amount="8.0" operation="ADD_NUMBER" slot="HAND"/>
+            </attributes>
+
+            <persistent-data-list>
+                <persistent-data key="owner" type="STRING">Player123</persistent-data>
+                <persistent-data key="isActive" type="BOOLEAN">true</persistent-data>
+                <persistent-data key="powerLevel" type="INT">42</persistent-data>
+                <persistent-data key="smallByte" type="BYTE">7</persistent-data>
+                <persistent-data key="ratio" type="DOUBLE">0.75</persistent-data>
+                <persistent-data key="speed" type="FLOAT">1.5</persistent-data>
+                <persistent-data key="bigNum" type="LONG">1234567890123</persistent-data>
+                <persistent-data key="shortVal" type="SHORT">123</persistent-data>
+            </persistent-data-list>
+
+            <nbt-json>
+                {"CustomModelData":99}
+            </nbt-json>
+        </item-definition>
+
+        <!-- Custom textured player head -->
+        <item-definition id="customSkull" material="PLAYER_HEAD" amount="1" name="&bCool Skull"
+                         skull-texture="http://textures.minecraft.net/texture/abcd1234ef5678...">
+            <lore>
+                <line>Right-click to wear</line>
+            </lore>
+
+            <flags>
+                <flag>HIDE_ATTRIBUTES</flag>
+            </flags>
+
+            <persistent-data-list>
+                <persistent-data key="skullType" type="STRING">hero</persistent-data>
+            </persistent-data-list>
+        </item-definition>
+    </definitions>
+
+
+
+
+
+    <!-- Slot 10: give the powered sword -->
+    <component type="item" slot="10" item-id="poweredSword">
+        <action type="message">&aYou picked up the Powered Sword!</action>
+        <action type="give" item-id="poweredSword" amount="1"/>
+        <action type="close"/>
+    </component>
+
+    <!-- Slot 13: give the custom skull -->
+    <component type="item" slot="13" item-id="customSkull">
+        <action type="give" item-id="customSkull" amount="1"/>
+    </component>
+
+    <!-- Slot 22: inline gold nugget -->
+    <component type="item" slot="22" material="GOLD_INGOT" amount="5" name="&6Gold Nugget">
+        <lore>
+            <line>Shiny</line>
+            <line>Worth less than diamonds</line>
+        </lore>
+
+        <flags>
+            <flag>HIDE_ENCHANTS</flag>
+        </flags>
+
+        <enchants>
+            <enchant type="minecraft:luck" level="1"/>
+        </enchants>
+
+        <action type="give" material="GOLD_INGOT" amount="5"/>
+    </component>
+</gui>
