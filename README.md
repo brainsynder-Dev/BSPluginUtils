@@ -12,8 +12,8 @@ Maven Dependency:
 </repository>
 
 <dependency>
-    <groupId>com.bsdevelopment</groupId>
-    <artifactId>your-artifact</artifactId>
+    <groupId>org.bsdevelopment.pluginutils</groupId>
+    <artifactId>BSPluginUtils</artifactId>
     <version>0.1.6</version>  <!-- This version is automatically updated -->
 </dependency>
 ```
