@@ -470,7 +470,7 @@ public class ItemBuilder {
      *
      * @param <T> the type of item meta
      */
-    private interface ItemMetaValue<T> {
+    public interface ItemMetaValue<T> {
         T accept(T value);
     }
 }
