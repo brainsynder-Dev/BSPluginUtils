@@ -1,4 +1,11 @@
+import org.xml.sax.InputSource
+import java.io.StringReader
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 
 plugins {
     id("java")
@@ -78,6 +85,78 @@ publishing {
                 password = findProperty("BS_REPO_PASS") as String?
             }
         }
+    }
+}
+
+tasks.register("updateSpigotVersion") {
+    group = "versioning"
+    description = "→ Fetch latest CraftBukkit POM, bump libs.versions.toml spigot, and append to ServerVersion.java"
+
+    doLast {
+        // Use my script to get around cloudflare :P
+        val pomUrl = "https://assets.bsdevelopment.org/scripts/spigot.php?path=SPIGOT/repos/craftbukkit/raw/pom.xml?at=refs%2Fheads%2Fmaster"
+        val client  = HttpClient.newHttpClient()
+        val request = HttpRequest.newBuilder().uri(URI.create(pomUrl)).GET().build()
+        val pomXml = client.send(request, HttpResponse.BodyHandlers.ofString()).body()
+
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(InputSource(StringReader(pomXml)))
+
+        // parse <version> and <minecraft_version>
+        val fullVersion = doc.getElementsByTagName("version").item(0).textContent.trim()
+        val nmsVersion = "v"+doc.getElementsByTagName("minecraft_version").item(0).textContent.trim()
+
+        // Shorten the version, and split it into major minor and patch numbers
+        val shortVersion = fullVersion.substringBefore("-")
+        val (major, minor, patch) = shortVersion.split('.').map { it.toInt() }
+        val fieldName = "v${major}_${minor}_${patch}"
+
+        // Output results
+        println("↳ BASE <version> → $shortVersion")
+        println("↳ POM <version> → $fullVersion")
+        println("↳ POM <minecraft_version> → $nmsVersion")
+
+        // --- update libs.versions.toml ---
+        file("gradle/libs.versions.toml").let { toml ->
+            toml.writeText(
+                toml.readText().replace(
+                    Regex("""(?m)^(spigot\s*=\s*").*(")"""),
+                    "$1$fullVersion$2"
+                )
+            )
+        }
+        println("Updated toml → spigot = \"$fullVersion\"")
+
+        // --- Parse and update ServerVersion.java ---
+        val javaPath = "src/main/java/${mainPackage.replace('.', '/')}/version/ServerVersion.java"
+        val src      = file(javaPath).readText()
+        val literalToField = Regex(
+            """public\s+static\s+ServerVersion\s+(\w+)\s*=\s*register\(\s*Triple\.of\(\d+,\s*\d+,\s*\d+\),\s*"([^"]*)"\s*\)\s*;"""
+        ).findAll(src).associate { it.groupValues[2] to it.groupValues[1] }
+
+        // --- choose based on existing NMS reuse ---
+        val registration = if (literalToField.containsKey(nmsVersion)) {
+            // reuse the existing NMS version form previous version
+            println("  ↳ Duplicate NMS → ${literalToField[nmsVersion]}")
+            "public static ServerVersion $fieldName = register(Triple.of($major, $minor, $patch), ${literalToField[nmsVersion]});"
+        } else {
+            // new NMS version
+            println("  ↳ New NMS → $nmsVersion")
+            "public static ServerVersion $fieldName = register(Triple.of($major, $minor, $patch), \"$nmsVersion\");"
+        }
+
+        val marker = "// ---- AUTOMATION: END ---- //"
+        val idx    = src.indexOf(marker).takeIf { it >= 0 } ?: error("Couldn't find '$marker' in $javaPath")
+        val before = src.substring(0, idx)
+        val after  = src.substring(idx)
+
+        // update ServerVersion.java
+        file(javaPath).writeText(buildString {
+            append(before).append(registration).append("\n")
+            append("    ").append(marker)
+            append(after.removePrefix(marker))
+        })
+
+        println("Inserted: $registration")
     }
 }
 

@@ -35,7 +35,7 @@ public class ServerVersion {
 
     private static ServerVersion CURRENT_VERSION = null;
 
-    public static ServerVersion v1_21 = register(Triple.of(1, 21, 0), "v1_21_R1");
+    public static ServerVersion v1_21   = register(Triple.of(1, 21, 0), "v1_21_R1");
     public static ServerVersion v1_21_1 = register(Triple.of(1, 21, 1), v1_21);
     public static ServerVersion v1_21_2 = register(Triple.of(1, 21, 2), "v1_21_R2");
     public static ServerVersion v1_21_3 = register(Triple.of(1, 21, 3), v1_21_2);
