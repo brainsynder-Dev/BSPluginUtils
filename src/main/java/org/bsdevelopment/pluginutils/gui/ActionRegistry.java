@@ -17,13 +17,16 @@ import java.util.Optional;
 public final class ActionRegistry {
     private static final Map<String, ActionFactory> FACTORIES = new HashMap<>();
 
-    private ActionRegistry() {}
+    private ActionRegistry() {
+    }
 
     /**
      * Register a new action type.
      *
-     * @param name    the XML “type” attribute (case‐insensitive)
-     * @param factory how to build the action
+     * @param name
+     *         the XML “type” attribute (case‐insensitive)
+     * @param factory
+     *         how to build the action
      */
     public static void register(String name, ActionFactory factory) {
         FACTORIES.put(name.toLowerCase(), factory);
@@ -32,7 +35,9 @@ public final class ActionRegistry {
     /**
      * Parse an <action> element.
      *
-     * @param element the XML element
+     * @param element
+     *         the XML element
+     *
      * @return empty if no factory found
      */
     public static Optional<GuiAction> parse(Element element) {
@@ -66,7 +71,7 @@ public final class ActionRegistry {
         // 4) Give an item (by template id or fallback to material)
         register("give", elm -> {
             String itemId = elm.getAttribute("item-id");
-            String raw     = elm.getTextContent().trim();
+            String raw = elm.getTextContent().trim();
             return event -> {
                 event.setCancelled(true);
                 if (!(event.getWhoClicked() instanceof Player player)) return;

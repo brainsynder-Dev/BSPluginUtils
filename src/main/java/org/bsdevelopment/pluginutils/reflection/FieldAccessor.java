@@ -21,7 +21,8 @@ package org.bsdevelopment.pluginutils.reflection;
  * boolean exists = accessor.hasField(myInstance);
  * </pre>
  *
- * @param <T> the type of the field
+ * @param <T>
+ *         the type of the field
  */
 public interface FieldAccessor<T> {
 
@@ -33,7 +34,9 @@ public interface FieldAccessor<T> {
      * String value = accessor.get(myInstance);
      * </pre>
      *
-     * @param target the object from which to retrieve the field value
+     * @param target
+     *         the object from which to retrieve the field value
+     *
      * @return the field value
      */
     T get(Object target);
@@ -46,8 +49,10 @@ public interface FieldAccessor<T> {
      * accessor.set(myInstance, "newValue");
      * </pre>
      *
-     * @param target the object on which to set the field value
-     * @param value  the new field value
+     * @param target
+     *         the object on which to set the field value
+     * @param value
+     *         the new field value
      */
     void set(Object target, T value);
 
@@ -59,7 +64,9 @@ public interface FieldAccessor<T> {
      * boolean exists = accessor.hasField(myInstance);
      * </pre>
      *
-     * @param target the object to check
+     * @param target
+     *         the object to check
+     *
      * @return true if the field exists on the target's class, false otherwise
      */
     boolean hasField(Object target);
@@ -72,10 +79,15 @@ public interface FieldAccessor<T> {
      * FieldAccessor&lt;String&gt; accessor = FieldAccessor.getField(MyClass.class, "myField", String.class);
      * </pre>
      *
-     * @param target    the class containing the field
-     * @param name      the field name; may be null to match any field with the correct type
-     * @param fieldType the expected field type
-     * @param <T>       the type of the field
+     * @param target
+     *         the class containing the field
+     * @param name
+     *         the field name; may be null to match any field with the correct type
+     * @param fieldType
+     *         the expected field type
+     * @param <T>
+     *         the type of the field
+     *
      * @return a FieldAccessor for the field
      */
     static <T> FieldAccessor<T> getField(Class<?> target, String name, Class<T> fieldType) {

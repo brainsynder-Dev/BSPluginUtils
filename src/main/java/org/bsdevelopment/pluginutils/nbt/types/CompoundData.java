@@ -44,7 +44,8 @@ public class CompoundData implements BasicData {
      *
      * <p>A defensive copy is created to avoid external mutation of internal data.
      *
-     * @param dataMap a map of name-to-data entries
+     * @param dataMap
+     *         a map of name-to-data entries
      */
     public CompoundData(Map<String, BasicData> dataMap) {
         this.dataMap.putAll(dataMap);
@@ -53,7 +54,9 @@ public class CompoundData implements BasicData {
     /**
      * Checks if this compound has a specific named key.
      *
-     * @param key the data name
+     * @param key
+     *         the data name
+     *
      * @return true if the name is present, otherwise false
      */
     public boolean hasData(String key) {
@@ -63,9 +66,13 @@ public class CompoundData implements BasicData {
     /**
      * Adds or replaces a named data in this compound.
      *
-     * @param name the data name
-     * @param data the data to insert
-     * @param <T>  the type of the data
+     * @param name
+     *         the data name
+     * @param data
+     *         the data to insert
+     * @param <T>
+     *         the type of the data
+     *
      * @return the previous data associated with the name, or {@code null} if none
      */
     public <T extends BasicData> T setData(String name, BasicData data) {
@@ -75,8 +82,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a data from this compound by name.
      *
-     * @param name the data name
-     * @param <T>  the type of the data
+     * @param name
+     *         the data name
+     * @param <T>
+     *         the type of the data
+     *
      * @return the requested data, or {@code null} if none
      */
     public <T extends BasicData> T getData(String name) {
@@ -95,7 +105,9 @@ public class CompoundData implements BasicData {
     /**
      * Removes a data entry by name.
      *
-     * @param name the data name
+     * @param name
+     *         the data name
+     *
      * @return the removed data, or null if not found
      */
     public BasicData remove(String name) {
@@ -177,8 +189,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link ByteData} with the specified value.
      *
-     * @param key   the key
-     * @param value the byte value
+     * @param key
+     *         the key
+     * @param value
+     *         the byte value
+     *
      * @return this compound for chaining
      */
     public CompoundData setByte(String key, byte value) {
@@ -189,8 +204,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link ShortData} with the specified value.
      *
-     * @param key   the key
-     * @param value the short value
+     * @param key
+     *         the key
+     * @param value
+     *         the short value
+     *
      * @return this compound for chaining
      */
     public CompoundData setShort(String key, short value) {
@@ -201,8 +219,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts an {@link IntData} with the specified integer value.
      *
-     * @param key   the key
-     * @param value the int value
+     * @param key
+     *         the key
+     * @param value
+     *         the int value
+     *
      * @return this compound for chaining
      */
     public CompoundData setInteger(String key, int value) {
@@ -213,8 +234,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link LongData} with the specified long value.
      *
-     * @param key   the key
-     * @param value the long value
+     * @param key
+     *         the key
+     * @param value
+     *         the long value
+     *
      * @return this compound for chaining
      */
     public CompoundData setLong(String key, long value) {
@@ -225,8 +249,11 @@ public class CompoundData implements BasicData {
     /**
      * Stores a {@link UUID} value as a string within this compound.
      *
-     * @param key   the key
-     * @param value the UUID to store
+     * @param key
+     *         the key
+     * @param value
+     *         the UUID to store
+     *
      * @return this compound for chaining
      */
     public CompoundData setUniqueId(String key, UUID value) {
@@ -237,7 +264,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a stored {@link UUID} from this compound, or generates a new one if not present or invalid.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the retrieved or newly generated UUID
      */
     public UUID getUniqueId(String key) {
@@ -254,8 +283,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link FloatData} with the specified float value.
      *
-     * @param key   the key
-     * @param value the float value
+     * @param key
+     *         the key
+     * @param value
+     *         the float value
+     *
      * @return this compound for chaining
      */
     public CompoundData setFloat(String key, float value) {
@@ -266,8 +298,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link DoubleData} with the specified double value.
      *
-     * @param key   the key
-     * @param value the double value
+     * @param key
+     *         the key
+     * @param value
+     *         the double value
+     *
      * @return this compound for chaining
      */
     public CompoundData setDouble(String key, double value) {
@@ -278,8 +313,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link StringData} with the specified string value.
      *
-     * @param key   the key
-     * @param value the string value
+     * @param key
+     *         the key
+     * @param value
+     *         the string value
+     *
      * @return this compound for chaining
      */
     public CompoundData setString(String key, String value) {
@@ -290,8 +328,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link ByteArrayData} with the specified byte array value.
      *
-     * @param key   the key
-     * @param value the byte array
+     * @param key
+     *         the key
+     * @param value
+     *         the byte array
+     *
      * @return this compound for chaining
      */
     public CompoundData setByteArray(String key, byte[] value) {
@@ -302,8 +343,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts an {@link IntArrayData} with the specified int array value.
      *
-     * @param key   the key
-     * @param value the int array
+     * @param key
+     *         the key
+     * @param value
+     *         the int array
+     *
      * @return this compound for chaining
      */
     public CompoundData setIntArray(String key, int[] value) {
@@ -314,8 +358,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a boolean value as a {@link ByteData}, storing 1 for {@code true} and 0 for {@code false}.
      *
-     * @param key   the key
-     * @param value the boolean value
+     * @param key
+     *         the key
+     * @param value
+     *         the boolean value
+     *
      * @return this compound for chaining
      */
     public CompoundData setBoolean(String key, boolean value) {
@@ -332,8 +379,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link Location} value under the given key, storing its coordinates and world name.
      *
-     * @param key      the key
-     * @param location the {@link Location} to store
+     * @param key
+     *         the key
+     * @param location
+     *         the {@link Location} to store
+     *
      * @return this compound for chaining
      */
     public CompoundData setLocation(String key, Location location) {
@@ -351,7 +401,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a {@link Location} from the compound using the given key, or a fallback world name "world" if not found.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the constructed {@link Location} object
      */
     public Location getLocation(String key) {
@@ -368,8 +420,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a {@link Location} from the compound using the given key, or returns a fallback if not present.
      *
-     * @param key      the key
-     * @param fallback the fallback {@link Location}
+     * @param key
+     *         the key
+     * @param fallback
+     *         the fallback {@link Location}
+     *
      * @return the found {@link Location} or {@code fallback}
      */
     public Location getLocation(String key, Location fallback) {
@@ -379,8 +434,11 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link Color} value under the given key using {@link ColorStorageType#COMPOUND} by default.
      *
-     * @param key   the key
-     * @param color the {@link Color}
+     * @param key
+     *         the key
+     * @param color
+     *         the {@link Color}
+     *
      * @return this compound for chaining
      */
     public CompoundData setColor(String key, Color color) {
@@ -390,9 +448,13 @@ public class CompoundData implements BasicData {
     /**
      * Inserts a {@link Color} under the given key in the specified {@link ColorStorageType} format.
      *
-     * @param key   the key
-     * @param color the {@link Color}
-     * @param type  the storage type format
+     * @param key
+     *         the key
+     * @param color
+     *         the {@link Color}
+     * @param type
+     *         the storage type format
+     *
      * @return this compound for chaining
      */
     public CompoundData setColor(String key, Color color, ColorStorageType type) {
@@ -417,7 +479,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a {@link Color} from the compound using the given key, or {@link Color#RED} if not present.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the retrieved {@link Color}, or red if none
      */
     public Color getColor(String key) {
@@ -427,8 +491,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a {@link Color} from the compound using the given key, or a fallback color if not present.
      *
-     * @param key      the key
-     * @param fallback the fallback {@link Color}
+     * @param key
+     *         the key
+     * @param fallback
+     *         the fallback {@link Color}
+     *
      * @return the retrieved color or the fallback
      */
     public Color getColor(String key, Color fallback) {
@@ -491,8 +558,11 @@ public class CompoundData implements BasicData {
     /**
      * Stores an enum value by name using a {@link StringData}.
      *
-     * @param key    the key
-     * @param anEnum the enum value
+     * @param key
+     *         the key
+     * @param anEnum
+     *         the enum value
+     *
      * @return this compound for chaining
      */
     public CompoundData setEnum(String key, Enum<?> anEnum) {
@@ -503,9 +573,13 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves an enum value by name.
      *
-     * @param key  the key
-     * @param type the enum class
-     * @param <E>  the type of the enum
+     * @param key
+     *         the key
+     * @param type
+     *         the enum class
+     * @param <E>
+     *         the type of the enum
+     *
      * @return the retrieved enum, or null if not found
      */
     public <E extends Enum<E>> E getEnum(String key, Class<E> type) {
@@ -515,10 +589,15 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves an enum value by name, returning a fallback if the key doesn't exist.
      *
-     * @param key      the key
-     * @param type     the enum class
-     * @param fallback a fallback enum value
-     * @param <E>      the type of the enum
+     * @param key
+     *         the key
+     * @param type
+     *         the enum class
+     * @param fallback
+     *         a fallback enum value
+     * @param <E>
+     *         the type of the enum
+     *
      * @return the retrieved enum or the fallback
      */
     public <E extends Enum<E>> E getEnum(String key, Class<E> type, E fallback) {
@@ -529,7 +608,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a byte from this compound, or 0 if not found or mismatched.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the byte value, defaulting to 0
      */
     public byte getByte(String key) {
@@ -541,8 +622,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a byte from this compound, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback the fallback byte
+     * @param key
+     *         the key
+     * @param fallback
+     *         the fallback byte
+     *
      * @return the found value or fallback
      */
     public byte getByte(String key, byte fallback) {
@@ -555,7 +639,9 @@ public class CompoundData implements BasicData {
      * <p><b>Note:</b> This uses {@link #getValue(String)} internally and may cause exceptions
      * if the stored string is not a valid short.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the short value or 0
      */
     public short getShort(String key) {
@@ -565,8 +651,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a short from this compound, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback fallback short
+     * @param key
+     *         the key
+     * @param fallback
+     *         fallback short
+     *
      * @return the found value or fallback
      */
     public short getShort(String key, short fallback) {
@@ -579,7 +668,9 @@ public class CompoundData implements BasicData {
      * <p><b>Note:</b> This uses {@link #getValue(String)} which may throw
      * an exception if the data is incompatible with an int.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the integer value or 0
      */
     public int getInteger(String key) {
@@ -589,8 +680,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves an integer, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback fallback integer
+     * @param key
+     *         the key
+     * @param fallback
+     *         fallback integer
+     *
      * @return the integer or fallback
      */
     public int getInteger(String key, int fallback) {
@@ -600,7 +694,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a long from this compound, or 0 if not found.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the long value or 0
      */
     public long getLong(String key) {
@@ -610,8 +706,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a long, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback fallback long
+     * @param key
+     *         the key
+     * @param fallback
+     *         fallback long
+     *
      * @return the long or fallback
      */
     public long getLong(String key, long fallback) {
@@ -621,7 +720,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a float from this compound, or 0 if not found.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the float value or 0
      */
     public float getFloat(String key) {
@@ -631,8 +732,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a float, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback fallback float
+     * @param key
+     *         the key
+     * @param fallback
+     *         fallback float
+     *
      * @return the float or fallback
      */
     public float getFloat(String key, float fallback) {
@@ -642,7 +746,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a double from this compound, or 0 if not found.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the double or 0
      */
     public double getDouble(String key) {
@@ -652,8 +758,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a double, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback fallback double
+     * @param key
+     *         the key
+     * @param fallback
+     *         fallback double
+     *
      * @return the double or fallback
      */
     public double getDouble(String key, double fallback) {
@@ -663,7 +772,9 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a string from this compound, or an empty string if not found.
      *
-     * @param key the key
+     * @param key
+     *         the key
+     *
      * @return the string value or an empty string
      */
     public String getString(String key) {
@@ -673,8 +784,11 @@ public class CompoundData implements BasicData {
     /**
      * Retrieves a string, returning a fallback if not found.
      *
-     * @param key      the key
-     * @param fallback fallback string
+     * @param key
+     *         the key
+     * @param fallback
+     *         fallback string
+     *
      * @return the string or fallback
      */
     public String getString(String key, String fallback) {

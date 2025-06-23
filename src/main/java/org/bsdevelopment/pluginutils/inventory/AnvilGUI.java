@@ -52,7 +52,9 @@ public final class AnvilGUI {
     /**
      * Copies the given {@link ItemStack}, returning an air {@link ItemStack} if null.
      *
-     * @param stack the ItemStack to check
+     * @param stack
+     *         the ItemStack to check
+     *
      * @return a safe copy of the ItemStack, or a new air ItemStack if null
      */
     private static ItemStack copyItemNotNull(ItemStack stack) {
@@ -112,15 +114,24 @@ public final class AnvilGUI {
     /**
      * Constructs the AnvilGUI with all necessary configuration.
      *
-     * @param plugin                          the plugin instance
-     * @param player                          the player for whom the GUI is opened
-     * @param title                           the display title of the anvil
-     * @param initialContents                 the initial items to place in the anvil slots
-     * @param preventClose                    if true, disallows manual GUI closing
-     * @param interactableSlots               the slots in which the user may interact
-     * @param closeListener                   a callback when the GUI is closed
-     * @param concurrentClickHandlerExecution if true, allows concurrent async click handlers
-     * @param clickHandler                    handles slot click events
+     * @param plugin
+     *         the plugin instance
+     * @param player
+     *         the player for whom the GUI is opened
+     * @param title
+     *         the display title of the anvil
+     * @param initialContents
+     *         the initial items to place in the anvil slots
+     * @param preventClose
+     *         if true, disallows manual GUI closing
+     * @param interactableSlots
+     *         the slots in which the user may interact
+     * @param closeListener
+     *         a callback when the GUI is closed
+     * @param concurrentClickHandlerExecution
+     *         if true, allows concurrent async click handlers
+     * @param clickHandler
+     *         handles slot click events
      */
     private AnvilGUI(
             Plugin plugin,
@@ -326,7 +337,8 @@ public final class AnvilGUI {
         /**
          * Constructs a new Builder. Must set plugin and click handler before calling open(...).
          */
-        public Builder() {}
+        public Builder() {
+        }
 
         /**
          * Prevents the user from closing the anvil GUI manually.
@@ -341,7 +353,9 @@ public final class AnvilGUI {
         /**
          * Sets which slots can be interacted with by the user.
          *
-         * @param slots the slot indices
+         * @param slots
+         *         the slot indices
+         *
          * @return this Builder
          */
         public Builder interactableSlots(int... slots) {
@@ -354,9 +368,12 @@ public final class AnvilGUI {
         /**
          * Called when the anvil GUI is closed.
          *
-         * @param closeListener the consumer that runs upon GUI close
+         * @param closeListener
+         *         the consumer that runs upon GUI close
+         *
          * @return this Builder
-         * @throws NullPointerException if closeListener is null
+         * @throws NullPointerException
+         *         if closeListener is null
          */
         public Builder onClose(Consumer<StateSnapshot> closeListener) {
             this.closeListener = Objects.requireNonNull(closeListener, "closeListener");
@@ -366,9 +383,12 @@ public final class AnvilGUI {
         /**
          * Sets the asynchronous click handler.
          *
-         * @param clickHandler the asynchronous click handler
+         * @param clickHandler
+         *         the asynchronous click handler
+         *
          * @return this Builder
-         * @throws NullPointerException if clickHandler is null
+         * @throws NullPointerException
+         *         if clickHandler is null
          */
         public Builder onClickAsync(ClickHandler clickHandler) {
             this.clickHandler = Objects.requireNonNull(clickHandler, "clickHandler");
@@ -388,9 +408,12 @@ public final class AnvilGUI {
         /**
          * Sets a synchronous click handler that returns actions immediately.
          *
-         * @param clickHandler a function returning a list of {@link ResponseAction}
+         * @param clickHandler
+         *         a function returning a list of {@link ResponseAction}
+         *
          * @return this Builder
-         * @throws NullPointerException if clickHandler is null
+         * @throws NullPointerException
+         *         if clickHandler is null
          */
         public Builder onClick(BiFunction<Integer, StateSnapshot, List<ResponseAction>> clickHandler) {
             Objects.requireNonNull(clickHandler, "clickHandler");
@@ -402,9 +425,12 @@ public final class AnvilGUI {
         /**
          * Sets the plugin that owns this anvil GUI.
          *
-         * @param plugin the plugin
+         * @param plugin
+         *         the plugin
+         *
          * @return this Builder
-         * @throws NullPointerException if plugin is null
+         * @throws NullPointerException
+         *         if plugin is null
          */
         public Builder plugin(Plugin plugin) {
             this.plugin = Objects.requireNonNull(plugin, "plugin");
@@ -414,9 +440,12 @@ public final class AnvilGUI {
         /**
          * Sets the name of the item placed into the left slot initially.
          *
-         * @param text the display name
+         * @param text
+         *         the display name
+         *
          * @return this Builder
-         * @throws NullPointerException if text is null
+         * @throws NullPointerException
+         *         if text is null
          */
         public Builder text(String text) {
             itemText = Objects.requireNonNull(text, "text");
@@ -426,9 +455,12 @@ public final class AnvilGUI {
         /**
          * Sets the title of the anvil GUI.
          *
-         * @param title the anvil window title
+         * @param title
+         *         the anvil window title
+         *
          * @return this Builder
-         * @throws NullPointerException if title is null
+         * @throws NullPointerException
+         *         if title is null
          */
         public Builder title(String title) {
             this.title = Objects.requireNonNull(title, "title");
@@ -438,9 +470,12 @@ public final class AnvilGUI {
         /**
          * Sets the {@link ItemStack} in the left anvil slot.
          *
-         * @param item the item
+         * @param item
+         *         the item
+         *
          * @return this Builder
-         * @throws NullPointerException if item is null
+         * @throws NullPointerException
+         *         if item is null
          */
         public Builder itemLeft(ItemStack item) {
             itemLeft = Objects.requireNonNull(item, "item").clone();
@@ -450,9 +485,12 @@ public final class AnvilGUI {
         /**
          * Sets the {@link ItemStack} in the right anvil slot.
          *
-         * @param item the item
+         * @param item
+         *         the item
+         *
          * @return this Builder
-         * @throws NullPointerException if item is null
+         * @throws NullPointerException
+         *         if item is null
          */
         public Builder itemRight(ItemStack item) {
             itemRight = Objects.requireNonNull(item, "item").clone();
@@ -462,9 +500,12 @@ public final class AnvilGUI {
         /**
          * Sets the {@link ItemStack} in the output slot.
          *
-         * @param item the item
+         * @param item
+         *         the item
+         *
          * @return this Builder
-         * @throws NullPointerException if item is null
+         * @throws NullPointerException
+         *         if item is null
          */
         public Builder itemOutput(ItemStack item) {
             itemOutput = Objects.requireNonNull(item, "item").clone();
@@ -474,9 +515,12 @@ public final class AnvilGUI {
         /**
          * Builds and opens the anvil GUI for the specified player.
          *
-         * @param player the player
+         * @param player
+         *         the player
+         *
          * @return the constructed AnvilGUI
-         * @throws NullPointerException if the plugin or clickHandler is missing, or if player is null
+         * @throws NullPointerException
+         *         if the plugin or clickHandler is missing, or if player is null
          */
         public AnvilGUI open(Player player) {
             Objects.requireNonNull(plugin, "Plugin must be set");
@@ -527,10 +571,14 @@ public final class AnvilGUI {
         /**
          * Replaces the text in the left slot (or output slot if left is empty) with the specified text.
          *
-         * @param text the text to insert
+         * @param text
+         *         the text to insert
+         *
          * @return the response action
-         * @throws NullPointerException  if text is null
-         * @throws IllegalStateException if both {@link Slot#INPUT_LEFT} and {@link Slot#OUTPUT} are empty
+         * @throws NullPointerException
+         *         if text is null
+         * @throws IllegalStateException
+         *         if both {@link Slot#INPUT_LEFT} and {@link Slot#OUTPUT} are empty
          */
         static ResponseAction replaceInputText(String text) {
             Objects.requireNonNull(text, "text");
@@ -555,10 +603,14 @@ public final class AnvilGUI {
         /**
          * Updates the anvil GUI's title.
          *
-         * @param title              the new title
-         * @param preserveRenameText if true, preserves the user's rename text
+         * @param title
+         *         the new title
+         * @param preserveRenameText
+         *         if true, preserves the user's rename text
+         *
          * @return the response action
-         * @throws NullPointerException if title is null
+         * @throws NullPointerException
+         *         if title is null
          */
         static ResponseAction updateTitle(String title, boolean preserveRenameText) {
             Objects.requireNonNull(title, "title");
@@ -590,9 +642,12 @@ public final class AnvilGUI {
         /**
          * Opens another {@link Inventory} for the player.
          *
-         * @param otherInventory the inventory to open
+         * @param otherInventory
+         *         the inventory to open
+         *
          * @return the response action
-         * @throws NullPointerException if otherInventory is null
+         * @throws NullPointerException
+         *         if otherInventory is null
          */
         static ResponseAction openInventory(Inventory otherInventory) {
             Objects.requireNonNull(otherInventory, "otherInventory");
@@ -611,9 +666,12 @@ public final class AnvilGUI {
         /**
          * Runs the provided {@link Runnable}.
          *
-         * @param runnable the runnable to execute
+         * @param runnable
+         *         the runnable to execute
+         *
          * @return the response action
-         * @throws NullPointerException if runnable is null
+         * @throws NullPointerException
+         *         if runnable is null
          */
         static ResponseAction run(Runnable runnable) {
             Objects.requireNonNull(runnable, "runnable");
@@ -625,7 +683,8 @@ public final class AnvilGUI {
      * Contains the numeric slot values for the anvil input and output.
      */
     public static final class Slot {
-        private Slot() {}
+        private Slot() {
+        }
 
         /**
          * The left input slot where an item is placed for renaming.
@@ -642,7 +701,7 @@ public final class AnvilGUI {
          */
         public static final int OUTPUT = 2;
 
-        private static final int[] VALUES = new int[] { INPUT_LEFT, INPUT_RIGHT, OUTPUT };
+        private static final int[] VALUES = new int[]{INPUT_LEFT, INPUT_RIGHT, OUTPUT};
 
         /**
          * Returns all slot indices for the anvil: {@link #INPUT_LEFT}, {@link #INPUT_RIGHT}, and {@link #OUTPUT}.
@@ -658,11 +717,16 @@ public final class AnvilGUI {
      * A snapshot of the anvil's state at a given moment, containing the text,
      * left item, right item, output item, and the player who interacted.
      *
-     * @param text       the rename text
-     * @param leftItem   the left item
-     * @param rightItem  the right item
-     * @param outputItem the output item
-     * @param player     the player interacting
+     * @param text
+     *         the rename text
+     * @param leftItem
+     *         the left item
+     * @param rightItem
+     *         the right item
+     * @param outputItem
+     *         the output item
+     * @param player
+     *         the player interacting
      */
     public record StateSnapshot(
             String text,
@@ -674,7 +738,9 @@ public final class AnvilGUI {
         /**
          * Builds a snapshot from the current state of the given {@link AnvilGUI}.
          *
-         * @param anvilGUI the AnvilGUI instance
+         * @param anvilGUI
+         *         the AnvilGUI instance
+         *
          * @return the created snapshot
          */
         private static StateSnapshot fromAnvilGUI(AnvilGUI anvilGUI) {

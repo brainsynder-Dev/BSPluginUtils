@@ -35,7 +35,7 @@ public class ServerVersion {
 
     private static ServerVersion CURRENT_VERSION = null;
 
-    public static ServerVersion v1_21   = register(Triple.of(1, 21, 0), "v1_21_R1");
+    public static ServerVersion v1_21 = register(Triple.of(1, 21, 0), "v1_21_R1");
     public static ServerVersion v1_21_1 = register(Triple.of(1, 21, 1), v1_21);
     public static ServerVersion v1_21_2 = register(Triple.of(1, 21, 2), "v1_21_R2");
     public static ServerVersion v1_21_3 = register(Triple.of(1, 21, 3), v1_21_2);
@@ -61,7 +61,7 @@ public class ServerVersion {
         String mcVersion = "v" + mc.replace(".", "_");
 
         String[] args = mc.split("\\.");
-        int[] ints = new int[] {0, 0, 0};
+        int[] ints = new int[]{0, 0, 0};
 
         if (args.length >= 1) ints[0] = Integer.parseInt(args[0]);
         if (args.length >= 2) ints[1] = Integer.parseInt(args[1]);
@@ -91,7 +91,9 @@ public class ServerVersion {
      * ServerVersion version = ServerVersion.of(Triple.of(1, 21, 0));
      * </pre>
      *
-     * @param triple the triple representing the version (major, minor, patch)
+     * @param triple
+     *         the triple representing the version (major, minor, patch)
+     *
      * @return the corresponding ServerVersion
      */
     public static ServerVersion of(Triple<Integer, Integer, Integer> triple) {
@@ -114,9 +116,9 @@ public class ServerVersion {
         return CURRENT_VERSION = register(triple, "");
     }
 
-    private Triple<Integer, Integer, Integer> version;
-    private String spigotNMS;
-    private String versionName;
+    private final Triple<Integer, Integer, Integer> version;
+    private final String spigotNMS;
+    private final String versionName;
     private ServerVersion parentVersion = this;
 
     private ServerVersion(Triple<Integer, Integer, Integer> version, ServerVersion parentVersion) {
@@ -187,7 +189,9 @@ public class ServerVersion {
      * boolean result = current.isEqualOrNewer(ServerVersion.v1_21);
      * </pre>
      *
-     * @param version the version to compare against
+     * @param version
+     *         the version to compare against
+     *
      * @return true if this version is equal to or newer than the specified version; false otherwise
      */
     public boolean isEqualOrNewer(ServerVersion version) {
@@ -216,20 +220,18 @@ public class ServerVersion {
      * boolean result = current.isStrictlyNewer(ServerVersion.v1_21);
      * </pre>
      *
-     * @param version the version to compare against
+     * @param version
+     *         the version to compare against
+     *
      * @return true if this version is strictly newer than the specified version; false otherwise
      */
     public boolean isStrictlyNewer(ServerVersion version) {
         Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
 
-        if ((this.version.left > compare.left)
+        return (this.version.left > compare.left)
                 || (this.version.left.equals(compare.left) && this.version.middle > compare.middle)
                 || (this.version.left.equals(compare.left) && this.version.middle.equals(compare.middle)
-                && this.version.right > compare.right)) {
-            return true;
-        }
-
-        return false;
+                && this.version.right > compare.right);
     }
 
     /**
@@ -242,7 +244,9 @@ public class ServerVersion {
      * boolean equal = current.isSameVersion(ServerVersion.v1_21);
      * </pre>
      *
-     * @param version the version to compare against
+     * @param version
+     *         the version to compare against
+     *
      * @return true if both versions are exactly equal; false otherwise
      */
     public boolean isSameVersion(ServerVersion version) {
@@ -263,7 +267,9 @@ public class ServerVersion {
      * boolean result = current.isEqualOrOlder(ServerVersion.v1_21);
      * </pre>
      *
-     * @param version the version to compare against
+     * @param version
+     *         the version to compare against
+     *
      * @return true if this version is equal to or older than the specified version; false otherwise
      */
     public boolean isEqualOrOlder(ServerVersion version) {
@@ -292,20 +298,18 @@ public class ServerVersion {
      * boolean result = current.isStrictlyOlder(ServerVersion.v1_21);
      * </pre>
      *
-     * @param version the version to compare against
+     * @param version
+     *         the version to compare against
+     *
      * @return true if this version is strictly older than the specified version; false otherwise
      */
     public boolean isStrictlyOlder(ServerVersion version) {
         Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
 
-        if ((this.version.left < compare.left)
+        return (this.version.left < compare.left)
                 || (this.version.left.equals(compare.left) && this.version.middle < compare.middle)
                 || (this.version.left.equals(compare.left) && this.version.middle.equals(compare.middle)
-                && this.version.right < compare.right)) {
-            return true;
-        }
-
-        return false;
+                && this.version.right < compare.right);
     }
 
     // --- PRIVATE METHODS (No JavaDocs) --- //

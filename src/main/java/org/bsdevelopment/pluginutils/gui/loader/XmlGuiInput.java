@@ -45,7 +45,7 @@ public class XmlGuiInput {
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile);
             doc.getDocumentElement().normalize();
-            
+
             Element guiElement = doc.getDocumentElement();
             XmlUtils.requireTag(guiElement, "gui");
 
@@ -68,9 +68,9 @@ public class XmlGuiInput {
             for (int i = 0; i < itemDefinitions.getLength(); i++) {
                 Element def = (Element) itemDefinitions.item(i);
                 String id = XmlUtils.requireAttribute(def, "id");
-                if (definitions.containsKey(id)) 
+                if (definitions.containsKey(id))
                     throw new XmlValidationException(def, "Duplicate definition id='" + id + "'", "Use a unique id per <item-definition>");
-                
+
                 definitions.put(id, parseItemBuilder(def, plugin));
             }
 
@@ -82,14 +82,14 @@ public class XmlGuiInput {
                 XmlUtils.requireTag(component, "component");
 
                 int slot = XmlUtils.parseIntAttribute(component, "slot", 0, inv.getSize() - 1,
-                        "slot must be between 0 and " + (inv.getSize()-1));
+                        "slot must be between 0 and " + (inv.getSize() - 1));
 
                 ItemBuilder builder;
                 if (component.hasAttribute("item-id")) {
                     String ref = component.getAttribute("item-id");
                     builder = definitions.get(ref);
-                    if (builder == null) throw new XmlValidationException(component, 
-                            "Unknown item-id='" + ref + "'", 
+                    if (builder == null) throw new XmlValidationException(component,
+                            "Unknown item-id='" + ref + "'",
                             "Declare <item-definition id=\"" + ref + "\"/> first"
                     );
                 } else {
@@ -174,7 +174,7 @@ public class XmlGuiInput {
 
         // unbreakable
         if ("true".equalsIgnoreCase(element.getAttribute("unbreakable"))) builder.setUnbreakable(true);
-        
+
 
         // flags
         NodeList flagGroups = element.getElementsByTagName("flags");
@@ -258,7 +258,8 @@ public class XmlGuiInput {
                 switch (type.toUpperCase()) {
                     // TODO: Add the other PDC types (at least the common ones)
                     case "STRING" -> container.set(namespacedKey, PersistentDataType.STRING, val);
-                    case "BOOLEAN" -> container.set(namespacedKey, PersistentDataType.BOOLEAN, Boolean.parseBoolean(val));
+                    case "BOOLEAN" ->
+                            container.set(namespacedKey, PersistentDataType.BOOLEAN, Boolean.parseBoolean(val));
                     case "INT" -> container.set(namespacedKey, PersistentDataType.INTEGER, Integer.parseInt(val));
                     case "BYTE" -> container.set(namespacedKey, PersistentDataType.BYTE, Byte.parseByte(val));
                     case "DOUBLE" -> container.set(namespacedKey, PersistentDataType.DOUBLE, Double.parseDouble(val));
@@ -266,7 +267,8 @@ public class XmlGuiInput {
                     case "LONG" -> container.set(namespacedKey, PersistentDataType.LONG, Long.parseLong(val));
                     case "SHORT" -> container.set(namespacedKey, PersistentDataType.SHORT, Short.parseShort(val));
 
-                    default -> throw new XmlValidationException(pd, "Unsupported PDC type='" + type + "'", "Use STRING, INT, BOOLEAN, DOUBLE, FLOAT, LONG, SHORT, or BYTE");
+                    default ->
+                            throw new XmlValidationException(pd, "Unsupported PDC type='" + type + "'", "Use STRING, INT, BOOLEAN, DOUBLE, FLOAT, LONG, SHORT, or BYTE");
                 }
                 return meta;
             });

@@ -5,10 +5,11 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
  * An NBT tag holding a single float value.
- * 
+ *
  * <p>Implemented as a record for conciseness.</p>
  *
- * @param value The float value stored by this tag.
+ * @param value
+ *         The float value stored by this tag.
  */
 public record FloatData(float value) implements BasicData {
 

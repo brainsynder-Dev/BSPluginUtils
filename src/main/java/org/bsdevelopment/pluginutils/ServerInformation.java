@@ -84,8 +84,10 @@ public class ServerInformation {
      * }
      * </pre>
      *
-     * @param plugin      the plugin instance
-     * @param classLoader the class loader
+     * @param plugin
+     *         the plugin instance
+     * @param classLoader
+     *         the class loader
      */
     public ServerInformation(Plugin plugin, ClassLoader classLoader) {
         paperServer = PaperLib.isPaper();
@@ -107,7 +109,7 @@ public class ServerInformation {
                 var buildInfoMethod = Reflection.resolveMethod(buildInfoClass, "buildInfo");
                 var instance = Reflection.executeMethod(buildInfoMethod, null);
 
-                serverType = (String) Reflection.executeMethod(
+                serverType = Reflection.executeMethod(
                         Reflection.resolveMethod(buildInfoClass, "brandName"),
                         instance
                 );

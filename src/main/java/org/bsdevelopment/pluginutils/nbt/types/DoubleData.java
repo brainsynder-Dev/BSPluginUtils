@@ -5,10 +5,11 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
  * An NBT tag holding a single double value.
- * 
+ *
  * <p>Implemented as a record for conciseness.</p>
  *
- * @param value The double value stored by this tag.
+ * @param value
+ *         The double value stored by this tag.
  */
 public record DoubleData(double value) implements BasicData {
 

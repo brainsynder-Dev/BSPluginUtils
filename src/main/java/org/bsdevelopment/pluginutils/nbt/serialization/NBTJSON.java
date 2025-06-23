@@ -30,8 +30,11 @@ public final class NBTJSON {
     /**
      * Converts an NBT {@link BasicData} into a JSON string.
      *
-     * @param tag The NBT Tag to serialize.
-     * @param pretty If true, output is pretty-printed (indented).
+     * @param tag
+     *         The NBT Tag to serialize.
+     * @param pretty
+     *         If true, output is pretty-printed (indented).
+     *
      * @return A JSON string representation.
      */
     public static String writeToJsonString(BasicData tag, boolean pretty) {
@@ -42,9 +45,12 @@ public final class NBTJSON {
     /**
      * Parses a JSON string back into an NBT {@link BasicData}, using type inference.
      *
-     * @param json The JSON string to parse.
+     * @param json
+     *         The JSON string to parse.
+     *
      * @return The NBT Tag inferred from the JSON data.
-     * @throws com.eclipsesource.json.ParseException if the JSON is invalid
+     * @throws com.eclipsesource.json.ParseException
+     *         if the JSON is invalid
      */
     public static BasicData readFromJsonString(String json) {
         JsonValue rootValue = Json.parse(json);

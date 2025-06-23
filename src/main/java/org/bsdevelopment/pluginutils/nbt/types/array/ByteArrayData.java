@@ -7,11 +7,12 @@ import java.util.Arrays;
 
 /**
  * An NBT tag holding a byte array.
- * 
+ *
  * <p>Implemented as a record. Note that we create a defensive copy
  * of the array for both construction and copying to ensure immutability.</p>
  *
- * @param value The byte array stored by this tag.
+ * @param value
+ *         The byte array stored by this tag.
  */
 public record ByteArrayData(byte[] value) implements BasicData {
 

@@ -7,8 +7,12 @@ import com.google.common.base.Ticker;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,8 +30,10 @@ import java.util.concurrent.TimeUnit;
  * String value = cache.get("greeting"); // null if expired
  * </pre>
  *
- * @param <K> the type of keys maintained by this map
- * @param <V> the type of mapped values
+ * @param <K>
+ *         the type of keys maintained by this map
+ * @param <V>
+ *         the type of mapped values
  */
 public class ExpireHashMap<K, V> {
 
@@ -61,19 +67,22 @@ public class ExpireHashMap<K, V> {
     /**
      * Constructs an {@code ExpireHashMap} using a specified {@link Ticker} for time measurement.
      *
-     * @param ticker the ticker to use for measuring elapsed time
+     * @param ticker
+     *         the ticker to use for measuring elapsed time
      */
     public ExpireHashMap(Ticker ticker) {
         keyLookup = new HashMap<>();
         expireQueue = new PriorityQueue<>();
-        valueView = Maps.transformValues(keyLookup, (Function<ExpireEntry, V>) entry -> entry.value);
+        valueView = Maps.transformValues(keyLookup, entry -> entry.value);
         this.ticker = ticker;
     }
 
     /**
      * Retrieves the value associated with the given key, evicting any expired entries first.
      *
-     * @param key the key whose associated value is to be returned
+     * @param key
+     *         the key whose associated value is to be returned
+     *
      * @return the value for the specified key, or {@code null} if none exists (or if expired)
      */
     public V get(K key) {
@@ -88,13 +97,20 @@ public class ExpireHashMap<K, V> {
      * <p>If the map previously contained a mapping for the key, the old value is replaced, and the
      * old mapping is returned. Otherwise, {@code null} is returned.
      *
-     * @param key         the key
-     * @param value       the value
-     * @param expireDelay the expiration delay
-     * @param expireUnit  the time unit of the expiration delay
+     * @param key
+     *         the key
+     * @param value
+     *         the value
+     * @param expireDelay
+     *         the expiration delay
+     * @param expireUnit
+     *         the time unit of the expiration delay
+     *
      * @return the previous value associated with key, or {@code null} if there was none
-     * @throws IllegalStateException    if {@code expireDelay} is non-positive
-     * @throws NullPointerException     if {@code expireUnit} is null
+     * @throws IllegalStateException
+     *         if {@code expireDelay} is non-positive
+     * @throws NullPointerException
+     *         if {@code expireUnit} is null
      */
     public V put(K key, V value, long expireDelay, TimeUnit expireUnit) {
         Preconditions.checkNotNull(expireUnit, "expireUnit cannot be NULL");
@@ -112,7 +128,9 @@ public class ExpireHashMap<K, V> {
     /**
      * Checks if this map contains a mapping for the specified key.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return {@code true} if the map contains the key, otherwise {@code false}
      */
     public boolean containsKey(K key) {
@@ -123,7 +141,9 @@ public class ExpireHashMap<K, V> {
     /**
      * Checks if this map contains one or more mappings to the specified value.
      *
-     * @param value the value to check
+     * @param value
+     *         the value to check
+     *
      * @return {@code true} if one or more mappings to the value exist, otherwise {@code false}
      */
     public boolean containsValue(V value) {
@@ -137,7 +157,9 @@ public class ExpireHashMap<K, V> {
     /**
      * Removes the mapping for a key from this map if it is present.
      *
-     * @param key the key to remove
+     * @param key
+     *         the key to remove
+     *
      * @return the value that was removed, or {@code null} if no mapping existed
      */
     public V removeKey(K key) {
@@ -253,7 +275,9 @@ public class ExpireHashMap<K, V> {
         /**
          * Compares entries based on their expiration times, in ascending order.
          *
-         * @param other another {@link ExpireEntry}
+         * @param other
+         *         another {@link ExpireEntry}
+         *
          * @return a negative integer, zero, or a positive integer
          */
         @Override

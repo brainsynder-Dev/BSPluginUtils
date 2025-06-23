@@ -5,11 +5,12 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
  * An NBT tag holding a single string value.
- * 
+ *
  * <p>Implemented as a record for conciseness. In Minecraft, an empty
  * string is often used in place of null.</p>
  *
- * @param value The string value stored by this tag (never null).
+ * @param value
+ *         The string value stored by this tag (never null).
  */
 public record StringData(String value) implements BasicData {
 

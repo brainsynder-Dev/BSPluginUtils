@@ -27,7 +27,7 @@ public final class PluginUtilities extends JavaPlugin {
     private static Plugin plugin;
     private static TaskScheduler scheduler;
 
-    public static void initialize (Plugin plugin) {
+    public static void initialize(Plugin plugin) {
         scheduler = UniversalScheduler.getScheduler(plugin);
     }
 
@@ -47,10 +47,12 @@ public final class PluginUtilities extends JavaPlugin {
      * </pre>
      *
      * @return the initialized {@link TaskScheduler}
-     * @throws UnsupportedOperationException if {@link #initialize(Plugin)} was never called
+     * @throws UnsupportedOperationException
+     *         if {@link #initialize(Plugin)} was never called
      */
     public static TaskScheduler getScheduler() {
-        if (scheduler == null) throw new UnsupportedOperationException("PluginUtilities.initialize() has not been initialized before this method was called.");
+        if (scheduler == null)
+            throw new UnsupportedOperationException("PluginUtilities.initialize() has not been initialized before this method was called.");
         return scheduler;
     }
 }

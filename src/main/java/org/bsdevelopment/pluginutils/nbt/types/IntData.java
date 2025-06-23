@@ -5,10 +5,11 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
  * An NBT tag holding a single int value.
- * 
+ *
  * <p>Implemented as a record for conciseness.</p>
  *
- * @param value The int value stored by this tag.
+ * @param value
+ *         The int value stored by this tag.
  */
 public record IntData(int value) implements BasicData {
 

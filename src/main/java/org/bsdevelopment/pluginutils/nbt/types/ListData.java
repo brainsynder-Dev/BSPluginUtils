@@ -31,8 +31,10 @@ public final class ListData implements BasicData {
     /**
      * Creates a new ListTag with a predefined element type and an initial list of tags.
      *
-     * @param elementType The element type for all tags in this list.
-     * @param initialTags The tags to store in this list. Must all match elementType.
+     * @param elementType
+     *         The element type for all tags in this list.
+     * @param initialTags
+     *         The tags to store in this list. Must all match elementType.
      */
     public ListData(TagType elementType, List<BasicData> initialTags) {
         if (elementType == null) {
@@ -53,7 +55,8 @@ public final class ListData implements BasicData {
      * Adds a tag to the end of this list. If this list was previously empty,
      * we set the element type based on the new tag.
      *
-     * @param tag The tag to add.
+     * @param tag
+     *         The tag to add.
      */
     public ListData add(BasicData tag) {
         if (tag == null) throw new IllegalArgumentException("Cannot add null tag to ListTag");
@@ -72,7 +75,9 @@ public final class ListData implements BasicData {
     /**
      * Returns the tag at the specified index in this list.
      *
-     * @param index The index of the desired tag.
+     * @param index
+     *         The index of the desired tag.
+     *
      * @return The tag at the given index.
      */
     public BasicData get(int index) {
@@ -82,7 +87,9 @@ public final class ListData implements BasicData {
     /**
      * Removes the tag at the specified index.
      *
-     * @param index The index of the tag to remove.
+     * @param index
+     *         The index of the tag to remove.
+     *
      * @return The removed tag.
      */
     public BasicData remove(int index) {

@@ -22,9 +22,12 @@ public final class NBTIO {
     /**
      * Reads the root Data from an uncompressed NBT file.
      *
-     * @param file the file to read from.
+     * @param file
+     *         the file to read from.
+     *
      * @return the root Data.
-     * @throws IOException if an I/O error occurs.
+     * @throws IOException
+     *         if an I/O error occurs.
      */
     public static BasicData readFromFile(File file) throws IOException {
         try (FileInputStream inputStream = new FileInputStream(file);
@@ -36,9 +39,13 @@ public final class NBTIO {
     /**
      * Writes the root Data to an uncompressed NBT file.
      *
-     * @param data  the Data to write.
-     * @param file the file to write to.
-     * @throws IOException if an I/O error occurs.
+     * @param data
+     *         the Data to write.
+     * @param file
+     *         the file to write to.
+     *
+     * @throws IOException
+     *         if an I/O error occurs.
      */
     public static void writeToFile(BasicData data, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file);
@@ -52,9 +59,12 @@ public final class NBTIO {
     /**
      * Reads the root Tag from a GZIP-compressed NBT file.
      *
-     * @param file the compressed file to read from.
+     * @param file
+     *         the compressed file to read from.
+     *
      * @return the root Data.
-     * @throws IOException if an I/O error occurs.
+     * @throws IOException
+     *         if an I/O error occurs.
      */
     public static BasicData readFromCompressedFile(File file) throws IOException {
         try (FileInputStream inputStream = new FileInputStream(file);
@@ -67,9 +77,13 @@ public final class NBTIO {
     /**
      * Writes the root Tag to a GZIP-compressed NBT file.
      *
-     * @param data  the Data to write.
-     * @param file the file to write to.
-     * @throws IOException if an I/O error occurs.
+     * @param data
+     *         the Data to write.
+     * @param file
+     *         the file to write to.
+     *
+     * @throws IOException
+     *         if an I/O error occurs.
      */
     public static void writeToCompressedFile(BasicData data, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file);

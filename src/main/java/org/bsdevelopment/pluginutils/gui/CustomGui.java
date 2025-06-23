@@ -18,18 +18,21 @@ public class CustomGui implements Listener {
     private final Map<Integer, List<GuiAction>> actions;
 
     /**
-     * @param inventory the Inventory to display
-     * @param actions   map slot-index → list of actions
+     * @param inventory
+     *         the Inventory to display
+     * @param actions
+     *         map slot-index → list of actions
      */
     public CustomGui(Inventory inventory, Map<Integer, List<GuiAction>> actions) {
         this.inventory = inventory;
-        this.actions   = actions;
+        this.actions = actions;
     }
 
     /**
      * Register this GUI’s click-listener with the server.
      *
-     * @param plugin your JavaPlugin instance
+     * @param plugin
+     *         your JavaPlugin instance
      */
     public void register(Plugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -38,7 +41,8 @@ public class CustomGui implements Listener {
     /**
      * Opens the GUI for a player.
      *
-     * @param player who to show it to
+     * @param player
+     *         who to show it to
      */
     public void open(Player player) {
         player.openInventory(inventory);

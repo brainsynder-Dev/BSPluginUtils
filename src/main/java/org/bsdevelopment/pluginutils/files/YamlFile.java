@@ -27,7 +27,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Provides YAML file handling with support for comments, sections, and moved keys.
@@ -65,8 +70,11 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Creates parent directories for the given file.
      *
-     * @param file the file whose parent directories are to be created
-     * @throws IOException if the parent directories cannot be created
+     * @param file
+     *         the file whose parent directories are to be created
+     *
+     * @throws IOException
+     *         if the parent directories cannot be created
      */
     private void createParentDirs(File file) throws IOException {
         Preconditions.checkNotNull(file);
@@ -84,9 +92,12 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Constructs a new YamlFile using the specified plugin, directory, and file name.
      *
-     * @param plugin   the plugin instance
-     * @param directory the directory relative to the plugin's data folder
-     * @param fileName the file name
+     * @param plugin
+     *         the plugin instance
+     * @param directory
+     *         the directory relative to the plugin's data folder
+     * @param fileName
+     *         the file name
      */
     public YamlFile(Plugin plugin, String directory, String fileName) {
         this(new File(plugin.getDataFolder() + File.separator + directory), fileName);
@@ -95,8 +106,10 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Constructs a new YamlFile using the specified folder and file name.
      *
-     * @param folder   the folder
-     * @param fileName the file name
+     * @param folder
+     *         the folder
+     * @param fileName
+     *         the file name
      */
     public YamlFile(File folder, String fileName) {
         this(new File(folder, fileName));
@@ -105,7 +118,8 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Constructs a new YamlFile using the specified file.
      *
-     * @param file the file
+     * @param file
+     *         the file
      */
     public YamlFile(File file) {
         movedKeys = new HashMap<>();
@@ -203,7 +217,8 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.remove("old.key");
      * </pre>
      *
-     * @param key the configuration key to remove
+     * @param key
+     *         the configuration key to remove
      */
     public void remove(String key) {
         if (configuration.contains(key)) {
@@ -219,8 +234,10 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.addComment("settings.option", "This option enables X");
      * </pre>
      *
-     * @param path    the configuration path
-     * @param comment the comment text
+     * @param path
+     *         the configuration path
+     * @param comment
+     *         the comment text
      */
     public void addComment(String path, String comment) {
         String key = fetchKey(path);
@@ -238,8 +255,10 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.addSectionHeader("settings", "Settings Section");
      * </pre>
      *
-     * @param path the configuration path
-     * @param text the header text
+     * @param path
+     *         the configuration path
+     * @param text
+     *         the header text
      */
     public void addSectionHeader(String path, String text) {
         sections.put(fetchKey(path), text);
@@ -253,9 +272,12 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.addSectionHeader("settings", AdvString.AlignText.CENTER, "Centered Settings");
      * </pre>
      *
-     * @param path      the configuration path
-     * @param alignText the alignment for the header
-     * @param text      the header text
+     * @param path
+     *         the configuration path
+     * @param alignText
+     *         the alignment for the header
+     * @param text
+     *         the header text
      */
     public void addSectionHeader(String path, AdvString.AlignText alignText, String text) {
         sections.put(fetchKey(path), text);
@@ -271,7 +293,9 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Returns inline comments for the given key.
      *
-     * @param s the configuration key
+     * @param s
+     *         the configuration key
+     *
      * @return null (not implemented)
      */
     public List<String> getComments(String s) {
@@ -281,7 +305,9 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Returns inline comments for the given key.
      *
-     * @param s the configuration key
+     * @param s
+     *         the configuration key
+     *
      * @return null (not implemented)
      */
     public List<String> getInlineComments(String s) {
@@ -291,8 +317,10 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Sets the comments for the given key.
      *
-     * @param s    the configuration key
-     * @param list the list of comments
+     * @param s
+     *         the configuration key
+     * @param list
+     *         the list of comments
      */
     public void setComments(String s, List<String> list) {
     }
@@ -300,8 +328,10 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Sets the inline comments for the given key.
      *
-     * @param s    the configuration key
-     * @param list the list of inline comments
+     * @param s
+     *         the configuration key
+     * @param list
+     *         the list of inline comments
      */
     public void setInlineComments(String s, List<String> list) {
     }
@@ -314,9 +344,12 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.addDefault("settings.option", true, "Enable option");
      * </pre>
      *
-     * @param key     the configuration key
-     * @param value   the default value
-     * @param comment the comment to add
+     * @param key
+     *         the configuration key
+     * @param value
+     *         the default value
+     * @param comment
+     *         the comment to add
      */
     public void addDefault(String key, Object value, String comment) {
         configuration.addDefault(fetchKey(key), value);
@@ -337,10 +370,14 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Writes a comment at the correct indentation based on the configuration divisions.
      *
-     * @param path         the configuration path
-     * @param divisions    the divisions of the path
-     * @param iteration    current division index
-     * @param startingLine starting line number in currentLines
+     * @param path
+     *         the configuration path
+     * @param divisions
+     *         the divisions of the path
+     * @param iteration
+     *         current division index
+     * @param startingLine
+     *         starting line number in currentLines
      */
     private void writeComment(String path, String[] divisions, int iteration, int startingLine) {
         var indent = new StringBuilder();
@@ -391,9 +428,12 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Writes a section header at the correct indentation based on the configuration divisions.
      *
-     * @param path       the configuration path
-     * @param divisions  the divisions of the path
-     * @param iteration  current division index
+     * @param path
+     *         the configuration path
+     * @param divisions
+     *         the divisions of the path
+     * @param iteration
+     *         current division index
      */
     private void writeSection(String path, String[] divisions, int iteration) {
         var indent = new StringBuilder();
@@ -443,7 +483,8 @@ public abstract class YamlFile implements ConfigurationSection {
     /**
      * Saves the YAML file.
      *
-     * @param isConfig if true, saves the temp configuration; if false, writes currentLines to file.
+     * @param isConfig
+     *         if true, saves the temp configuration; if false, writes currentLines to file.
      */
     private void save(boolean isConfig) {
         try {
@@ -481,8 +522,11 @@ public abstract class YamlFile implements ConfigurationSection {
      * String text = yamlFile.getString("path.to.key", true);
      * </pre>
      *
-     * @param tag   the configuration key
-     * @param color if true, translates color codes
+     * @param tag
+     *         the configuration key
+     * @param color
+     *         if true, translates color codes
+     *
      * @return the string value
      */
     public String getString(String tag, boolean color) {
@@ -706,8 +750,11 @@ public abstract class YamlFile implements ConfigurationSection {
      * List&lt;String&gt; list = yamlFile.getStringList("path.to.list");
      * </pre>
      *
-     * @param tag      the configuration key
-     * @param fallback the fallback list if the key doesn't exist
+     * @param tag
+     *         the configuration key
+     * @param fallback
+     *         the fallback list if the key doesn't exist
+     *
      * @return the list of strings
      */
     public List<String> getStringList(String tag, List<String> fallback) {
@@ -826,7 +873,9 @@ public abstract class YamlFile implements ConfigurationSection {
      * ConfigurationSection section = yamlFile.getSection("settings");
      * </pre>
      *
-     * @param tag the configuration key
+     * @param tag
+     *         the configuration key
+     *
      * @return the configuration section
      */
     public ConfigurationSection getSection(String tag) {
@@ -863,9 +912,12 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.set("settings.option", true);
      * </pre>
      *
-     * @param tag  the configuration key
-     * @param data the data to set (null to remove)
-     * @param save if true, immediately saves the configuration
+     * @param tag
+     *         the configuration key
+     * @param data
+     *         the data to set (null to remove)
+     * @param save
+     *         if true, immediately saves the configuration
      */
     public void set(String tag, Object data, boolean save) {
         currentLines = new ArrayList<>();
@@ -912,7 +964,8 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.setHeader("My Config Header");
      * </pre>
      *
-     * @param header the header lines
+     * @param header
+     *         the header lines
      */
     public void setHeader(String... header) {
         configuration.options().header(Arrays.toString(header));
@@ -926,7 +979,9 @@ public abstract class YamlFile implements ConfigurationSection {
      * Map&lt;String, Object&gt; values = yamlFile.getConfigSectionValue(someSection);
      * </pre>
      *
-     * @param o the configuration section or map
+     * @param o
+     *         the configuration section or map
+     *
      * @return a Map of values
      */
     public Map<String, Object> getConfigSectionValue(Object o) {
@@ -941,8 +996,11 @@ public abstract class YamlFile implements ConfigurationSection {
      * Map&lt;String, Object&gt; values = yamlFile.getConfigSectionValue(someSection, true);
      * </pre>
      *
-     * @param o    the configuration section or map
-     * @param deep if true, retrieves values recursively
+     * @param o
+     *         the configuration section or map
+     * @param deep
+     *         if true, retrieves values recursively
+     *
      * @return a Map of values
      */
     public Map<String, Object> getConfigSectionValue(Object o, boolean deep) {
@@ -968,8 +1026,11 @@ public abstract class YamlFile implements ConfigurationSection {
      * boolean moved = yamlFile.move("old.key", "new.key");
      * </pre>
      *
-     * @param oldKey the original key
-     * @param newKey the new key to map to
+     * @param oldKey
+     *         the original key
+     * @param newKey
+     *         the new key to map to
+     *
      * @return true if the key was moved; false otherwise
      */
     public boolean move(String oldKey, String newKey) {
@@ -997,8 +1058,10 @@ public abstract class YamlFile implements ConfigurationSection {
      * yamlFile.registerMovedKeys("new.key", "old.key1", "old.key2");
      * </pre>
      *
-     * @param newKey  the new key
-     * @param oldKeys one or more old keys to map to the new key
+     * @param newKey
+     *         the new key
+     * @param oldKeys
+     *         one or more old keys to map to the new key
      */
     public void registerMovedKeys(String newKey, String... oldKeys) {
         Lists.newArrayList(oldKeys).forEach(oldKey -> movedKeys.putIfAbsent(oldKey, newKey));
@@ -1012,7 +1075,9 @@ public abstract class YamlFile implements ConfigurationSection {
      * String key = yamlFile.fetchKey("oldKey");
      * </pre>
      *
-     * @param key the original key
+     * @param key
+     *         the original key
+     *
      * @return the new key if moved, or the original key
      */
     public String fetchKey(String key) {
@@ -1033,7 +1098,9 @@ public abstract class YamlFile implements ConfigurationSection {
      * Location loc = yamlFile.getLocation("spawn");
      * </pre>
      *
-     * @param path the configuration key
+     * @param path
+     *         the configuration key
+     *
      * @return the Location
      */
     public Location getLocation(String path) {
@@ -1048,8 +1115,11 @@ public abstract class YamlFile implements ConfigurationSection {
      * Location loc = yamlFile.getLocation("spawn", defaultLocation);
      * </pre>
      *
-     * @param path the configuration key
-     * @param def  the default Location
+     * @param path
+     *         the configuration key
+     * @param def
+     *         the default Location
+     *
      * @return the Location, or the default if not found
      */
     public Location getLocation(String path, Location def) {
@@ -1064,7 +1134,9 @@ public abstract class YamlFile implements ConfigurationSection {
      * boolean isLoc = yamlFile.isLocation("spawn");
      * </pre>
      *
-     * @param path the configuration key
+     * @param path
+     *         the configuration key
+     *
      * @return true if it is a Location, false otherwise
      */
     public boolean isLocation(String path) {

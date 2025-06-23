@@ -7,10 +7,11 @@ import java.util.Arrays;
 
 /**
  * An NBT tag holding a long array.
- * 
+ *
  * <p>Implemented as a record with defensive copying.</p>
  *
- * @param value The long array stored by this tag.
+ * @param value
+ *         The long array stored by this tag.
  */
 public record LongArrayData(long[] value) implements BasicData {
 

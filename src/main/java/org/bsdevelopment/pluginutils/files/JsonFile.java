@@ -50,7 +50,8 @@ public abstract class JsonFile {
      * JsonFile myFile = new MyJsonFile(new File("config.json"));
      * </pre>
      *
-     * @param file the file to use
+     * @param file
+     *         the file to use
      */
     public JsonFile(File file) {
         this(file, true);
@@ -59,8 +60,10 @@ public abstract class JsonFile {
     /**
      * Constructs a JsonFile using the given file, with optional default loading.
      *
-     * @param file         the file to use
-     * @param loadDefaults if true, calls {@link #loadDefaults()} immediately
+     * @param file
+     *         the file to use
+     * @param loadDefaults
+     *         if true, calls {@link #loadDefaults()} immediately
      */
     public JsonFile(File file, boolean loadDefaults) {
         this.file = file;
@@ -137,7 +140,9 @@ public abstract class JsonFile {
      * boolean success = myJsonFile.save(true);
      * </pre>
      *
-     * @param clearFile whether to clear the file's contents before saving
+     * @param clearFile
+     *         whether to clear the file's contents before saving
+     *
      * @return true if the save was successful, false otherwise
      */
     public boolean save(boolean clearFile) {
@@ -147,7 +152,8 @@ public abstract class JsonFile {
             file.delete();
             try {
                 file.createNewFile();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         try (var fw = new OutputStreamWriter(new FileOutputStream(file), ENCODE)) {
@@ -190,7 +196,9 @@ public abstract class JsonFile {
     /**
      * Checks if the specified key is found in either the main JSON or the defaults.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return true if the key is found, false otherwise
      */
     public boolean containsKey(String key) {
@@ -200,7 +208,9 @@ public abstract class JsonFile {
     /**
      * Checks if the specified key is found in the main JSON object.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return true if the key exists in the JSON, false otherwise
      */
     public boolean hasKey(String key) {
@@ -210,7 +220,9 @@ public abstract class JsonFile {
     /**
      * Checks if the specified key is found in the defaults object.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return true if the key exists in the defaults, false otherwise
      */
     private boolean hasDefaultKey(String key) {
@@ -225,7 +237,9 @@ public abstract class JsonFile {
      * JsonValue value = myJsonFile.getValue("settings.option");
      * </pre>
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the {@link JsonValue}, or null if none is found
      */
     public JsonValue getValue(String key) {
@@ -245,7 +259,9 @@ public abstract class JsonFile {
      * JsonValue defValue = myJsonFile.getDefaultValue("settings.option");
      * </pre>
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the {@link JsonValue} from defaults, or null if not found
      */
     public JsonValue getDefaultValue(String key) {
@@ -256,7 +272,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a string from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the string value, or an empty string if missing
      */
     public String getString(String key) {
@@ -266,8 +284,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a string from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback string if missing
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback string if missing
+     *
      * @return the string value or fallback
      */
     public String getString(String key, String fallback) {
@@ -279,7 +300,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a double from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the double value, or 0 if missing
      */
     public double getDouble(String key) {
@@ -289,8 +312,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a double from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback double
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback double
+     *
      * @return the double value or fallback
      */
     public double getDouble(String key, double fallback) {
@@ -303,7 +329,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a byte from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the byte value, or 0 if missing
      */
     public byte getByte(String key) {
@@ -313,8 +341,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a byte from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback byte
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback byte
+     *
      * @return the byte value or fallback
      */
     public byte getByte(String key, byte fallback) {
@@ -327,7 +358,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a boolean from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the boolean value, or false if missing
      */
     public boolean getBoolean(String key) {
@@ -337,8 +370,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a boolean from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback boolean
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback boolean
+     *
      * @return the boolean value or fallback
      */
     public boolean getBoolean(String key, boolean fallback) {
@@ -356,7 +392,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a short from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the short value, or 0 if missing
      */
     public short getShort(String key) {
@@ -366,8 +404,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a short from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback short
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback short
+     *
      * @return the short value or fallback
      */
     public short getShort(String key, short fallback) {
@@ -380,7 +421,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a float from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the float value, or 0 if missing
      */
     public float getFloat(String key) {
@@ -390,8 +433,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a float from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback float
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback float
+     *
      * @return the float value or fallback
      */
     public float getFloat(String key, float fallback) {
@@ -404,7 +450,9 @@ public abstract class JsonFile {
     /**
      * Retrieves a long from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the long value, or 0 if missing
      */
     public long getLong(String key) {
@@ -414,8 +462,11 @@ public abstract class JsonFile {
     /**
      * Retrieves a long from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback long
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback long
+     *
      * @return the long value or fallback
      */
     public long getLong(String key, long fallback) {
@@ -428,7 +479,9 @@ public abstract class JsonFile {
     /**
      * Retrieves an integer from the JSON data.
      *
-     * @param key the key to check
+     * @param key
+     *         the key to check
+     *
      * @return the integer value, or 0 if missing
      */
     public int getInteger(String key) {
@@ -438,8 +491,11 @@ public abstract class JsonFile {
     /**
      * Retrieves an integer from the JSON data, returning a fallback if absent.
      *
-     * @param key      the key to check
-     * @param fallback the fallback integer
+     * @param key
+     *         the key to check
+     * @param fallback
+     *         the fallback integer
+     *
      * @return the integer value or fallback
      */
     public int getInteger(String key, int fallback) {
@@ -452,8 +508,10 @@ public abstract class JsonFile {
     /**
      * Sets the integer value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the integer value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the integer value
      */
     public void set(String key, int value) {
         update = true;
@@ -463,8 +521,10 @@ public abstract class JsonFile {
     /**
      * Sets the long value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the long value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the long value
      */
     public void set(String key, long value) {
         update = true;
@@ -474,8 +534,10 @@ public abstract class JsonFile {
     /**
      * Sets the float value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the float value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the float value
      */
     public void set(String key, float value) {
         update = true;
@@ -485,8 +547,10 @@ public abstract class JsonFile {
     /**
      * Sets the short value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the short value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the short value
      */
     public void set(String key, short value) {
         update = true;
@@ -496,8 +560,10 @@ public abstract class JsonFile {
     /**
      * Sets the byte value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the byte value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the byte value
      */
     public void set(String key, byte value) {
         update = true;
@@ -507,8 +573,10 @@ public abstract class JsonFile {
     /**
      * Sets the double value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the double value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the double value
      */
     public void set(String key, double value) {
         update = true;
@@ -518,8 +586,10 @@ public abstract class JsonFile {
     /**
      * Sets the boolean value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the boolean value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the boolean value
      */
     public void set(String key, boolean value) {
         update = true;
@@ -529,8 +599,10 @@ public abstract class JsonFile {
     /**
      * Sets the string value for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the string value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the string value
      */
     public void set(String key, String value) {
         update = true;
@@ -540,8 +612,10 @@ public abstract class JsonFile {
     /**
      * Sets the {@link JsonValue} for the given key in the JSON data.
      *
-     * @param key   the key to set
-     * @param value the JsonValue
+     * @param key
+     *         the key to set
+     * @param value
+     *         the JsonValue
      */
     public void set(String key, JsonValue value) {
         update = true;
@@ -556,7 +630,8 @@ public abstract class JsonFile {
      * myJsonFile.remove("settings.option");
      * </pre>
      *
-     * @param key the key to remove
+     * @param key
+     *         the key to remove
      */
     public void remove(String key) {
         boolean changed = false;
@@ -575,8 +650,10 @@ public abstract class JsonFile {
     /**
      * Sets a default integer value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default integer value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default integer value
      */
     public void setDefault(String key, int value) {
         defaults.add(key, value);
@@ -585,8 +662,10 @@ public abstract class JsonFile {
     /**
      * Sets a default long value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default long value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default long value
      */
     public void setDefault(String key, long value) {
         defaults.add(key, value);
@@ -595,8 +674,10 @@ public abstract class JsonFile {
     /**
      * Sets a default float value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default float value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default float value
      */
     public void setDefault(String key, float value) {
         defaults.add(key, value);
@@ -605,8 +686,10 @@ public abstract class JsonFile {
     /**
      * Sets a default short value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default short value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default short value
      */
     public void setDefault(String key, short value) {
         defaults.add(key, value);
@@ -615,8 +698,10 @@ public abstract class JsonFile {
     /**
      * Sets a default byte value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default byte value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default byte value
      */
     public void setDefault(String key, byte value) {
         defaults.add(key, value);
@@ -625,8 +710,10 @@ public abstract class JsonFile {
     /**
      * Sets a default double value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default double value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default double value
      */
     public void setDefault(String key, double value) {
         defaults.add(key, value);
@@ -635,8 +722,10 @@ public abstract class JsonFile {
     /**
      * Sets a default boolean value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default boolean value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default boolean value
      */
     public void setDefault(String key, boolean value) {
         defaults.add(key, value);
@@ -645,8 +734,10 @@ public abstract class JsonFile {
     /**
      * Sets a default string value for the given key.
      *
-     * @param key   the key to set
-     * @param value the default string value
+     * @param key
+     *         the key to set
+     * @param value
+     *         the default string value
      */
     public void setDefault(String key, String value) {
         defaults.add(key, value);
@@ -655,8 +746,10 @@ public abstract class JsonFile {
     /**
      * Sets a default {@link JsonValue} for the given key.
      *
-     * @param key   the key to set
-     * @param value the JsonValue
+     * @param key
+     *         the key to set
+     * @param value
+     *         the JsonValue
      */
     public void setDefault(String key, JsonValue value) {
         defaults.add(key, value);
@@ -672,8 +765,11 @@ public abstract class JsonFile {
      * boolean moved = myJsonFile.move("oldKey", "newKey");
      * </pre>
      *
-     * @param oldKey the original key
-     * @param newKey the new key
+     * @param oldKey
+     *         the original key
+     * @param newKey
+     *         the new key
+     *
      * @return true if the key was successfully moved, false otherwise
      */
     public boolean move(String oldKey, String newKey) {

@@ -35,7 +35,8 @@ public class NBTOutputStream implements AutoCloseable {
     /**
      * Constructs a new NBTOutputStream that writes to the given OutputStream.
      *
-     * @param outputStream the underlying output stream.
+     * @param outputStream
+     *         the underlying output stream.
      */
     public NBTOutputStream(OutputStream outputStream) {
         this.dataOut = new DataOutputStream(outputStream);
@@ -45,8 +46,11 @@ public class NBTOutputStream implements AutoCloseable {
      * Writes the root data to the stream.
      * The root data is written with an empty name.
      *
-     * @param data the root Data.
-     * @throws IOException if an I/O error occurs.
+     * @param data
+     *         the root Data.
+     *
+     * @throws IOException
+     *         if an I/O error occurs.
      */
     public void writeRootTag(BasicData data) throws IOException {
         TagType type = data.getType();

@@ -21,9 +21,12 @@ package org.bsdevelopment.pluginutils.utilities;
  *       .setRight(false);
  * </pre>
  *
- * @param <L> the type of the left element
- * @param <M> the type of the middle element
- * @param <R> the type of the right element
+ * @param <L>
+ *         the type of the left element
+ * @param <M>
+ *         the type of the middle element
+ * @param <R>
+ *         the type of the right element
  */
 public final class Triple<L, M, R> {
 
@@ -39,12 +42,19 @@ public final class Triple<L, M, R> {
      * Triple&lt;Integer, String, Boolean&gt; triple = Triple.of(1, "Hello", true);
      * </pre>
      *
-     * @param left   the left value
-     * @param middle the middle value
-     * @param right  the right value
-     * @param <L>    the type of the left value
-     * @param <M>    the type of the middle value
-     * @param <R>    the type of the right value
+     * @param left
+     *         the left value
+     * @param middle
+     *         the middle value
+     * @param right
+     *         the right value
+     * @param <L>
+     *         the type of the left value
+     * @param <M>
+     *         the type of the middle value
+     * @param <R>
+     *         the type of the right value
+     *
      * @return a new Triple containing the specified values
      */
     public static <L, M, R> Triple<L, M, R> of(L left, M middle, R right) {
@@ -54,9 +64,12 @@ public final class Triple<L, M, R> {
     /**
      * Constructs a Triple with the given values.
      *
-     * @param left   the left value
-     * @param middle the middle value
-     * @param right  the right value
+     * @param left
+     *         the left value
+     * @param middle
+     *         the middle value
+     * @param right
+     *         the right value
      */
     public Triple(L left, M middle, R right) {
         this.left = left;
@@ -72,7 +85,9 @@ public final class Triple<L, M, R> {
      * triple.setLeft(10);
      * </pre>
      *
-     * @param left the new left value
+     * @param left
+     *         the new left value
+     *
      * @return this Triple instance for chaining
      */
     public Triple setLeft(L left) {
@@ -88,7 +103,9 @@ public final class Triple<L, M, R> {
      * triple.setMiddle("Updated");
      * </pre>
      *
-     * @param middle the new middle value
+     * @param middle
+     *         the new middle value
+     *
      * @return this Triple instance for chaining
      */
     public Triple setMiddle(M middle) {
@@ -104,7 +121,9 @@ public final class Triple<L, M, R> {
      * triple.setRight(false);
      * </pre>
      *
-     * @param right the new right value
+     * @param right
+     *         the new right value
+     *
      * @return this Triple instance for chaining
      */
     public Triple setRight(R right) {

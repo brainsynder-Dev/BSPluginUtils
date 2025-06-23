@@ -2,7 +2,7 @@ package org.bsdevelopment.pluginutils.nbt;
 
 /**
  * Enum representing possible NBT tag types.
- * 
+ *
  * <p>This can be used for (de)serialization, validation, or switching
  * on the particular subclass of {@link BasicData} you’re dealing with.</p>
  */
@@ -39,7 +39,9 @@ public enum TagType {
     /**
      * Returns the corresponding {@link TagType} for a given ID.
      *
-     * @param id The numeric tag type ID.
+     * @param id
+     *         The numeric tag type ID.
+     *
      * @return The matching TagType if found, otherwise null.
      */
     public static TagType fromId(int id) {

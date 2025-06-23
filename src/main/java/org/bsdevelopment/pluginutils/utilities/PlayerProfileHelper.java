@@ -31,8 +31,11 @@ public class PlayerProfileHelper {
      * Sets the skin on the provided PlayerProfile using the given URL string.
      * Clears any previous texture data before applying the new skin.
      *
-     * @param profile The PlayerProfile to update (must not be null).
-     * @param skinUrl The URL string of the new skin.
+     * @param profile
+     *         The PlayerProfile to update (must not be null).
+     * @param skinUrl
+     *         The URL string of the new skin.
+     *
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setSkin(@NotNull PlayerProfile profile, @Nullable String skinUrl) {
@@ -50,9 +53,13 @@ public class PlayerProfileHelper {
      * Sets the skin on the provided PlayerProfile using the given URL string and SkinModel.
      * Clears any previous texture data before applying the new skin.
      *
-     * @param profile   The PlayerProfile to update (must not be null).
-     * @param skinUrl   The URL string of the new skin.
-     * @param skinModel The SkinModel to use (e.g. CLASSIC or SLIM).
+     * @param profile
+     *         The PlayerProfile to update (must not be null).
+     * @param skinUrl
+     *         The URL string of the new skin.
+     * @param skinModel
+     *         The SkinModel to use (e.g. CLASSIC or SLIM).
+     *
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setSkin(@NotNull PlayerProfile profile, @Nullable String skinUrl, @Nullable PlayerTextures.SkinModel skinModel) {
@@ -69,8 +76,11 @@ public class PlayerProfileHelper {
     /**
      * Sets the cape on the provided PlayerProfile using the given URL string.
      *
-     * @param profile The PlayerProfile to update (must not be null).
-     * @param capeUrl The URL string of the new cape.
+     * @param profile
+     *         The PlayerProfile to update (must not be null).
+     * @param capeUrl
+     *         The URL string of the new cape.
+     *
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setCape(@NotNull PlayerProfile profile, @Nullable String capeUrl) {
@@ -86,7 +96,9 @@ public class PlayerProfileHelper {
     /**
      * Clears all texture data (skin and cape) from the provided PlayerProfile.
      *
-     * @param profile The PlayerProfile whose textures will be cleared (must not be null).
+     * @param profile
+     *         The PlayerProfile whose textures will be cleared (must not be null).
+     *
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile clearTextures(@NotNull PlayerProfile profile) {

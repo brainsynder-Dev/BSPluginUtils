@@ -5,10 +5,11 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
  * An NBT tag holding a single byte value.
- * 
+ *
  * <p>Implemented as a record for conciseness.</p>
  *
- * @param value The byte value stored by this tag.
+ * @param value
+ *         The byte value stored by this tag.
  */
 public record ByteData(byte value) implements BasicData {
 

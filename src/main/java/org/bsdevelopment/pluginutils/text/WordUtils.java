@@ -39,7 +39,9 @@ public final class WordUtils {
     /**
      * Capitalizes the first letter of each word in the given string using default delimiters (whitespace).
      *
-     * @param str the input string to capitalize; may be null
+     * @param str
+     *         the input string to capitalize; may be null
+     *
      * @return a new string with each word capitalized, or the original string if null or empty.
      *
      * <p><b>Example:</b>
@@ -56,7 +58,9 @@ public final class WordUtils {
      * Converts the input string to lower case and then capitalizes the first letter of each word
      * using default delimiters (whitespace).
      *
-     * @param str the input string to convert and capitalize; may be null
+     * @param str
+     *         the input string to convert and capitalize; may be null
+     *
      * @return a new string fully capitalized (only first letters in upper case), or the original string if null or empty.
      *
      * <p><b>Example:</b>
@@ -72,7 +76,9 @@ public final class WordUtils {
     /**
      * Uncapitalizes the first letter of each word in the given string using default delimiters (whitespace).
      *
-     * @param str the input string to uncapitalize; may be null
+     * @param str
+     *         the input string to uncapitalize; may be null
+     *
      * @return a new string with each word uncapitalized, or the original string if null or empty.
      *
      * <p><b>Example:</b>
@@ -93,7 +99,9 @@ public final class WordUtils {
      *       it is converted to title case.
      * </ul>
      *
-     * @param str the input string to swap case; may be null
+     * @param str
+     *         the input string to swap case; may be null
+     *
      * @return a new string with swapped case, or the original string if null or empty.
      *
      * <p><b>Example:</b>
@@ -131,7 +139,9 @@ public final class WordUtils {
     /**
      * Extracts the initials (first character of each word) from the given string using default delimiters (whitespace).
      *
-     * @param str the input string from which to extract initials; may be null
+     * @param str
+     *         the input string from which to extract initials; may be null
+     *
      * @return a string containing the initials, or the original string if null or empty.
      *
      * <p><b>Example:</b>

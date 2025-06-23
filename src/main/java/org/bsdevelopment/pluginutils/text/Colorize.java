@@ -56,7 +56,9 @@ public class Colorize {
      * ChatColor color = Colorize.fetchColor("&#FFFFFF");
      * </pre>
      *
-     * @param hex the hex color code
+     * @param hex
+     *         the hex color code
+     *
      * @return the corresponding ChatColor, or ChatColor.WHITE if not found
      */
     public static ChatColor fetchColor(String hex) {
@@ -71,8 +73,11 @@ public class Colorize {
      * ChatColor color = Colorize.fetchColor("&#ABCDEF", ChatColor.GRAY);
      * </pre>
      *
-     * @param hex      the hex color code
-     * @param fallback the fallback ChatColor if conversion fails
+     * @param hex
+     *         the hex color code
+     * @param fallback
+     *         the fallback ChatColor if conversion fails
+     *
      * @return the corresponding ChatColor, or the fallback if conversion fails
      */
     public static ChatColor fetchColor(String hex, ChatColor fallback) {
@@ -83,7 +88,7 @@ public class Colorize {
 
         if (!hex.startsWith("#")) hex = "#" + hex;
 
-        return (ChatColor) Reflection.executeMethod(of, null, hex);
+        return Reflection.executeMethod(of, null, hex);
     }
 
     /**
@@ -94,7 +99,9 @@ public class Colorize {
      * ChatColor color = Colorize.fetchColor(Color.fromRGB(255, 255, 255));
      * </pre>
      *
-     * @param color the Bukkit Color
+     * @param color
+     *         the Bukkit Color
+     *
      * @return the corresponding ChatColor, or ChatColor.WHITE if color is null
      */
     public static ChatColor fetchColor(Color color) {
@@ -110,7 +117,9 @@ public class Colorize {
      * String result = Colorize.translateBungee("&aHello World");
      * </pre>
      *
-     * @param text the text to translate
+     * @param text
+     *         the text to translate
+     *
      * @return the translated text
      */
     public static String translateBungee(String text) {
@@ -127,7 +136,9 @@ public class Colorize {
      * String result = Colorize.translateBukkit("&aHello World");
      * </pre>
      *
-     * @param text the text to translate
+     * @param text
+     *         the text to translate
+     *
      * @return the translated text
      */
     public static String translateBukkit(String text) {
@@ -144,7 +155,9 @@ public class Colorize {
      * boolean hasHex = Colorize.containsHexColors("Test &#FFFFFF");
      * </pre>
      *
-     * @param text the text to check
+     * @param text
+     *         the text to check
+     *
      * @return true if valid hex is found; false otherwise
      */
     public static boolean containsHexColors(String text) {
@@ -164,7 +177,9 @@ public class Colorize {
      * String result = Colorize.translateBungeeHex("&aHello &#FFFFFFWorld");
      * </pre>
      *
-     * @param text the text to translate
+     * @param text
+     *         the text to translate
+     *
      * @return the colorized text
      */
     public static String translateBungeeHex(String text) {
@@ -200,7 +215,9 @@ public class Colorize {
      * String result = Colorize.removeHexColor("&x&e&3&a&a&4&fExample");
      * </pre>
      *
-     * @param text the text to process
+     * @param text
+     *         the text to process
+     *
      * @return the text with hex color formatting removed
      */
     public static String removeHexColor(String text) {
@@ -240,7 +257,9 @@ public class Colorize {
      * JsonObject json = Colorize.convertParts2Json(parts);
      * </pre>
      *
-     * @param parts the list of Parts
+     * @param parts
+     *         the list of Parts
+     *
      * @return a JsonObject representing the parts
      */
     public static JsonObject convertParts2Json(List<Part> parts) {
@@ -265,7 +284,9 @@ public class Colorize {
      * List&lt;Part&gt; parts = Colorize.splitMessageToParts("&aHello &bWorld");
      * </pre>
      *
-     * @param value the message to split
+     * @param value
+     *         the message to split
+     *
      * @return a list of Parts extracted from the message
      */
     public static List<Part> splitMessageToParts(String value) {
@@ -320,7 +341,9 @@ public class Colorize {
      * Color color = Colorize.hex2Color("&#FFFFFF");
      * </pre>
      *
-     * @param hex the hex string (must start with '#' and have 7 characters)
+     * @param hex
+     *         the hex string (must start with '#' and have 7 characters)
+     *
      * @return the corresponding Color
      */
     public static Color hex2Color(String hex) {
@@ -342,9 +365,13 @@ public class Colorize {
      * // hex: "#FFFFFF"
      * </pre>
      *
-     * @param r the red value
-     * @param g the green value
-     * @param b the blue value
+     * @param r
+     *         the red value
+     * @param g
+     *         the green value
+     * @param b
+     *         the blue value
+     *
      * @return the hex string representing the color
      */
     public static String toHex(int r, int g, int b) {
@@ -354,7 +381,9 @@ public class Colorize {
     /**
      * Converts an integer to a two-character hex string.
      *
-     * @param number the integer value
+     * @param number
+     *         the integer value
+     *
      * @return the two-character hex string in uppercase
      */
     private static String toBrowserHexValue(int number) {

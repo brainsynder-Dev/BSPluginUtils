@@ -74,7 +74,9 @@ public final class MathUtil {
      * int f = MathUtil.floor(3.9); // = 3
      * </pre></blockquote>
      *
-     * @param value the value
+     * @param value
+     *         the value
+     *
      * @return floored value
      */
     public static int floor(double value) {
@@ -89,7 +91,9 @@ public final class MathUtil {
      * int c = MathUtil.ceil(3.1); // = 4
      * </pre></blockquote>
      *
-     * @param value the value
+     * @param value
+     *         the value
+     *
      * @return ceiled value
      */
     public static int ceil(double value) {
@@ -103,8 +107,11 @@ public final class MathUtil {
      * double rounded = MathUtil.round(3.14159, 2); // e.g. 3.14
      * </pre></blockquote>
      *
-     * @param value    the value
-     * @param decimals number of decimals
+     * @param value
+     *         the value
+     * @param decimals
+     *         number of decimals
+     *
      * @return rounded value
      */
     public static double round(double value, int decimals) {
@@ -119,8 +126,11 @@ public final class MathUtil {
      * double trimmed = MathUtil.trim(2, 3.14159); // e.g. 3.14
      * </pre></blockquote>
      *
-     * @param decimals number of decimal places
-     * @param d        the value to trim
+     * @param decimals
+     *         number of decimal places
+     * @param d
+     *         the value to trim
+     *
      * @return trimmed value
      */
     public static double trim(int decimals, double d) {
@@ -139,7 +149,9 @@ public final class MathUtil {
      * double result = MathUtil.fixNaN(Double.NaN); // result = 0.0
      * </pre></blockquote>
      *
-     * @param value value to check
+     * @param value
+     *         value to check
+     *
      * @return value or 0.0 if NaN
      */
     public static double fixNaN(double value) {
@@ -153,8 +165,11 @@ public final class MathUtil {
      * double result = MathUtil.fixNaN(Double.NaN, 5.0); // result = 5.0
      * </pre></blockquote>
      *
-     * @param value value to check
-     * @param def   default value
+     * @param value
+     *         value to check
+     * @param def
+     *         default value
+     *
      * @return value or {@code def} if NaN
      */
     public static double fixNaN(double value, double def) {
@@ -168,7 +183,9 @@ public final class MathUtil {
      * boolean z = MathUtil.isZero(0.0000001f); // true
      * </pre></blockquote>
      *
-     * @param value the value
+     * @param value
+     *         the value
+     *
      * @return true if near zero
      */
     public static boolean isZero(float value) {
@@ -182,8 +199,11 @@ public final class MathUtil {
      * boolean z = MathUtil.isZero(0.001f, 0.01f); // true
      * </pre></blockquote>
      *
-     * @param value     the value
-     * @param tolerance tolerance
+     * @param value
+     *         the value
+     * @param tolerance
+     *         tolerance
+     *
      * @return true if near zero
      */
     public static boolean isZero(float value, float tolerance) {
@@ -197,8 +217,11 @@ public final class MathUtil {
      * boolean eq = MathUtil.isEqual(1.0f, 1.0000001f); // true
      * </pre></blockquote>
      *
-     * @param a first
-     * @param b second
+     * @param a
+     *         first
+     * @param b
+     *         second
+     *
      * @return true if near equal
      */
     public static boolean isEqual(float a, float b) {
@@ -212,9 +235,13 @@ public final class MathUtil {
      * boolean eq = MathUtil.isEqual(1.0f, 1.1f, 0.2f); // true
      * </pre></blockquote>
      *
-     * @param a         first
-     * @param b         second
-     * @param tolerance tolerance
+     * @param a
+     *         first
+     * @param b
+     *         second
+     * @param tolerance
+     *         tolerance
+     *
      * @return true if near equal
      */
     public static boolean isEqual(float a, float b, float tolerance) {
@@ -232,9 +259,13 @@ public final class MathUtil {
      * double clamped = MathUtil.clamp(5.7, 2.0, 4.0); // 4.0
      * </pre></blockquote>
      *
-     * @param value the value
-     * @param min   minimum
-     * @param max   maximum
+     * @param value
+     *         the value
+     * @param min
+     *         minimum
+     * @param max
+     *         maximum
+     *
      * @return clamped value
      */
     public static double clamp(double value, double min, double max) {
@@ -250,9 +281,13 @@ public final class MathUtil {
      * float clamped = MathUtil.clamp(5.7f, 2.0f, 4.0f); // 4.0f
      * </pre></blockquote>
      *
-     * @param value the value
-     * @param min   min
-     * @param max   max
+     * @param value
+     *         the value
+     * @param min
+     *         min
+     * @param max
+     *         max
+     *
      * @return clamped value
      */
     public static float clamp(float value, float min, float max) {
@@ -268,9 +303,13 @@ public final class MathUtil {
      * int clamped = MathUtil.clamp(10, 2, 8); // 8
      * </pre></blockquote>
      *
-     * @param value the value
-     * @param min   min
-     * @param max   max
+     * @param value
+     *         the value
+     * @param min
+     *         min
+     * @param max
+     *         max
+     *
      * @return clamped value
      */
     public static int clamp(int value, int min, int max) {
@@ -290,7 +329,9 @@ public final class MathUtil {
      * float wrapped = MathUtil.wrapAngleDeg(270f); // -90f
      * </pre></blockquote>
      *
-     * @param angle angle in degrees
+     * @param angle
+     *         angle in degrees
+     *
      * @return angle wrapped to the range [-180, 180]
      */
     public static float wrapAngleDeg(float angle) {
@@ -306,8 +347,11 @@ public final class MathUtil {
      * float diff = MathUtil.angleDifferenceDeg(30f, 90f); // 60f
      * </pre></blockquote>
      *
-     * @param angle1 first angle
-     * @param angle2 second angle
+     * @param angle1
+     *         first angle
+     * @param angle2
+     *         second angle
+     *
      * @return absolute angle difference
      */
     public static float angleDifferenceDeg(float angle1, float angle2) {
@@ -326,7 +370,9 @@ public final class MathUtil {
      * double ls = MathUtil.lengthSquared(3,4); // 3^2 + 4^2 = 25
      * </pre></blockquote>
      *
-     * @param values numbers to square and sum
+     * @param values
+     *         numbers to square and sum
+     *
      * @return sum of squares
      */
     public static double lengthSquared(double... values) {
@@ -344,7 +390,9 @@ public final class MathUtil {
      * double length = MathUtil.length(3,4); // 5
      * </pre></blockquote>
      *
-     * @param values numbers
+     * @param values
+     *         numbers
+     *
      * @return sqrt of sum of squares
      */
     public static double length(double... values) {
@@ -359,8 +407,10 @@ public final class MathUtil {
      * MathUtil.setVectorLength(v, 10.0); // now length is 10
      * </pre></blockquote>
      *
-     * @param vector the vector
-     * @param length the new length (may be negative to reverse direction)
+     * @param vector
+     *         the vector
+     * @param length
+     *         the new length (may be negative to reverse direction)
      */
     public static void setVectorLength(Vector vector, double length) {
         setVectorLengthSquared(vector, Math.signum(length) * length * length);
@@ -374,8 +424,10 @@ public final class MathUtil {
      * MathUtil.setVectorLengthSquared(v, 25.0); // now length is 5
      * </pre></blockquote>
      *
-     * @param vector        the vector
-     * @param lengthSquared the new length squared (may be negative to reverse direction)
+     * @param vector
+     *         the vector
+     * @param lengthSquared
+     *         the new length squared (may be negative to reverse direction)
      */
     public static void setVectorLengthSquared(Vector vector, double lengthSquared) {
         double vlen = vector.lengthSquared();
@@ -395,8 +447,11 @@ public final class MathUtil {
      * double dist = MathUtil.distance3D(vecA, vecB);
      * </pre></blockquote>
      *
-     * @param a first vector
-     * @param b second vector
+     * @param a
+     *         first vector
+     * @param b
+     *         second vector
+     *
      * @return distance
      */
     public static double distance3D(Vector a, Vector b) {
@@ -410,8 +465,11 @@ public final class MathUtil {
      * double dist2d = MathUtil.distance2D(vecA, vecB);
      * </pre></blockquote>
      *
-     * @param a first vector
-     * @param b second vector
+     * @param a
+     *         first vector
+     * @param b
+     *         second vector
+     *
      * @return distance in 2D
      */
     public static double distance2D(Vector a, Vector b) {
@@ -433,8 +491,11 @@ public final class MathUtil {
      * int rand = MathUtil.randomInt(2, 5); // e.g. 3
      * </pre></blockquote>
      *
-     * @param min lower bound
-     * @param max upper bound
+     * @param min
+     *         lower bound
+     * @param max
+     *         upper bound
+     *
      * @return random int
      */
     public static int randomInt(int min, int max) {
@@ -466,8 +527,11 @@ public final class MathUtil {
      * float f = MathUtil.randomFloat(2f, 5f); // e.g. 3.2
      * </pre></blockquote>
      *
-     * @param min lower bound
-     * @param max upper bound
+     * @param min
+     *         lower bound
+     * @param max
+     *         upper bound
+     *
      * @return random float
      */
     public static float randomFloat(float min, float max) {
@@ -486,8 +550,11 @@ public final class MathUtil {
      * double rand = MathUtil.randomDouble(2.0, 5.0);
      * </pre></blockquote>
      *
-     * @param min lower bound
-     * @param max upper bound
+     * @param min
+     *         lower bound
+     * @param max
+     *         upper bound
+     *
      * @return random double
      */
     public static double randomDouble(double min, double max) {
@@ -519,7 +586,9 @@ public final class MathUtil {
      * boolean b = MathUtil.randomBoolean(0.25f); // 25% chance
      * </pre></blockquote>
      *
-     * @param chance probability in [0..1]
+     * @param chance
+     *         probability in [0..1]
+     *
      * @return random boolean
      */
     public static boolean randomBoolean(float chance) {
@@ -533,7 +602,9 @@ public final class MathUtil {
      * byte b = MathUtil.randomByte(10); // 0..10
      * </pre></blockquote>
      *
-     * @param max upper bound
+     * @param max
+     *         upper bound
+     *
      * @return random byte
      */
     public static byte randomByte(int max) {
@@ -564,8 +635,11 @@ public final class MathUtil {
      * boolean opp = MathUtil.oppositeSigns(5, -3); // true
      * </pre></blockquote>
      *
-     * @param a first value
-     * @param b second value
+     * @param a
+     *         first value
+     * @param b
+     *         second value
+     *
      * @return true if sign(a) != sign(b)
      */
     public static boolean oppositeSigns(double a, double b) {
@@ -579,8 +653,11 @@ public final class MathUtil {
      * double inv = MathUtil.invert(5, true); // -5
      * </pre></blockquote>
      *
-     * @param value    the value
-     * @param negative whether to invert
+     * @param value
+     *         the value
+     * @param negative
+     *         whether to invert
+     *
      * @return value or -value
      */
     public static double invert(double value, boolean negative) {
@@ -595,9 +672,13 @@ public final class MathUtil {
      * double val = MathUtil.lerp(0.0, 10.0, 0.75); // 7.5
      * </pre></blockquote>
      *
-     * @param oldVal the old value
-     * @param newVal the new value
-     * @param factor fraction in [0..1]
+     * @param oldVal
+     *         the old value
+     * @param newVal
+     *         the new value
+     * @param factor
+     *         fraction in [0..1]
+     *
      * @return interpolated value
      */
     public static double lerp(double oldVal, double newVal, double factor) {
@@ -619,9 +700,13 @@ public final class MathUtil {
      * Vector lerped = MathUtil.lerp(v1, v2, 0.5); // (5,5,5)
      * </pre></blockquote>
      *
-     * @param from   start vector
-     * @param to     end vector
-     * @param factor fraction in [0..1]
+     * @param from
+     *         start vector
+     * @param to
+     *         end vector
+     * @param factor
+     *         fraction in [0..1]
+     *
      * @return interpolated vector
      */
     public static Vector lerp(Vector from, Vector to, double factor) {
@@ -640,9 +725,13 @@ public final class MathUtil {
      * Location lerped = MathUtil.lerp(loc1, loc2, 0.5);
      * </pre></blockquote>
      *
-     * @param from   start location
-     * @param to     end location
-     * @param factor fraction in [0..1]
+     * @param from
+     *         start location
+     * @param to
+     *         end location
+     * @param factor
+     *         fraction in [0..1]
+     *
      * @return new interpolated location
      */
     public static Location lerp(Location from, Location to, double factor) {
@@ -669,7 +758,9 @@ public final class MathUtil {
      * boolean isInt = MathUtil.isInteger("123"); // true
      * </pre></blockquote>
      *
-     * @param obj the object to check
+     * @param obj
+     *         the object to check
+     *
      * @return true if integer, false otherwise
      */
     public static boolean isInteger(Object obj) {
@@ -688,7 +779,9 @@ public final class MathUtil {
      * boolean isDbl = MathUtil.isDouble("3.14"); // true
      * </pre></blockquote>
      *
-     * @param obj the object to check
+     * @param obj
+     *         the object to check
+     *
      * @return true if double, false otherwise
      */
     public static boolean isDouble(Object obj) {
@@ -711,7 +804,9 @@ public final class MathUtil {
      * float angle = MathUtil.atanDeg(1.0); // ~45 degrees
      * </pre></blockquote>
      *
-     * @param value the value
+     * @param value
+     *         the value
+     *
      * @return angle in degrees
      */
     public static float atanDeg(double value) {
@@ -725,8 +820,11 @@ public final class MathUtil {
      * float angle = MathUtil.atan2Deg(1, 1); // ~45 degrees
      * </pre></blockquote>
      *
-     * @param y y-value
-     * @param x x-value
+     * @param y
+     *         y-value
+     * @param x
+     *         x-value
+     *
      * @return angle in degrees
      */
     public static float atan2Deg(double y, double x) {
@@ -740,9 +838,13 @@ public final class MathUtil {
      * Vector rotated = MathUtil.rotateVectorDeg(90, 0, new Vector(1,0,0));
      * </pre></blockquote>
      *
-     * @param yaw   yaw in degrees
-     * @param pitch pitch in degrees
-     * @param vec   vector to rotate
+     * @param yaw
+     *         yaw in degrees
+     * @param pitch
+     *         pitch in degrees
+     * @param vec
+     *         vector to rotate
+     *
      * @return new rotated vector
      */
     public static Vector rotateVectorDeg(float yaw, float pitch, Vector vec) {
@@ -756,11 +858,17 @@ public final class MathUtil {
      * Vector rotated = MathUtil.rotateVectorDeg(90, 30, 1, 0, 0);
      * </pre></blockquote>
      *
-     * @param yaw   yaw in degrees
-     * @param pitch pitch in degrees
-     * @param x     x
-     * @param y     y
-     * @param z     z
+     * @param yaw
+     *         yaw in degrees
+     * @param pitch
+     *         pitch in degrees
+     * @param x
+     *         x
+     * @param y
+     *         y
+     * @param z
+     *         z
+     *
      * @return new rotated vector
      */
     public static Vector rotateVectorDeg(float yaw, float pitch, double x, double y, double z) {
@@ -786,7 +894,9 @@ public final class MathUtil {
      * float pitch = MathUtil.getPitchDeg(new Vector(0,1,0)); // ~-90
      * </pre></blockquote>
      *
-     * @param vec the vector
+     * @param vec
+     *         the vector
+     *
      * @return pitch in degrees
      */
     public static float getPitchDeg(Vector vec) {
@@ -807,7 +917,9 @@ public final class MathUtil {
      * float yaw = MathUtil.getYawDeg(new Vector(1,0,0)); // ~-0
      * </pre></blockquote>
      *
-     * @param vec the vector
+     * @param vec
+     *         the vector
+     *
      * @return yaw in degrees
      */
     public static float getYawDeg(Vector vec) {
@@ -825,8 +937,11 @@ public final class MathUtil {
      * Vector dir = MathUtil.directionDeg(90, 0); // points along negative X
      * </pre></blockquote>
      *
-     * @param yaw   yaw in degrees
-     * @param pitch pitch in degrees
+     * @param yaw
+     *         yaw in degrees
+     * @param pitch
+     *         pitch in degrees
+     *
      * @return direction vector
      */
     public static Vector directionDeg(float yaw, float pitch) {
@@ -851,7 +966,9 @@ public final class MathUtil {
      * float s = MathUtil.sin(3.14f);
      * </pre></blockquote>
      *
-     * @param radians angle in radians
+     * @param radians
+     *         angle in radians
+     *
      * @return sine of the angle
      */
     public static float sin(float radians) {
@@ -865,7 +982,9 @@ public final class MathUtil {
      * float c = MathUtil.cos(3.14f);
      * </pre></blockquote>
      *
-     * @param radians angle in radians
+     * @param radians
+     *         angle in radians
+     *
      * @return cosine of the angle
      */
     public static float cos(float radians) {
@@ -879,7 +998,9 @@ public final class MathUtil {
      * float s = MathUtil.sinDeg(180f); // 0
      * </pre></blockquote>
      *
-     * @param degrees angle in degrees
+     * @param degrees
+     *         angle in degrees
+     *
      * @return sine of the angle
      */
     public static float sinDeg(float degrees) {
@@ -893,7 +1014,9 @@ public final class MathUtil {
      * float c = MathUtil.cosDeg(180f); // -1
      * </pre></blockquote>
      *
-     * @param degrees angle in degrees
+     * @param degrees
+     *         angle in degrees
+     *
      * @return cosine of the angle
      */
     public static float cosDeg(float degrees) {
@@ -910,6 +1033,7 @@ public final class MathUtil {
      * <blockquote><pre>
      * Vector randVec = MathUtil.randomUnitVector3D();
      * </pre></blockquote>
+     *
      * @return random unit vector
      */
     public static Vector randomUnitVector3D() {
@@ -925,6 +1049,7 @@ public final class MathUtil {
      * <blockquote><pre>
      * Vector circleVec = MathUtil.randomUnitVector2D();
      * </pre></blockquote>
+     *
      * @return random circle vector
      */
     public static Vector randomUnitVector2D() {
@@ -938,7 +1063,10 @@ public final class MathUtil {
      * <blockquote><pre>
      * Material mat = MathUtil.randomMaterial(new Material[]{Material.STONE, Material.DIRT});
      * </pre></blockquote>
-     * @param materials array
+     *
+     * @param materials
+     *         array
+     *
      * @return random choice
      */
     public static Material randomMaterial(Material[] materials) {
@@ -955,7 +1083,10 @@ public final class MathUtil {
      * <blockquote><pre>
      * int chunk = MathUtil.toChunk(100.0);
      * </pre></blockquote>
-     * @param loc location
+     *
+     * @param loc
+     *         location
+     *
      * @return chunk coordinate
      */
     public static int toChunk(double loc) {
@@ -968,7 +1099,10 @@ public final class MathUtil {
      * <blockquote><pre>
      * int chunk = MathUtil.toChunk(100);
      * </pre></blockquote>
-     * @param loc location
+     *
+     * @param loc
+     *         location
+     *
      * @return chunk coordinate
      */
     public static int toChunk(int loc) {
@@ -986,8 +1120,10 @@ public final class MathUtil {
      * MathUtil.applyVelocity(player, new Vector(0,1,0));
      * </pre></blockquote>
      *
-     * @param ent the entity
-     * @param velocity the velocity
+     * @param ent
+     *         the entity
+     * @param velocity
+     *         the velocity
      */
     public static void applyVelocity(Entity ent, Vector velocity) {
         if (!ent.hasMetadata("NPC")) {
@@ -1006,10 +1142,15 @@ public final class MathUtil {
      * Location newLoc = MathUtil.moveLocationDeg(player.getLocation(), 1, 0, 0);
      * </pre></blockquote>
      *
-     * @param loc the location
-     * @param dx  x offset
-     * @param dy  y offset
-     * @param dz  z offset
+     * @param loc
+     *         the location
+     * @param dx
+     *         x offset
+     * @param dy
+     *         y offset
+     * @param dz
+     *         z offset
+     *
      * @return new location
      */
     public static Location moveLocationDeg(Location loc, double dx, double dy, double dz) {
@@ -1027,8 +1168,11 @@ public final class MathUtil {
      * Location newLoc = MathUtil.moveLocationDeg(player.getLocation(), new Vector(1,0,0));
      * </pre></blockquote>
      *
-     * @param loc the location
-     * @param offset offset vector
+     * @param loc
+     *         the location
+     * @param offset
+     *         offset vector
+     *
      * @return new location
      */
     public static Location moveLocationDeg(Location loc, Vector offset) {
@@ -1045,8 +1189,12 @@ public final class MathUtil {
      * <blockquote><pre>
      * Vector dir = MathUtil.trajectory3D(vecA, vecB);
      * </pre></blockquote>
-     * @param from source
-     * @param to   target
+     *
+     * @param from
+     *         source
+     * @param to
+     *         target
+     *
      * @return normalized direction
      */
     public static Vector trajectory3D(Vector from, Vector to) {
@@ -1059,8 +1207,12 @@ public final class MathUtil {
      * <blockquote><pre>
      * Vector dir2D = MathUtil.trajectory2D(vecA, vecB);
      * </pre></blockquote>
-     * @param from source
-     * @param to   target
+     *
+     * @param from
+     *         source
+     * @param to
+     *         target
+     *
      * @return normalized direction in XZ
      */
     public static Vector trajectory2D(Vector from, Vector to) {
@@ -1075,8 +1227,12 @@ public final class MathUtil {
      * <blockquote><pre>
      * float yaw = MathUtil.getYawToDeg(locA, locB);
      * </pre></blockquote>
-     * @param from source
-     * @param to target
+     *
+     * @param from
+     *         source
+     * @param to
+     *         target
+     *
      * @return yaw angle in degrees
      */
     public static float getYawToDeg(Location from, Location to) {
@@ -1137,6 +1293,7 @@ public final class MathUtil {
 
     private static class Sin {
         static final float[] table = new float[SIN_COUNT];
+
         static {
             for (int i = 0; i < SIN_COUNT; i++) {
                 table[i] = (float) Math.sin((i + 0.5F) / SIN_COUNT * RAD_FULL);

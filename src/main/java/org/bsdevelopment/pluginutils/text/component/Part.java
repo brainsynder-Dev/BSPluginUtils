@@ -83,7 +83,9 @@ public class Part {
      * part.writeJson(writer);
      * </pre>
      *
-     * @param json the JsonWriter to write to
+     * @param json
+     *         the JsonWriter to write to
+     *
      * @return the JsonWriter after writing this part
      */
     public JsonWriter writeJson(JsonWriter json) {
@@ -124,9 +126,13 @@ public class Part {
      * // hex: "#FFFFFF"
      * </pre>
      *
-     * @param r the red component
-     * @param g the green component
-     * @param b the blue component
+     * @param r
+     *         the red component
+     * @param g
+     *         the green component
+     * @param b
+     *         the blue component
+     *
      * @return the hex color string
      */
     public static String toHex(int r, int g, int b) {

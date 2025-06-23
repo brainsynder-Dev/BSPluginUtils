@@ -43,7 +43,8 @@ public class NBTInputStream implements AutoCloseable {
     /**
      * Constructs a new NBTInputStream that reads from the given InputStream.
      *
-     * @param inputStream the underlying input stream.
+     * @param inputStream
+     *         the underlying input stream.
      */
     public NBTInputStream(InputStream inputStream) {
         this.dataIn = new DataInputStream(inputStream);
@@ -54,7 +55,8 @@ public class NBTInputStream implements AutoCloseable {
      * The root name is read and discarded.
      *
      * @return the root Data.
-     * @throws IOException if an I/O error occurs or if the data is invalid.
+     * @throws IOException
+     *         if an I/O error occurs or if the data is invalid.
      */
     public BasicData readRootData() throws IOException {
         // Read the type ID

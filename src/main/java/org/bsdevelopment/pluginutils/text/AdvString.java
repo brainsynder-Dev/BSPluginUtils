@@ -43,12 +43,18 @@ public class AdvString {
      * String padded = AdvString.getPaddedString("Hello", '*', 20, AdvString.AlignText.CENTER);
      * </pre>
      *
-     * @param text       the text to pad; must not be null
-     * @param paddingChar the character used for padding
-     * @param maxPadding the maximum total width for padding
-     * @param alignText  the alignment (LEFT, RIGHT, CENTER)
+     * @param text
+     *         the text to pad; must not be null
+     * @param paddingChar
+     *         the character used for padding
+     * @param maxPadding
+     *         the maximum total width for padding
+     * @param alignText
+     *         the alignment (LEFT, RIGHT, CENTER)
+     *
      * @return the padded string
-     * @throws NullPointerException if text is null
+     * @throws NullPointerException
+     *         if text is null
      */
     public static String getPaddedString(String text, char paddingChar, int maxPadding, AdvString.AlignText alignText) {
         if (text == null)
@@ -96,9 +102,13 @@ public class AdvString {
      * String result = AdvString.replaceLast("cat", "dog", "The cat chased the cat");
      * </pre>
      *
-     * @param target      the substring to replace
-     * @param replacement the replacement string
-     * @param haystack    the original text
+     * @param target
+     *         the substring to replace
+     * @param replacement
+     *         the replacement string
+     * @param haystack
+     *         the original text
+     *
      * @return the text after replacement, or the original text if target is not found
      */
     public static String replaceLast(String target, String replacement, String haystack) {
@@ -120,9 +130,13 @@ public class AdvString {
      * boolean result = AdvString.contains("hello", 'l', 2);
      * </pre>
      *
-     * @param string    the text being checked
-     * @param character the character to check for
-     * @param count     the required occurrence count; -1 for default check
+     * @param string
+     *         the text being checked
+     * @param character
+     *         the character to check for
+     * @param count
+     *         the required occurrence count; -1 for default check
+     *
      * @return true if the character appears exactly count times, false otherwise
      */
     public static boolean contains(String string, char character, int count) {
@@ -147,8 +161,11 @@ public class AdvString {
      * // result: " World"
      * </pre>
      *
-     * @param needle   the substring to search for
-     * @param haystack the text being scanned
+     * @param needle
+     *         the substring to search for
+     * @param haystack
+     *         the text being scanned
+     *
      * @return the substring after the needle
      */
     public static String after(String needle, String haystack) {
@@ -164,8 +181,11 @@ public class AdvString {
      * // result: "!"
      * </pre>
      *
-     * @param needle   the substring to search for
-     * @param haystack the text being scanned
+     * @param needle
+     *         the substring to search for
+     * @param haystack
+     *         the text being scanned
+     *
      * @return the substring after the last occurrence of the needle
      */
     public static String afterLast(String needle, String haystack) {
@@ -181,8 +201,11 @@ public class AdvString {
      * // result: "Hello "
      * </pre>
      *
-     * @param needle   the substring to search for
-     * @param haystack the text being scanned
+     * @param needle
+     *         the substring to search for
+     * @param haystack
+     *         the text being scanned
+     *
      * @return the substring before the needle
      */
     public static String before(String needle, String haystack) {
@@ -198,8 +221,11 @@ public class AdvString {
      * // result: "Hello World, "
      * </pre>
      *
-     * @param needle   the substring to search for
-     * @param haystack the text being scanned
+     * @param needle
+     *         the substring to search for
+     * @param haystack
+     *         the text being scanned
+     *
      * @return the substring before the last occurrence of the needle
      */
     public static String beforeLast(String needle, String haystack) {
@@ -215,9 +241,13 @@ public class AdvString {
      * // result: "42"
      * </pre>
      *
-     * @param first    the starting delimiter
-     * @param last     the ending delimiter
-     * @param haystack the text to scan
+     * @param first
+     *         the starting delimiter
+     * @param last
+     *         the ending delimiter
+     * @param haystack
+     *         the text to scan
+     *
      * @return the text between the delimiters
      */
     public static String between(String first, String last, String haystack) {
@@ -233,9 +263,13 @@ public class AdvString {
      * // result: "new"
      * </pre>
      *
-     * @param first    the starting delimiter
-     * @param last     the ending delimiter
-     * @param haystack the text to scan
+     * @param first
+     *         the starting delimiter
+     * @param last
+     *         the ending delimiter
+     * @param haystack
+     *         the text to scan
+     *
      * @return the text between the last occurrences of the delimiters
      */
     public static String betweenLast(String first, String last, String haystack) {
@@ -250,8 +284,11 @@ public class AdvString {
      * int pos = AdvString.reversePos("World", "Hello World");
      * </pre>
      *
-     * @param needle   the substring to search for
-     * @param haystack the text being scanned
+     * @param needle
+     *         the substring to search for
+     * @param haystack
+     *         the text being scanned
+     *
      * @return the position of the needle when searching from the end
      */
     public static int reversePos(String needle, String haystack) {
@@ -268,7 +305,9 @@ public class AdvString {
      * // reversed: "olleH"
      * </pre>
      *
-     * @param input the text to reverse
+     * @param input
+     *         the text to reverse
+     *
      * @return the reversed text
      */
     public static String reverse(String input) {
@@ -297,7 +336,9 @@ public class AdvString {
      * String scrambled = AdvString.scramble("Hello World");
      * </pre>
      *
-     * @param input the text to scramble
+     * @param input
+     *         the text to scramble
+     *
      * @return the scrambled text
      */
     public static String scramble(String input) {

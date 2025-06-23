@@ -9,7 +9,8 @@ public interface GuiAction {
     /**
      * Execute this action in response to a click event.
      *
-     * @param event the InventoryClickEvent
+     * @param event
+     *         the InventoryClickEvent
      */
     void execute(InventoryClickEvent event);
 }

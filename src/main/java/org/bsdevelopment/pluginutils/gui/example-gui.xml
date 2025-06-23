@@ -3,7 +3,8 @@
 
     <definitions>
         <!-- Powerful custom sword with all features -->
-        <item-definition id="poweredSword" material="DIAMOND_SWORD" amount="1" name="&cPowered Sword" unbreakable="true">
+        <item-definition id="poweredSword" material="DIAMOND_SWORD" amount="1" name="&cPowered Sword"
+                         unbreakable="true">
             <lore>
                 <line>Electrified</line>
                 <line>Handle with care</line>
@@ -55,9 +56,6 @@
             </persistent-data-list>
         </item-definition>
     </definitions>
-
-
-
 
 
     <!-- Slot 10: give the powered sword -->

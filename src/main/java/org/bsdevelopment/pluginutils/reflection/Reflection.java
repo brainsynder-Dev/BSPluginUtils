@@ -41,7 +41,7 @@ import java.util.Objects;
  */
 public class Reflection {
 
-    private static HashMap<Class<? extends Entity>, Method> entityHandleCache = new HashMap<>();
+    private static final HashMap<Class<? extends Entity>, Method> entityHandleCache = new HashMap<>();
 
     // =====================================
     // Minecraft (NMS) Methods
@@ -50,13 +50,21 @@ public class Reflection {
     /**
      * Invokes a Minecraft (NMS) method on the given target.
      *
-     * @param className      The Minecraft class name.
-     * @param subLocation    The subpackage location, if any.
-     * @param methodName     The name of the method to invoke.
-     * @param target         The target object, or null for static methods.
-     * @param parameterTypes The types of the method parameters.
-     * @param args           The arguments to pass to the method.
-     * @param <T>            The expected return type.
+     * @param className
+     *         The Minecraft class name.
+     * @param subLocation
+     *         The subpackage location, if any.
+     * @param methodName
+     *         The name of the method to invoke.
+     * @param target
+     *         The target object, or null for static methods.
+     * @param parameterTypes
+     *         The types of the method parameters.
+     * @param args
+     *         The arguments to pass to the method.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call, or null if an error occurs.
      */
     public static <T> T invokeMinecraftMethod(String className, String subLocation, String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
@@ -75,11 +83,17 @@ public class Reflection {
     /**
      * Invokes a Minecraft (NMS) method using the target's class name.
      *
-     * @param methodName     The method name.
-     * @param target         The target object.
-     * @param parameterTypes The parameter types.
-     * @param args           The method arguments.
-     * @param <T>            The expected return type.
+     * @param methodName
+     *         The method name.
+     * @param target
+     *         The target object.
+     * @param parameterTypes
+     *         The parameter types.
+     * @param args
+     *         The method arguments.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call.
      */
     public static <T> T invokeMinecraftMethod(String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
@@ -91,9 +105,13 @@ public class Reflection {
     /**
      * Invokes a Minecraft (NMS) method with no parameters.
      *
-     * @param methodName The method name.
-     * @param target     The target object.
-     * @param <T>        The expected return type.
+     * @param methodName
+     *         The method name.
+     * @param target
+     *         The target object.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call.
      */
     public static <T> T invokeMinecraftMethod(String methodName, Object target) {
@@ -105,10 +123,15 @@ public class Reflection {
     /**
      * Creates a new instance of a Minecraft (NMS) class.
      *
-     * @param className      The Minecraft class name.
-     * @param subLocation    The subpackage location, if any.
-     * @param parameterTypes The parameter types for the constructor.
-     * @param args           The arguments to pass to the constructor.
+     * @param className
+     *         The Minecraft class name.
+     * @param subLocation
+     *         The subpackage location, if any.
+     * @param parameterTypes
+     *         The parameter types for the constructor.
+     * @param args
+     *         The arguments to pass to the constructor.
+     *
      * @return A new instance, or null if an error occurs.
      */
     public static Object createMinecraftInstance(String className, String subLocation, Class<?>[] parameterTypes, Object... args) {
@@ -127,14 +150,22 @@ public class Reflection {
     /**
      * Fetches the value of a Minecraft (NMS) field.
      *
-     * @param className   The Minecraft class name.
-     * @param subLocation The subpackage location, if any.
-     * @param target      The target object from which to fetch the field.
-     * @param fieldName   The name of the field.
-     * @param <T>         The expected field type.
+     * @param className
+     *         The Minecraft class name.
+     * @param subLocation
+     *         The subpackage location, if any.
+     * @param target
+     *         The target object from which to fetch the field.
+     * @param fieldName
+     *         The name of the field.
+     * @param <T>
+     *         The expected field type.
+     *
      * @return The value of the field.
-     * @throws NoSuchFieldException   If the field does not exist.
-     * @throws IllegalAccessException If the field is not accessible.
+     * @throws NoSuchFieldException
+     *         If the field does not exist.
+     * @throws IllegalAccessException
+     *         If the field is not accessible.
      */
     public static <T> T fetchMinecraftField(String className, String subLocation, Object target, String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Class<?> clazz = resolveMinecraftClass(className, subLocation);
@@ -147,10 +178,15 @@ public class Reflection {
     /**
      * Attempts to fetch the value of one of several Minecraft (NMS) fields.
      *
-     * @param target      The target object.
-     * @param subLocation The subpackage location, if any.
-     * @param fieldNames  Possible field names.
-     * @param <T>         The expected field type.
+     * @param target
+     *         The target object.
+     * @param subLocation
+     *         The subpackage location, if any.
+     * @param fieldNames
+     *         Possible field names.
+     * @param <T>
+     *         The expected field type.
+     *
      * @return The value of the first matching field, or null if none are found.
      */
     public static <T> T fetchMinecraftFields(Object target, String subLocation, String... fieldNames) {
@@ -171,12 +207,19 @@ public class Reflection {
     /**
      * Invokes a CraftBukkit method on the given target.
      *
-     * @param className      The CraftBukkit class name.
-     * @param methodName     The method name.
-     * @param target         The target object, or null for static methods.
-     * @param parameterTypes The parameter types.
-     * @param args           The method arguments.
-     * @param <T>            The expected return type.
+     * @param className
+     *         The CraftBukkit class name.
+     * @param methodName
+     *         The method name.
+     * @param target
+     *         The target object, or null for static methods.
+     * @param parameterTypes
+     *         The parameter types.
+     * @param args
+     *         The method arguments.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call, or null if an error occurs.
      */
     public static <T> T invokeCraftBukkitMethod(String className, String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
@@ -195,11 +238,17 @@ public class Reflection {
     /**
      * Invokes a CraftBukkit method using the target's class.
      *
-     * @param methodName     The method name.
-     * @param target         The target object.
-     * @param parameterTypes The parameter types.
-     * @param args           The method arguments.
-     * @param <T>            The expected return type.
+     * @param methodName
+     *         The method name.
+     * @param target
+     *         The target object.
+     * @param parameterTypes
+     *         The parameter types.
+     * @param args
+     *         The method arguments.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call.
      */
     public static <T> T invokeCraftBukkitMethod(String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
@@ -216,9 +265,13 @@ public class Reflection {
     /**
      * Invokes a CraftBukkit method with no parameters.
      *
-     * @param methodName The method name.
-     * @param target     The target object.
-     * @param <T>        The expected return type.
+     * @param methodName
+     *         The method name.
+     * @param target
+     *         The target object.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call.
      */
     public static <T> T invokeCraftBukkitMethod(String methodName, Object target) {
@@ -228,9 +281,13 @@ public class Reflection {
     /**
      * Creates a new instance of a CraftBukkit class.
      *
-     * @param className      The CraftBukkit class name.
-     * @param parameterTypes The parameter types for the constructor.
-     * @param args           The constructor arguments.
+     * @param className
+     *         The CraftBukkit class name.
+     * @param parameterTypes
+     *         The parameter types for the constructor.
+     * @param args
+     *         The constructor arguments.
+     *
      * @return A new instance, or null if an error occurs.
      */
     public static Object createCraftBukkitInstance(String className, Class<?>[] parameterTypes, Object... args) {
@@ -249,10 +306,15 @@ public class Reflection {
     /**
      * Fetches the value of a CraftBukkit field.
      *
-     * @param className The CraftBukkit class name.
-     * @param target    The target object.
-     * @param fieldName The name of the field.
-     * @param <T>       The expected field type.
+     * @param className
+     *         The CraftBukkit class name.
+     * @param target
+     *         The target object.
+     * @param fieldName
+     *         The name of the field.
+     * @param <T>
+     *         The expected field type.
+     *
      * @return The value of the field, or null if an error occurs.
      */
     public static <T> T fetchCraftBukkitField(String className, Object target, String fieldName) {
@@ -271,9 +333,13 @@ public class Reflection {
     /**
      * Fetches the value of a CraftBukkit field using the target's class.
      *
-     * @param target    The target object.
-     * @param fieldName The field name.
-     * @param <T>       The expected field type.
+     * @param target
+     *         The target object.
+     * @param fieldName
+     *         The field name.
+     * @param <T>
+     *         The expected field type.
+     *
      * @return The value of the field.
      */
     public static <T> T fetchCraftBukkitField(Object target, String fieldName) {
@@ -290,9 +356,13 @@ public class Reflection {
     /**
      * Fetches the value of a static CraftBukkit field.
      *
-     * @param className The CraftBukkit class name.
-     * @param fieldName The static field name.
-     * @param <T>       The expected field type.
+     * @param className
+     *         The CraftBukkit class name.
+     * @param fieldName
+     *         The static field name.
+     * @param <T>
+     *         The expected field type.
+     *
      * @return The field value.
      */
     public static <T> T fetchCraftBukkitStaticField(String className, String fieldName) {
@@ -307,7 +377,9 @@ public class Reflection {
      * Retrieves the underlying Minecraft entity handle for a Bukkit Entity.
      * This method caches the reflective lookup for performance.
      *
-     * @param entity The Bukkit Entity.
+     * @param entity
+     *         The Bukkit Entity.
+     *
      * @return The underlying Minecraft entity.
      */
     public static Object fetchEntityHandle(Entity entity) {
@@ -333,10 +405,15 @@ public class Reflection {
     /**
      * Retrieves the value of a private field from a target object.
      *
-     * @param fieldName The field name.
-     * @param clazz     The class that declares the field.
-     * @param target    The target object.
-     * @param <T>       The expected field type.
+     * @param fieldName
+     *         The field name.
+     * @param clazz
+     *         The class that declares the field.
+     * @param target
+     *         The target object.
+     * @param <T>
+     *         The expected field type.
+     *
      * @return The field value, or null if an error occurs.
      */
     public static <T> T fetchPrivateField(String fieldName, Class<?> clazz, Object target) {
@@ -355,10 +432,14 @@ public class Reflection {
     /**
      * Retrieves the value of a private static field.
      *
-     * @param clazz     The class that declares the field.
-     * @param fieldName The static field name.
+     * @param clazz
+     *         The class that declares the field.
+     * @param fieldName
+     *         The static field name.
+     *
      * @return The field value.
-     * @throws Exception if the field cannot be accessed.
+     * @throws Exception
+     *         if the field cannot be accessed.
      */
     public Object fetchPrivateStaticField(Class<?> clazz, String fieldName) throws Exception {
         Field field = clazz.getDeclaredField(fieldName);
@@ -370,8 +451,11 @@ public class Reflection {
     /**
      * Extracts the value from a given field of a target object.
      *
-     * @param field  The field.
-     * @param target The target object.
+     * @param field
+     *         The field.
+     * @param target
+     *         The target object.
+     *
      * @return The value of the field.
      */
     public static Object extractFieldValue(Field field, Object target) {
@@ -386,8 +470,11 @@ public class Reflection {
     /**
      * Retrieves a field from the specified class.
      *
-     * @param clazz     The class containing the field.
-     * @param fieldName The field name.
+     * @param clazz
+     *         The class containing the field.
+     * @param fieldName
+     *         The field name.
+     *
      * @return The field, or null if not found.
      */
     public static Field retrieveField(Class<?> clazz, String fieldName) {
@@ -401,7 +488,9 @@ public class Reflection {
     /**
      * Makes the given field accessible.
      *
-     * @param field The field to modify.
+     * @param field
+     *         The field to modify.
+     *
      * @return The accessible field.
      */
     public static Field makeFieldAccessible(Field field) {
@@ -416,8 +505,11 @@ public class Reflection {
     /**
      * Retrieves a constructor from the specified class.
      *
-     * @param clazz          The class.
-     * @param parameterTypes The parameter types for the constructor.
+     * @param clazz
+     *         The class.
+     * @param parameterTypes
+     *         The parameter types for the constructor.
+     *
      * @return The constructor, or null if not found.
      */
     public static Constructor<?> retrieveConstructor(Class<?> clazz, Class<?>... parameterTypes) {
@@ -433,10 +525,15 @@ public class Reflection {
     /**
      * Executes a method on a target object with the provided arguments.
      *
-     * @param method The method to execute.
-     * @param target The target object.
-     * @param args   The method arguments.
-     * @param <T>    The expected return type.
+     * @param method
+     *         The method to execute.
+     * @param target
+     *         The target object.
+     * @param args
+     *         The method arguments.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call, or null if an error occurs.
      */
     public static <T> T executeMethod(Method method, Object target, Object... args) {
@@ -453,9 +550,13 @@ public class Reflection {
     /**
      * Executes a method on a target object with no arguments.
      *
-     * @param method The method to execute.
-     * @param target The target object.
-     * @param <T>    The expected return type.
+     * @param method
+     *         The method to execute.
+     * @param target
+     *         The target object.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The result of the method call.
      */
     public static <T> T executeMethod(Method method, Object target) {
@@ -465,8 +566,11 @@ public class Reflection {
     /**
      * Fetches the underlying Minecraft world handle from a Bukkit World.
      *
-     * @param world The Bukkit World.
-     * @param <T>   The expected return type.
+     * @param world
+     *         The Bukkit World.
+     * @param <T>
+     *         The expected return type.
+     *
      * @return The Minecraft world handle.
      */
     public static <T> T fetchWorldHandle(World world) {
@@ -476,9 +580,13 @@ public class Reflection {
     /**
      * Finds the first field in a class that matches the expected type and type parameter patterns.
      *
-     * @param clazz            The class to search.
-     * @param expectedType     The expected field type.
-     * @param typeNamePatterns Patterns for matching generic type names.
+     * @param clazz
+     *         The class to search.
+     * @param expectedType
+     *         The expected field type.
+     * @param typeNamePatterns
+     *         Patterns for matching generic type names.
+     *
      * @return The matching field, or null if none found.
      */
     public static Field findFirstMatchingField(Class<?> clazz, Class<?> expectedType, String... typeNamePatterns) {
@@ -512,7 +620,9 @@ public class Reflection {
     /**
      * Resolves a Minecraft (NMS) class using the provided name.
      *
-     * @param name The Minecraft class name.
+     * @param name
+     *         The Minecraft class name.
+     *
      * @return The Class object, or null if not found.
      */
     public static Class<?> resolveMinecraftClass(String name) {
@@ -533,8 +643,11 @@ public class Reflection {
     /**
      * Resolves a Minecraft (NMS) class using the provided name and sub-location.
      *
-     * @param name        The Minecraft class name.
-     * @param subLocation The subpackage location.
+     * @param name
+     *         The Minecraft class name.
+     * @param subLocation
+     *         The subpackage location.
+     *
      * @return The Class object.
      */
     public static Class<?> resolveMinecraftClass(String name, String subLocation) {
@@ -552,7 +665,9 @@ public class Reflection {
     /**
      * Resolves a CraftBukkit class using the provided class name.
      *
-     * @param className The CraftBukkit class name.
+     * @param className
+     *         The CraftBukkit class name.
+     *
      * @return The Class object, or null if not found.
      */
     public static Class<?> resolveCraftBukkitClass(String className) {
@@ -573,7 +688,9 @@ public class Reflection {
     /**
      * Resolves a Bukkit class using the provided class name.
      *
-     * @param className The Bukkit class name.
+     * @param className
+     *         The Bukkit class name.
+     *
      * @return The Class object, or null if not found.
      */
     public static Class<?> resolveBukkitClass(String className) {
@@ -589,9 +706,13 @@ public class Reflection {
     /**
      * Resolves a method from a class with the specified name and parameter types.
      *
-     * @param clazz          The class to search.
-     * @param methodName     The method name.
-     * @param parameterTypes The parameter types.
+     * @param clazz
+     *         The class to search.
+     * @param methodName
+     *         The method name.
+     * @param parameterTypes
+     *         The parameter types.
+     *
      * @return The Method object, or null if not found.
      */
     public static Method resolveMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
@@ -606,9 +727,13 @@ public class Reflection {
     /**
      * Attempts to resolve one of several method names from a class.
      *
-     * @param clazz          The class to search.
-     * @param methodNames    An array of possible method names.
-     * @param parameterTypes The parameter types.
+     * @param clazz
+     *         The class to search.
+     * @param methodNames
+     *         An array of possible method names.
+     * @param parameterTypes
+     *         The parameter types.
+     *
      * @return The first matching Method object.
      */
     public static Method resolveMethod(Class<?> clazz, String[] methodNames, Class<?>... parameterTypes) {

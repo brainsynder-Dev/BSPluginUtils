@@ -51,7 +51,9 @@ public class ItemBuilder {
     /**
      * Creates a new ItemBuilder with the specified material and a default amount of 1.
      *
-     * @param material the material for the item
+     * @param material
+     *         the material for the item
+     *
      * @return a new ItemBuilder instance
      */
     public static ItemBuilder of(Material material) {
@@ -61,8 +63,11 @@ public class ItemBuilder {
     /**
      * Creates a new ItemBuilder with the specified material and amount.
      *
-     * @param material the material for the item
-     * @param amount   the amount for the item
+     * @param material
+     *         the material for the item
+     * @param amount
+     *         the amount for the item
+     *
      * @return a new ItemBuilder instance
      */
     public static ItemBuilder of(Material material, int amount) {
@@ -72,7 +77,9 @@ public class ItemBuilder {
     /**
      * Creates a new ItemBuilder from an existing ItemStack.
      *
-     * @param item the ItemStack to copy
+     * @param item
+     *         the ItemStack to copy
+     *
      * @return a new ItemBuilder with the same material, amount, and meta as the provided item
      */
     public static ItemBuilder of(ItemStack item) {
@@ -85,7 +92,9 @@ public class ItemBuilder {
     /**
      * Creates a new ItemBuilder from a given CompoundTag.
      *
-     * @param tag the CompoundTag to convert
+     * @param tag
+     *         the CompoundTag to convert
+     *
      * @return a new ItemBuilder created from the NBT data in the tag
      */
     public static ItemBuilder of(CompoundData tag) {
@@ -99,7 +108,9 @@ public class ItemBuilder {
     /**
      * Creates a new ItemBuilder for a player skull with the specified texture.
      *
-     * @param texture the texture url to set
+     * @param texture
+     *         the texture url to set
+     *
      * @return a new ItemBuilder for a PLAYER_HEAD with the custom texture applied
      */
     public static ItemBuilder playerSkull(String texture) {
@@ -130,7 +141,8 @@ public class ItemBuilder {
      * Converts the current ItemStack into a CompoundTag representation.
      *
      * @return the CompoundTag representing the ItemStack's NBT data
-     * @throws RuntimeException if an error occurs during conversion
+     * @throws RuntimeException
+     *         if an error occurs during conversion
      */
     public CompoundData toTag() {
         String json = NBTItem.convertItemtoNBT(item).toString();
@@ -153,7 +165,9 @@ public class ItemBuilder {
      * builder.withName("&aEpic Sword");
      * </pre>
      *
-     * @param name the display name to set (supports color codes)
+     * @param name
+     *         the display name to set (supports color codes)
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder withName(String name) {
@@ -187,8 +201,11 @@ public class ItemBuilder {
      * builder.withEnchant(Enchantment.DAMAGE_ALL, 5);
      * </pre>
      *
-     * @param enchant the enchantment to add
-     * @param level   the level of the enchantment
+     * @param enchant
+     *         the enchantment to add
+     * @param level
+     *         the level of the enchantment
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder withEnchant(Enchantment enchant, int level) {
@@ -204,7 +221,9 @@ public class ItemBuilder {
      * builder.removeEnchant(Enchantment.DAMAGE_ALL);
      * </pre>
      *
-     * @param enchant the enchantment to remove
+     * @param enchant
+     *         the enchantment to remove
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder removeEnchant(Enchantment enchant) {
@@ -236,7 +255,9 @@ public class ItemBuilder {
      * builder.withFlag(ItemFlag.HIDE_ENCHANTS);
      * </pre>
      *
-     * @param flag the item flag to add
+     * @param flag
+     *         the item flag to add
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder withFlag(ItemFlag flag) {
@@ -252,7 +273,9 @@ public class ItemBuilder {
      * builder.removeFlag(ItemFlag.HIDE_ENCHANTS);
      * </pre>
      *
-     * @param flag the item flag to remove
+     * @param flag
+     *         the item flag to remove
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder removeFlag(ItemFlag flag) {
@@ -284,7 +307,9 @@ public class ItemBuilder {
      * builder.setUnbreakable(true);
      * </pre>
      *
-     * @param unbreakable true to mark the item as unbreakable; false otherwise
+     * @param unbreakable
+     *         true to mark the item as unbreakable; false otherwise
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder setUnbreakable(boolean unbreakable) {
@@ -316,7 +341,9 @@ public class ItemBuilder {
      * builder.withLore(Arrays.asList("&7This is a cool item", "&7Use it wisely"));
      * </pre>
      *
-     * @param lore a list of lore lines (supports color codes)
+     * @param lore
+     *         a list of lore lines (supports color codes)
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder withLore(List<String> lore) {
@@ -332,7 +359,9 @@ public class ItemBuilder {
      * builder.addLore("&7Extra lore line 1", "&7Extra lore line 2");
      * </pre>
      *
-     * @param lore one or more lore lines (supports color codes)
+     * @param lore
+     *         one or more lore lines (supports color codes)
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder addLore(String... lore) {
@@ -369,7 +398,9 @@ public class ItemBuilder {
      * builder.removeLore("&7Extra lore line");
      * </pre>
      *
-     * @param lore the lore line to remove (supports color codes)
+     * @param lore
+     *         the lore line to remove (supports color codes)
+     *
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder removeLore(String lore) {
@@ -392,7 +423,9 @@ public class ItemBuilder {
      * boolean isAir = ItemBuilder.isAir(Material.AIR);
      * </pre>
      *
-     * @param mat the material to check
+     * @param mat
+     *         the material to check
+     *
      * @return true if the material's name ends with "AIR" but not "AIRS"
      */
     public static boolean isAir(Material mat) {
@@ -407,7 +440,9 @@ public class ItemBuilder {
      * boolean isAir = ItemBuilder.isAir(itemStack);
      * </pre>
      *
-     * @param item the ItemStack to check
+     * @param item
+     *         the ItemStack to check
+     *
      * @return true if the item is null or its material is considered air
      */
     public static boolean isAir(ItemStack item) {
@@ -425,9 +460,13 @@ public class ItemBuilder {
      * });
      * </pre>
      *
-     * @param clazz the meta class to transform
-     * @param meta  a function that transforms the meta
-     * @param <T>   the type of the meta
+     * @param clazz
+     *         the meta class to transform
+     * @param meta
+     *         a function that transforms the meta
+     * @param <T>
+     *         the type of the meta
+     *
      * @return this ItemBuilder for chaining
      */
     public <T extends ItemMeta> ItemBuilder handleMeta(Class<T> clazz, ItemMetaValue<T> meta) {
@@ -468,7 +507,8 @@ public class ItemBuilder {
     /**
      * Functional interface for transforming an {@link ItemMeta} object.
      *
-     * @param <T> the type of item meta
+     * @param <T>
+     *         the type of item meta
      */
     public interface ItemMetaValue<T> {
         T accept(T value);

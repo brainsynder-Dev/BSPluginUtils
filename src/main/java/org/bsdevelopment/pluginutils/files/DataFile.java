@@ -33,7 +33,8 @@ public class DataFile extends CompoundData {
      * DataFile dataFile = new DataFile(file);
      * </pre>
      *
-     * @param file the file to load data from (must not be null)
+     * @param file
+     *         the file to load data from (must not be null)
      */
     public DataFile(@NotNull File file) {
         this.file = file;
@@ -44,7 +45,8 @@ public class DataFile extends CompoundData {
             try {
                 file.createNewFile();
                 NBTIO.writeToCompressedFile(this, file);
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
 
         try {
@@ -67,6 +69,7 @@ public class DataFile extends CompoundData {
         try {
             if (!file.exists()) file.createNewFile();
             NBTIO.writeToCompressedFile(this, file);
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 }

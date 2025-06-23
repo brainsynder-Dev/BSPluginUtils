@@ -26,7 +26,8 @@ import java.util.List;
  * List&lt;String&gt; page1 = pager.getPage(1); // returns ["A", "B", "C", "D", "E"]
  * </pre>
  *
- * @param <T> the type of elements in this list
+ * @param <T>
+ *         the type of elements in this list
  */
 public class ListPager<T> extends ArrayList<T> {
 
@@ -38,7 +39,8 @@ public class ListPager<T> extends ArrayList<T> {
     /**
      * Constructs a pager with the specified page size limit, but no initial contents.
      *
-     * @param contentLimit number of items per page
+     * @param contentLimit
+     *         number of items per page
      */
     public ListPager(int contentLimit) {
         this(contentLimit, new ArrayList<>());
@@ -47,8 +49,10 @@ public class ListPager<T> extends ArrayList<T> {
     /**
      * Constructs a pager with the specified page size limit and initial elements.
      *
-     * @param contentLimit number of items per page
-     * @param objects      varargs array of items to be added
+     * @param contentLimit
+     *         number of items per page
+     * @param objects
+     *         varargs array of items to be added
      */
     public ListPager(int contentLimit, T... objects) {
         this(contentLimit, Arrays.asList(objects));
@@ -57,8 +61,10 @@ public class ListPager<T> extends ArrayList<T> {
     /**
      * Constructs a pager with the specified page size limit and initial elements from a collection.
      *
-     * @param contentLimit number of items per page
-     * @param objects      the collection of items to be added initially
+     * @param contentLimit
+     *         number of items per page
+     * @param objects
+     *         the collection of items to be added initially
      */
     public ListPager(int contentLimit, List<T> objects) {
         this.contentLimit = contentLimit;
@@ -87,7 +93,9 @@ public class ListPager<T> extends ArrayList<T> {
     /**
      * Checks if a page with the given index exists in the pager. Page numbering starts at 1.
      *
-     * @param page the 1-based page index
+     * @param page
+     *         the 1-based page index
+     *
      * @return true if the page exists, otherwise false
      */
     public boolean exists(int page) {
@@ -98,9 +106,12 @@ public class ListPager<T> extends ArrayList<T> {
     /**
      * Retrieves the elements of the specified 1-based page index.
      *
-     * @param page the 1-based page index
+     * @param page
+     *         the 1-based page index
+     *
      * @return a list of items on that page
-     * @throws IndexOutOfBoundsException if the page is out of range
+     * @throws IndexOutOfBoundsException
+     *         if the page is out of range
      */
     public List<T> getPage(int page) {
         var zeroBased = page - 1;

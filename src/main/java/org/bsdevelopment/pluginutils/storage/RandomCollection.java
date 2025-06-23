@@ -21,7 +21,8 @@ import java.util.TreeMap;
  * String chosen = rc.next();  // returns "Hello" ~20% of the time, "World" ~80% of the time
  * </pre>
  *
- * @param <E> the type of elements this collection holds
+ * @param <E>
+ *         the type of elements this collection holds
  */
 public class RandomCollection<E> {
 
@@ -48,8 +49,11 @@ public class RandomCollection<E> {
      * String result = RandomCollection.randomize(Arrays.asList("A", "B", "C"));
      * </pre>
      *
-     * @param list the collection of elements
-     * @param <E> the element type
+     * @param list
+     *         the collection of elements
+     * @param <E>
+     *         the element type
+     *
      * @return a random element from the collection
      */
     public static <E> E randomize(Collection<E> list) {
@@ -65,9 +69,13 @@ public class RandomCollection<E> {
      * String result = RandomCollection.randomize(Arrays.asList("A", "B", "C"), 75);
      * </pre>
      *
-     * @param list the collection of elements
-     * @param percent the weight to assign to each element
-     * @param <E> the element type
+     * @param list
+     *         the collection of elements
+     * @param percent
+     *         the weight to assign to each element
+     * @param <E>
+     *         the element type
+     *
      * @return a random element from the collection
      */
     public static <E> E randomize(Collection<E> list, int percent) {
@@ -84,8 +92,11 @@ public class RandomCollection<E> {
      * RandomCollection&lt;String&gt; rc = RandomCollection.fromCollection(Arrays.asList("A", "B", "C"));
      * </pre>
      *
-     * @param list the collection of elements
-     * @param <E> the element type
+     * @param list
+     *         the collection of elements
+     * @param <E>
+     *         the element type
+     *
      * @return a new {@link RandomCollection} with default weight for each element
      */
     public static <E> RandomCollection<E> fromCollection(Collection<E> list) {
@@ -100,9 +111,13 @@ public class RandomCollection<E> {
      * RandomCollection&lt;String&gt; rc = RandomCollection.fromCollection(Arrays.asList("A", "B", "C"), 25);
      * </pre>
      *
-     * @param list the collection of elements
-     * @param percent the weight to assign to each element
-     * @param <E> the element type
+     * @param list
+     *         the collection of elements
+     * @param percent
+     *         the weight to assign to each element
+     * @param <E>
+     *         the element type
+     *
      * @return a new {@link RandomCollection} with the specified weight for each element
      */
     public static <E> RandomCollection<E> fromCollection(Collection<E> list, int percent) {
@@ -121,7 +136,8 @@ public class RandomCollection<E> {
     /**
      * Constructs an empty {@link RandomCollection} using the provided {@link Random} instance.
      *
-     * @param var1 the random generator to use
+     * @param var1
+     *         the random generator to use
      */
     public RandomCollection(Random var1) {
         this.map = new TreeMap<>();
@@ -132,7 +148,8 @@ public class RandomCollection<E> {
     /**
      * Adds an element with a default weight of 50.
      *
-     * @param value the element to add
+     * @param value
+     *         the element to add
      */
     public void add(E value) {
         add(50, value);
@@ -147,8 +164,10 @@ public class RandomCollection<E> {
      * randomCollection.add(75, "Hello");
      * </pre>
      *
-     * @param percent the weight for this element
-     * @param value the element to add
+     * @param percent
+     *         the weight for this element
+     * @param value
+     *         the element to add
      */
     public void add(double percent, E value) {
         if (percent > 0.0D) {

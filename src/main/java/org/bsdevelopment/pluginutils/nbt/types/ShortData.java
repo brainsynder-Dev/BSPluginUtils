@@ -5,10 +5,11 @@ import org.bsdevelopment.pluginutils.nbt.TagType;
 
 /**
  * An NBT tag holding a single short value.
- * 
+ *
  * <p>Implemented as a record for conciseness.</p>
  *
- * @param value The short value stored by this tag.
+ * @param value
+ *         The short value stored by this tag.
  */
 public record ShortData(short value) implements BasicData {
 

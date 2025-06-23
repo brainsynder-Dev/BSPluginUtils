@@ -40,7 +40,10 @@ public final class VersionCompatibility {
      * Method method = MyAnnotatedClass.class.getDeclaredMethod(\"someMethod\");
      * boolean methodCompatible = VersionCompatibility.isCompatible(method);
      * </pre>
-     * @param element the annotated element to check
+     *
+     * @param element
+     *         the annotated element to check
+     *
      * @return {@code true} if compatible, {@code false} otherwise
      */
     public static boolean isCompatible(AnnotatedElement element) {

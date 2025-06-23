@@ -10,7 +10,9 @@ public interface ActionFactory {
     /**
      * Create a GuiAction from the given <action> element.
      *
-     * @param element the XML element (type, attributes, text-content)
+     * @param element
+     *         the XML element (type, attributes, text-content)
+     *
      * @return a new GuiAction instance
      */
     GuiAction create(Element element);

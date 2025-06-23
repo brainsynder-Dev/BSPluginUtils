@@ -13,9 +13,9 @@ import java.util.List;
 public class XmlValidationException extends RuntimeException {
     public XmlValidationException(Element e, String error, String hint) {
         super(String.format(
-            "%s%s%nHint: %s",
-            e != null ? "[" + e.getTagName() + "@" + describe(e) + "] " : "",
-            error, hint
+                "%s%s%nHint: %s",
+                e != null ? "[" + e.getTagName() + "@" + describe(e) + "] " : "",
+                error, hint
         ));
     }
 

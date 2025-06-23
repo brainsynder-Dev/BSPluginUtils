@@ -43,7 +43,8 @@ public final class XmlUtils {
         try {
             int value = Integer.parseInt(raw);
 
-            if (value < min || value > max) throw new XmlValidationException(element, "Invalid " + name + ": " + raw, hint);
+            if (value < min || value > max)
+                throw new XmlValidationException(element, "Invalid " + name + ": " + raw, hint);
 
             return value;
         } catch (NumberFormatException ex) {
@@ -59,7 +60,7 @@ public final class XmlUtils {
         }
     }
 
-    public static URL parseTextureUrl (String name, Element element, String hint) {
+    public static URL parseTextureUrl(String name, Element element, String hint) {
         String raw = requireAttribute(element, name);
 
         if (!raw.startsWith("http://textures.minecraft.net/texture/"))
@@ -114,7 +115,8 @@ public final class XmlUtils {
         NamespacedKey key = raw.contains(":") ? NamespacedKey.fromString(raw) : NamespacedKey.minecraft(raw.toLowerCase());
         Attribute attribute = Registry.ATTRIBUTE.get(key);
 
-        if (attribute == null) throw new XmlValidationException(element, "Unknown Attribute key: \"" + raw + "\"", hint);
+        if (attribute == null)
+            throw new XmlValidationException(element, "Unknown Attribute key: \"" + raw + "\"", hint);
         return attribute;
     }
 
@@ -135,7 +137,8 @@ public final class XmlUtils {
     public static EquipmentSlotGroup parseSlotGroup(Element element, String raw, String hint) {
         EquipmentSlotGroup group = EquipmentSlotGroup.getByName(raw);
 
-        if (group == null) throw new XmlValidationException(element, "Unknown EquipmentSlotGroup: \"" + raw + "\"", hint);
+        if (group == null)
+            throw new XmlValidationException(element, "Unknown EquipmentSlotGroup: \"" + raw + "\"", hint);
         return group;
     }
 }

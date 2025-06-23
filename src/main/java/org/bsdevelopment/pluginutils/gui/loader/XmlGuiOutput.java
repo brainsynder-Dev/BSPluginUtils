@@ -58,8 +58,10 @@ public class XmlGuiOutput {
     /**
      * Creates an output using a named inventory type.
      *
-     * @param title         the GUI title (supports '&' color codes)
-     * @param inventoryType the Bukkit InventoryType, e.g. "CHEST", "ENDER_CHEST"
+     * @param title
+     *         the GUI title (supports '&' color codes)
+     * @param inventoryType
+     *         the Bukkit InventoryType, e.g. "CHEST", "ENDER_CHEST"
      */
     public XmlGuiOutput(String title, InventoryType inventoryType) {
         this.title = title;
@@ -69,8 +71,10 @@ public class XmlGuiOutput {
     /**
      * Creates an output using a chest-style inventory with the given rows.
      *
-     * @param title the GUI title (supports '&' color codes)
-     * @param rows  number of rows (1–6) in a chest inventory (9 columns each)
+     * @param title
+     *         the GUI title (supports '&' color codes)
+     * @param rows
+     *         number of rows (1–6) in a chest inventory (9 columns each)
      */
     public XmlGuiOutput(String title, int rows) {
         this.title = title;
@@ -80,8 +84,10 @@ public class XmlGuiOutput {
     /**
      * Register a reusable item‐template.
      *
-     * @param id      the definition id used in XML
-     * @param builder the ItemBuilder that holds all name/lore/enchant/etc.
+     * @param id
+     *         the definition id used in XML
+     * @param builder
+     *         the ItemBuilder that holds all name/lore/enchant/etc.
      */
     public void addDefinition(String id, ItemBuilder builder) {
         definitions.put(id, builder);
@@ -90,7 +96,8 @@ public class XmlGuiOutput {
     /**
      * Register a GUI slot.
      *
-     * @param component the component with x,y and either itemId or inline builder
+     * @param component
+     *         the component with x,y and either itemId or inline builder
      */
     public void addComponent(Component component) {
         components.add(component);
@@ -99,8 +106,11 @@ public class XmlGuiOutput {
     /**
      * Write the built XML to the given file (overwrites if exists).
      *
-     * @param file the output file
-     * @throws Exception on I/O or XML errors
+     * @param file
+     *         the output file
+     *
+     * @throws Exception
+     *         on I/O or XML errors
      */
     public void write(File file) throws Exception {
         Document doc = DocumentBuilderFactory.newInstance()
@@ -226,7 +236,8 @@ public class XmlGuiOutput {
             Element nbtElement = doc.createElement("nbt-json");
             nbtElement.setTextContent(tag.toString());
             itemDefinition.appendChild(nbtElement);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return itemDefinition;
     }
@@ -273,8 +284,11 @@ public class XmlGuiOutput {
      * PersistentDataContainer, covering STRING, BOOLEAN, INT, BYTE,
      * DOUBLE, FLOAT, LONG, and SHORT. Returns null if the container is empty.
      *
-     * @param doc  the XML Document
-     * @param meta the ItemMeta holding the data
+     * @param doc
+     *         the XML Document
+     * @param meta
+     *         the ItemMeta holding the data
+     *
      * @return an Element ready to append, or null if no data
      */
     private Element buildPersistentDataList(Document doc, ItemMeta meta) {
@@ -287,33 +301,33 @@ public class XmlGuiOutput {
             String value;
 
             if (pdc.has(key, PersistentDataType.STRING)) {
-                type  = "STRING";
+                type = "STRING";
                 value = pdc.get(key, PersistentDataType.STRING);
             } else if (pdc.has(key, PersistentDataType.BOOLEAN)) {
-                type  = "BOOLEAN";
+                type = "BOOLEAN";
                 value = Boolean.toString(pdc.get(key, PersistentDataType.BOOLEAN));
             } else if (pdc.has(key, PersistentDataType.INTEGER)) {
-                type  = "INT";
+                type = "INT";
                 value = Integer.toString(pdc.get(key, PersistentDataType.INTEGER));
             } else if (pdc.has(key, PersistentDataType.BYTE)) {
-                type  = "BYTE";
+                type = "BYTE";
                 value = Byte.toString(pdc.get(key, PersistentDataType.BYTE));
             } else if (pdc.has(key, PersistentDataType.DOUBLE)) {
-                type  = "DOUBLE";
+                type = "DOUBLE";
                 value = Double.toString(pdc.get(key, PersistentDataType.DOUBLE));
             } else if (pdc.has(key, PersistentDataType.FLOAT)) {
-                type  = "FLOAT";
+                type = "FLOAT";
                 value = Float.toString(pdc.get(key, PersistentDataType.FLOAT));
             } else if (pdc.has(key, PersistentDataType.LONG)) {
-                type  = "LONG";
+                type = "LONG";
                 value = Long.toString(pdc.get(key, PersistentDataType.LONG));
             } else if (pdc.has(key, PersistentDataType.SHORT)) {
-                type  = "SHORT";
+                type = "SHORT";
                 value = Short.toString(pdc.get(key, PersistentDataType.SHORT));
             } else continue;
 
             Element pdElement = doc.createElement("persistent-data");
-            pdElement.setAttribute("key",  key.getKey());
+            pdElement.setAttribute("key", key.getKey());
             pdElement.setAttribute("type", type);
             pdElement.setTextContent(value);
             listElement.appendChild(pdElement);
@@ -327,7 +341,8 @@ public class XmlGuiOutput {
     // Public model classes
     //───────────────────────────────────────────────────────────────────────────
 
-    private record InventorySpecification(InventoryType inventoryType, int rows) {}
+    private record InventorySpecification(InventoryType inventoryType, int rows) {
+    }
 
     /**
      * A slot in the GUI.
@@ -373,9 +388,12 @@ public class XmlGuiOutput {
         public final String text;
 
         /**
-         * @param type       the action type, e.g. "message", "give", etc.
-         * @param attributes key→value attributes on the <action> tag
-         * @param text       optional text‐content (empty for self-closing)
+         * @param type
+         *         the action type, e.g. "message", "give", etc.
+         * @param attributes
+         *         key→value attributes on the <action> tag
+         * @param text
+         *         optional text‐content (empty for self-closing)
          */
         public Action(String type, Map<String, String> attributes, String text) {
             this.type = type;

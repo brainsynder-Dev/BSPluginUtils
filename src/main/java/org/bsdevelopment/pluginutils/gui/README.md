@@ -1,13 +1,15 @@
 # XML‐Driven GUI System
 
-A lightweight, fully‐customizable GUI framework for Spigot 1.21.x that lets you define menus entirely in XML (or generate XML programmatically) and drive them via your plugin code.
+A lightweight, fully‐customizable GUI framework for Spigot 1.21.x that lets you define menus entirely in XML (or
+generate XML programmatically) and drive them via your plugin code.
 
 ---
 
 ## Features
 
 - **Pure XML GUI definitions**
-    - `<definitions>` for reusable item-templates (with NBT, enchants, flags, attributes, skull-textures, PersistentDataContainer, raw JSON, etc.)
+    - `<definitions>` for reusable item-templates (with NBT, enchants, flags, attributes, skull-textures,
+      PersistentDataContainer, raw JSON, etc.)
     - `<component slot="…">` for placing items into specific inventory slots
     - Chainable `<action>` tags (`message`, `give`, `close`, `command`, and any you register)
 
@@ -162,6 +164,7 @@ out.write(new File(getDataFolder(), "generated-gui.xml"));
 ## Extending & Troubleshooting
 
 - All XML parsing errors throw `XmlValidationException` with clear `[tag@attr=val] Error… Hint: …`.
-- To add new tags (e.g. custom potion data), update `XmlGuiInput.parseItemBuilder()` and mirror in `XmlGuiOutput.buildDefinitionElement()`.
+- To add new tags (e.g. custom potion data), update `XmlGuiInput.parseItemBuilder()` and mirror in
+  `XmlGuiOutput.buildDefinitionElement()`.
 - Ensure your plugin’s `data/…-gui.xml` is UTF-8 encoded and placed in your JAR `resources` if you use `saveResource()`.
 

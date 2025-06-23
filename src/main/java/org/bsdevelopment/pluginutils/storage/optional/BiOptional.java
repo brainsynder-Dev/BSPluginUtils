@@ -25,21 +25,26 @@ import java.util.function.Supplier;
  * empty.ifNonePresent(() -&gt; System.out.println("Nothing present!"));
  * </pre>
  *
- * @param <T> the type of the first value
- * @param <U> the type of the second value
+ * @param <T>
+ *         the type of the first value
+ * @param <U>
+ *         the type of the second value
  */
 public class BiOptional<T, U> {
 
     @Nullable
     private final T first;
+
     @Nullable
     private final U second;
 
     /**
      * Creates a new BiOptional holding the given first and second values (which may be null).
      *
-     * @param first  the first value (or null)
-     * @param second the second value (or null)
+     * @param first
+     *         the first value (or null)
+     * @param second
+     *         the second value (or null)
      */
     public BiOptional(T first, U second) {
         this.first = first;
@@ -49,9 +54,13 @@ public class BiOptional<T, U> {
     /**
      * Creates a BiOptional containing only a first value, leaving the second empty.
      *
-     * @param first the first value (nullable)
-     * @param <T>   the first value's type
-     * @param <U>   the second value's type
+     * @param first
+     *         the first value (nullable)
+     * @param <T>
+     *         the first value's type
+     * @param <U>
+     *         the second value's type
+     *
      * @return a new BiOptional with the provided first value
      */
     public static <T, U> BiOptional<T, U> of(T first) {
@@ -63,10 +72,15 @@ public class BiOptional<T, U> {
     /**
      * Creates a BiOptional containing both a first and second value.
      *
-     * @param first  the first value (nullable)
-     * @param second the second value (nullable)
-     * @param <T>    the first value's type
-     * @param <U>    the second value's type
+     * @param first
+     *         the first value (nullable)
+     * @param second
+     *         the second value (nullable)
+     * @param <T>
+     *         the first value's type
+     * @param <U>
+     *         the second value's type
+     *
      * @return a new BiOptional with the provided values
      */
     public static <T, U> BiOptional<T, U> of(T first, U second) {
@@ -80,8 +94,11 @@ public class BiOptional<T, U> {
     /**
      * Creates an empty BiOptional with neither value present.
      *
-     * @param <T> the first type
-     * @param <U> the second type
+     * @param <T>
+     *         the first type
+     * @param <U>
+     *         the second type
+     *
      * @return an empty BiOptional
      */
     public static <T, U> BiOptional<T, U> empty() {
@@ -91,10 +108,15 @@ public class BiOptional<T, U> {
     /**
      * Creates a BiOptional from two {@link Optional} values, one for the first value and one for the second.
      *
-     * @param first  an Optional for the first value
-     * @param second an Optional for the second value
-     * @param <T>    the first type
-     * @param <U>    the second type
+     * @param first
+     *         an Optional for the first value
+     * @param second
+     *         an Optional for the second value
+     * @param <T>
+     *         the first type
+     * @param <U>
+     *         the second type
+     *
      * @return a new BiOptional reflecting the presence or absence of each Optional
      */
     public static <T, U> BiOptional<T, U> from(Optional<T> first, Optional<U> second) {
@@ -176,7 +198,9 @@ public class BiOptional<T, U> {
     /**
      * If only the first value is present, performs the given action with the first value.
      *
-     * @param ifFirstOnlyPresent consumer to execute if only the first is present
+     * @param ifFirstOnlyPresent
+     *         consumer to execute if only the first is present
+     *
      * @return this BiOptional for chaining
      */
     public BiOptional<T, U> ifFirstOnlyPresent(Consumer<? super T> ifFirstOnlyPresent) {
@@ -187,7 +211,9 @@ public class BiOptional<T, U> {
     /**
      * If only the second value is present, performs the given action with the second value.
      *
-     * @param ifSecondOnlyPresent consumer to execute if only the second is present
+     * @param ifSecondOnlyPresent
+     *         consumer to execute if only the second is present
+     *
      * @return this BiOptional for chaining
      */
     public BiOptional<T, U> ifSecondOnlyPresent(Consumer<? super U> ifSecondOnlyPresent) {
@@ -198,7 +224,9 @@ public class BiOptional<T, U> {
     /**
      * If both values are present, performs the given action with both.
      *
-     * @param ifBothPresent consumer to execute if both are present
+     * @param ifBothPresent
+     *         consumer to execute if both are present
+     *
      * @return this BiOptional for chaining
      */
     public BiOptional<T, U> ifBothPresent(BiConsumer<? super T, ? super U> ifBothPresent) {
@@ -209,7 +237,9 @@ public class BiOptional<T, U> {
     /**
      * If neither value is present, performs the given runnable.
      *
-     * @param ifNonePresent runnable to execute if none are present
+     * @param ifNonePresent
+     *         runnable to execute if none are present
+     *
      * @return this BiOptional for chaining
      */
     public BiOptional<T, U> ifNonePresent(Runnable ifNonePresent) {
@@ -220,9 +250,13 @@ public class BiOptional<T, U> {
     /**
      * If neither value is present, throws an exception provided by the given supplier.
      *
-     * @param throwableProvider the supplier of the exception to throw
-     * @param <X>               the exception type
-     * @throws X if none are present
+     * @param throwableProvider
+     *         the supplier of the exception to throw
+     * @param <X>
+     *         the exception type
+     *
+     * @throws X
+     *         if none are present
      */
     public <X extends Throwable> void ifNonePresentThrow(Supplier<? extends X> throwableProvider) throws X {
         if (areNonePresent()) throw throwableProvider.get();
@@ -232,7 +266,9 @@ public class BiOptional<T, U> {
      * Returns a new {@link BiOptionalMapper} instance for transforming or mapping the two values
      * stored in this BiOptional.
      *
-     * @param <R> the type of the mapped result
+     * @param <R>
+     *         the type of the mapped result
+     *
      * @return a BiOptionalMapper bound to this BiOptional
      */
     public <R> BiOptionalMapper<T, U, R> mapper() {
