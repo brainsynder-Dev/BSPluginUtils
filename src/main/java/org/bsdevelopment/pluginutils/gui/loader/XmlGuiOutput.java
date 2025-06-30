@@ -53,7 +53,7 @@ public class XmlGuiOutput {
     private final InventorySpecification specification;
 
     private final Map<String, ItemBuilder> definitions = new LinkedHashMap<>();
-    private final List<Component> components = new ArrayList<>();
+    private final List<GuiComponent> components = new ArrayList<>();
 
     /**
      * Creates an output using a named inventory type.
@@ -99,7 +99,7 @@ public class XmlGuiOutput {
      * @param component
      *         the component with x,y and either itemId or inline builder
      */
-    public void addComponent(Component component) {
+    public void addComponent(GuiComponent component) {
         components.add(component);
     }
 
@@ -137,7 +137,7 @@ public class XmlGuiOutput {
         }
 
         // <component> entries
-        for (Component component : components) {
+        for (GuiComponent component : components) {
             guiElement.appendChild(buildComponentElement(doc, component));
         }
 
@@ -242,7 +242,7 @@ public class XmlGuiOutput {
         return itemDefinition;
     }
 
-    private Element buildComponentElement(Document doc, Component comp) {
+    private Element buildComponentElement(Document doc, GuiComponent comp) {
         Element componentElement = doc.createElement("component");
         componentElement.setAttribute("type", "item");
         componentElement.setAttribute("slot", Integer.toString(comp.slot));
@@ -347,7 +347,7 @@ public class XmlGuiOutput {
     /**
      * A slot in the GUI.
      */
-    public static class Component {
+    public static class GuiComponent {
         public final int slot;
         public final String itemId;       // null if inline
         public final ItemBuilder builder; // only if itemId==null
@@ -356,7 +356,7 @@ public class XmlGuiOutput {
         /**
          * Use a defined template.
          */
-        public Component(int slot, String itemId) {
+        public GuiComponent(int slot, String itemId) {
             this.slot = slot;
             this.itemId = itemId;
             this.builder = null;
@@ -365,7 +365,7 @@ public class XmlGuiOutput {
         /**
          * Inline‐build the item here.
          */
-        public Component(int slot, ItemBuilder builder) {
+        public GuiComponent(int slot, ItemBuilder builder) {
             this.slot = slot;
             this.builder = builder;
             this.itemId = null;
