@@ -42,6 +42,8 @@ public class ServerVersion {
     public static ServerVersion v1_21_4 = register(Triple.of(1, 21, 4), "v1_21_R3");
     public static ServerVersion v1_21_5 = register(Triple.of(1, 21, 5), "v1_21_R4");
     public static ServerVersion v1_21_6 = register(Triple.of(1, 21, 6), "v1_21_R5");
+    public static ServerVersion v1_21_7 = register(Triple.of(1, 21, 7), v1_21_6);
+    public static ServerVersion v1_21_8 = register(Triple.of(1, 21, 8), v1_21_6);
     // ---- AUTOMATION: END ---- //
 
     /**
