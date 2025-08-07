@@ -1,5 +1,6 @@
 package org.bsdevelopment.pluginutils.utilities;
 
+import org.bukkit.Bukkit;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +31,30 @@ public class PlayerProfileHelper {
     }
 
     /**
+     * Generate a 16-character, hex-only name by hashing the given seed string
+     * (or a random UUID, if seed is null).
+     */
+    private static String generateProfileName(@Nullable String seed) {
+        String base = seed != null ? seed : UUID.randomUUID().toString();
+        String hex = UUID.nameUUIDFromBytes(base.getBytes(StandardCharsets.UTF_8))
+                .toString()
+                .replace("-", "");
+        // Take first 16 hex chars for a valid Minecraft name length
+        return hex.substring(0, 16);
+    }
+
+    /**
+     * If the passed profile is null, create a new one using a 16-char name
+     * derived from the seed; otherwise return the existing profile.
+     */
+    private static PlayerProfile getOrCreateProfile(@Nullable PlayerProfile profile, @Nullable String seed) {
+        if (profile != null) return profile;
+
+        String name = generateProfileName(seed);
+        return Bukkit.createPlayerProfile(null, name);
+    }
+
+    /**
      * Sets the skin on the provided PlayerProfile using the given URL string.
      * Clears any previous texture data before applying the new skin.
      *
@@ -39,14 +66,15 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setSkin(@NotNull PlayerProfile profile, @Nullable String skinUrl) {
+        PlayerProfile effective = getOrCreateProfile(profile, skinUrl);
         var url = createUrl(skinUrl);
-        if (url == null) return profile;
+        if (url == null) return effective;
 
-        var textures = profile.getTextures();
+        var textures = effective.getTextures();
         textures.clear();
         textures.setSkin(url);
-        profile.setTextures(textures);
-        return profile;
+        effective.setTextures(textures);
+        return effective;
     }
 
     /**
@@ -63,14 +91,15 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setSkin(@NotNull PlayerProfile profile, @Nullable String skinUrl, @Nullable PlayerTextures.SkinModel skinModel) {
+        PlayerProfile effective = getOrCreateProfile(profile, skinUrl);
         var url = createUrl(skinUrl);
-        if (url == null) return profile;
+        if (url == null) return effective;
 
-        var textures = profile.getTextures();
+        var textures = effective.getTextures();
         textures.clear();
         textures.setSkin(url, skinModel);
-        profile.setTextures(textures);
-        return profile;
+        effective.setTextures(textures);
+        return effective;
     }
 
     /**
@@ -84,13 +113,14 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setCape(@NotNull PlayerProfile profile, @Nullable String capeUrl) {
+        PlayerProfile effective = getOrCreateProfile(profile, capeUrl);
         var url = createUrl(capeUrl);
-        if (url == null) return profile;
+        if (url == null) return effective;
 
-        var textures = profile.getTextures();
+        var textures = effective.getTextures();
         textures.setCape(url);
-        profile.setTextures(textures);
-        return profile;
+        effective.setTextures(textures);
+        return effective;
     }
 
     /**
@@ -102,9 +132,10 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile clearTextures(@NotNull PlayerProfile profile) {
-        var textures = profile.getTextures();
+        PlayerProfile effective = getOrCreateProfile(profile, null);
+        var textures = effective.getTextures();
         textures.clear();
-        profile.setTextures(textures);
-        return profile;
+        effective.setTextures(textures);
+        return effective;
     }
 }
