@@ -35,6 +35,9 @@ dependencies {
 }
 
 tasks {
+
+    jar { enabled = false }
+
     withType<JavaCompile> {
         options.encoding = "UTF-8"
     }
@@ -56,6 +59,7 @@ tasks {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    withSourcesJar()
 }
 
 tasks.register("cleanInstall") {
@@ -74,7 +78,11 @@ tasks.publish {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            // ✅ publish the SHADOW component so the POM doesn’t expose your shaded deps
+            from(components["shadow"])
+
+            // keep sources if you want them available in your repo
+            artifact(tasks.named("sourcesJar"))
         }
     }
     repositories {
