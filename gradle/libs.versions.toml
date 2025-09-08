@@ -1,7 +1,7 @@
 [versions]
 # Dependencies
 spigot = "1.21.8-R0.1-SNAPSHOT"
-nbtapi = "2.15.0"
+nbtapi = "2.15.2"
 paperlib = "1.0.8"
 scheduler = "0.1.7"
 
