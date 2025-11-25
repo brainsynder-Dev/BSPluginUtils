@@ -84,10 +84,8 @@ public class ServerInformation {
      * }
      * </pre>
      *
-     * @param plugin
-     *         the plugin instance
-     * @param classLoader
-     *         the class loader
+     * @param plugin      the plugin instance
+     * @param classLoader the class loader
      */
     public ServerInformation(Plugin plugin, ClassLoader classLoader) {
         paperServer = PaperLib.isPaper();
@@ -109,10 +107,7 @@ public class ServerInformation {
                 var buildInfoMethod = Reflection.resolveMethod(buildInfoClass, "buildInfo");
                 var instance = Reflection.executeMethod(buildInfoMethod, null);
 
-                serverType = Reflection.executeMethod(
-                        Reflection.resolveMethod(buildInfoClass, "brandName"),
-                        instance
-                );
+                serverType = Reflection.executeMethod(Reflection.resolveMethod(buildInfoClass, "brandName"), instance);
                 buildVersion = AdvString.between("-", "-", rawVersion);
             } catch (Exception ex) {
                 var pattern = Pattern.compile("git-(\\w+)-(\\w+) \\(MC: (\\w.+)\\)");
@@ -133,11 +128,7 @@ public class ServerInformation {
         minecraftVersion = AdvString.between("(MC: ", ")", rawVersion);
 
         try {
-            var livingClass = Class.forName(
-                    "net,minecraft,core,registries,BuiltInRegistries".replace(",", "."),
-                    false,
-                    classLoader
-            );
+            var livingClass = Class.forName("net,minecraft,core,registries,BuiltInRegistries".replace(",", "."), false, classLoader);
             var field = livingClass.getDeclaredField("ENTITY_TYPE");
             if (field != null) {
                 mojangMapped = true;

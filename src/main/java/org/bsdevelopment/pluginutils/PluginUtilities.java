@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * A utility class for initializing and retrieving a {@link TaskScheduler} instance.
  *
  * <p>Use {@link #initialize(Plugin)} once in your plugin's onEnable or an early setup stage,
- * then call {@link #getTaskScheduler()} whenever you need to schedule tasks.
+ * then call {@link PluginUtilities#getScheduler()} whenever you need to schedule tasks.
  *
  * <p><b>Example Usage:</b>
  * <pre>
@@ -40,15 +40,15 @@ public final class PluginUtilities extends JavaPlugin {
      *
      * <p><b>Example:</b>
      * <pre>
-     * TaskScheduler scheduler = PluginUtilities.getTaskScheduler();
+     * TaskScheduler scheduler = PluginUtilities.getScheduler();
      * scheduler.runTask(() -> {
      *     // Task logic here
      * });
      * </pre>
      *
      * @return the initialized {@link TaskScheduler}
-     * @throws UnsupportedOperationException
-     *         if {@link #initialize(Plugin)} was never called
+     *
+     * @throws UnsupportedOperationException if {@link #initialize(Plugin)} was never called
      */
     public static TaskScheduler getScheduler() {
         if (scheduler == null)
