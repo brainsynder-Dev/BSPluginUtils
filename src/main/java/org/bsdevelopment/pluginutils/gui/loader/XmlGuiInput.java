@@ -6,6 +6,7 @@ import org.bsdevelopment.pluginutils.gui.GuiAction;
 import org.bsdevelopment.pluginutils.gui.parser.XmlUtils;
 import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
+import org.bsdevelopment.pluginutils.item.ItemRegistry;
 import org.bsdevelopment.pluginutils.nbt.serialization.NBTJSON;
 import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
 import org.bsdevelopment.pluginutils.text.Colorize;
@@ -86,14 +87,28 @@ public class XmlGuiInput {
 
                 ItemBuilder builder;
                 if (component.hasAttribute("item-id")) {
-                    String ref = component.getAttribute("item-id");
-                    builder = definitions.get(ref);
-                    if (builder == null) throw new XmlValidationException(component,
-                            "Unknown item-id='" + ref + "'",
-                            "Declare <item-definition id=\"" + ref + "\"/> first"
-                    );
+                    String ref = component.getAttribute("item-id").trim();
+
+                    // 1) Namespaced lookup first (external registry)
+                    if (ref.contains(":")) {
+                        org.bukkit.NamespacedKey k = org.bukkit.NamespacedKey.fromString(ref);
+                        builder = ItemRegistry.get(k).orElse(null);
+                        if (builder == null) {
+                            throw new XmlValidationException(component,
+                                    "Unknown external item-id='" + ref + "'",
+                                    "Ensure you registered the item via ItemRegistry.registerFromFile(...)");
+                        }
+                    } else {
+                        // 2) Fall back to local <definitions>
+                        builder = definitions.get(ref);
+                        if (builder == null) {
+                            throw new XmlValidationException(component,
+                                    "Unknown item-id='" + ref + "'",
+                                    "Declare <item-definition id=\"" + ref + "\"/> or reference a namespaced key 'ns:id'");
+                        }
+                    }
                 } else {
-                    builder = parseItemBuilder(component, plugin);
+                    builder = parseItemBuilder(component, plugin); // inline
                 }
                 inv.setItem(slot, builder.build());
 
@@ -258,8 +273,7 @@ public class XmlGuiInput {
                 switch (type.toUpperCase()) {
                     // TODO: Add the other PDC types (at least the common ones)
                     case "STRING" -> container.set(namespacedKey, PersistentDataType.STRING, val);
-                    case "BOOLEAN" ->
-                            container.set(namespacedKey, PersistentDataType.BOOLEAN, Boolean.parseBoolean(val));
+                    case "BOOLEAN" -> container.set(namespacedKey, PersistentDataType.BOOLEAN, Boolean.parseBoolean(val));
                     case "INT" -> container.set(namespacedKey, PersistentDataType.INTEGER, Integer.parseInt(val));
                     case "BYTE" -> container.set(namespacedKey, PersistentDataType.BYTE, Byte.parseByte(val));
                     case "DOUBLE" -> container.set(namespacedKey, PersistentDataType.DOUBLE, Double.parseDouble(val));
@@ -267,8 +281,7 @@ public class XmlGuiInput {
                     case "LONG" -> container.set(namespacedKey, PersistentDataType.LONG, Long.parseLong(val));
                     case "SHORT" -> container.set(namespacedKey, PersistentDataType.SHORT, Short.parseShort(val));
 
-                    default ->
-                            throw new XmlValidationException(pd, "Unsupported PDC type='" + type + "'", "Use STRING, INT, BOOLEAN, DOUBLE, FLOAT, LONG, SHORT, or BYTE");
+                    default -> throw new XmlValidationException(pd, "Unsupported PDC type='" + type + "'", "Use STRING, INT, BOOLEAN, DOUBLE, FLOAT, LONG, SHORT, or BYTE");
                 }
                 return meta;
             });
