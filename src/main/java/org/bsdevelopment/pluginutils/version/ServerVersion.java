@@ -101,9 +101,9 @@ public class ServerVersion {
     public static ServerVersion of(Triple<Integer, Integer, Integer> triple) {
         if (VERSION_MAP.containsKey(triple)) return VERSION_MAP.get(triple);
 
-        String versionName = (triple.right == 0)
-                ? String.format("v%d_%d", triple.left, triple.middle)
-                : String.format("v%d_%d_%d", triple.left, triple.middle, triple.right);
+        String versionName = (triple.getRight() == 0)
+                ? String.format("v%d_%d", triple.getLeft(), triple.getMiddle())
+                : String.format("v%d_%d_%d", triple.getLeft(), triple.getMiddle(), triple.getRight());
 
         for (ServerVersion version : VERSIONS) {
             if (version.versionName.equalsIgnoreCase(versionName)) {
@@ -112,7 +112,7 @@ public class ServerVersion {
             }
         }
 
-        if (getVersion().version == triple) return getVersion();
+        if (getVersion().version.equals(triple)) return getVersion();
 
         // No version was found, register the current version to have access to it.
         return CURRENT_VERSION = register(triple, "");
@@ -121,12 +121,9 @@ public class ServerVersion {
     private final Triple<Integer, Integer, Integer> version;
     private final String spigotNMS;
     private final String versionName;
-    private ServerVersion parentVersion = this;
 
     private ServerVersion(Triple<Integer, Integer, Integer> version, ServerVersion parentVersion) {
         this(version, parentVersion.spigotNMS);
-
-        this.parentVersion = parentVersion;
     }
 
     private ServerVersion(Triple<Integer, Integer, Integer> version, String spigotNMS) {
@@ -183,57 +180,45 @@ public class ServerVersion {
     /**
      * Determines if this version is equal to or newer than the specified version.
      *
-     * <p>Comparison is performed on the major, minor, and patch numbers in order.
-     * For example, v1_17_1 is considered equal to or newer than v1_17, and v1_18 is considered newer than v1_17_1.
+     * @param version version to compare against
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean result = current.isEqualOrNewer(ServerVersion.v1_21);
-     * </pre>
-     *
-     * @param version
-     *         the version to compare against
-     *
-     * @return true if this version is equal to or newer than the specified version; false otherwise
+     * @return true if this version >= version; false otherwise
      */
     public boolean isEqualOrNewer(ServerVersion version) {
-        Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
-
-        if ((this.version.left.equals(compare.left) || this.version.left > compare.left)
-                && (this.version.middle.equals(compare.middle) || this.version.middle > compare.middle)) {
-
-            if (this.version.middle.equals(compare.middle))
-                return (this.version.right.equals(compare.right) || this.version.right >= compare.right);
-
-            return true;
-        }
-
-        return false;
+        return compareVersion(this.version, version.getVersionNumbers()) >= 0;
     }
 
     /**
      * Determines if this version is strictly newer than the specified version.
      *
-     * <p>Comparison is performed on the major, minor, and patch numbers.
-     * For example, v1_17_1 is strictly newer than v1_17.
+     * @param version version to compare against
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean result = current.isStrictlyNewer(ServerVersion.v1_21);
-     * </pre>
-     *
-     * @param version
-     *         the version to compare against
-     *
-     * @return true if this version is strictly newer than the specified version; false otherwise
+     * @return true if this version > version; false otherwise
      */
     public boolean isStrictlyNewer(ServerVersion version) {
-        Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
+        return compareVersion(this.version, version.getVersionNumbers()) > 0;
+    }
 
-        return (this.version.left > compare.left)
-                || (this.version.left.equals(compare.left) && this.version.middle > compare.middle)
-                || (this.version.left.equals(compare.left) && this.version.middle.equals(compare.middle)
-                && this.version.right > compare.right);
+    /**
+     * Determines if this version is equal to or older than the specified version.
+     *
+     * @param version version to compare against
+     *
+     * @return true if this version <= version; false otherwise
+     */
+    public boolean isEqualOrOlder(ServerVersion version) {
+        return compareVersion(this.version, version.getVersionNumbers()) <= 0;
+    }
+
+    /**
+     * Determines if this version is strictly older than the specified version.
+     *
+     * @param version version to compare against
+     *
+     * @return true if this version < version; false otherwise
+     */
+    public boolean isStrictlyOlder(ServerVersion version) {
+        return compareVersion(this.version, version.getVersionNumbers()) < 0;
     }
 
     /**
@@ -258,63 +243,16 @@ public class ServerVersion {
                 && this.version.right.equals(compare.right);
     }
 
-    /**
-     * Determines if this version is equal to or older than the specified version.
-     *
-     * <p>Comparison is performed on the major, minor, and patch numbers.
-     * For example, v1_17 is considered equal to or older than v1_17_1.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean result = current.isEqualOrOlder(ServerVersion.v1_21);
-     * </pre>
-     *
-     * @param version
-     *         the version to compare against
-     *
-     * @return true if this version is equal to or older than the specified version; false otherwise
-     */
-    public boolean isEqualOrOlder(ServerVersion version) {
-        Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
+    private static int compareVersion(Triple<Integer, Integer, Integer> a,
+                                      Triple<Integer, Integer, Integer> b) {
+        int majorCmp = Integer.compare(a.getLeft(), b.getLeft());
+        if (majorCmp != 0) return majorCmp;
 
-        if ((this.version.left.equals(compare.left) || this.version.left < compare.left)
-                && (this.version.middle.equals(compare.middle) || this.version.middle < compare.middle)) {
+        int minorCmp = Integer.compare(a.getMiddle(), b.getMiddle());
+        if (minorCmp != 0) return minorCmp;
 
-            if (this.version.middle.equals(compare.middle))
-                return (this.version.right.equals(compare.right) || this.version.right <= compare.right);
-
-            return true;
-        }
-
-        return false;
+        return Integer.compare(a.getRight(), b.getRight());
     }
-
-    /**
-     * Determines if this version is strictly older than the specified version.
-     *
-     * <p>Comparison is performed on the major, minor, and patch numbers.
-     * For example, v1_17 is strictly older than v1_17_1.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean result = current.isStrictlyOlder(ServerVersion.v1_21);
-     * </pre>
-     *
-     * @param version
-     *         the version to compare against
-     *
-     * @return true if this version is strictly older than the specified version; false otherwise
-     */
-    public boolean isStrictlyOlder(ServerVersion version) {
-        Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
-
-        return (this.version.left < compare.left)
-                || (this.version.left.equals(compare.left) && this.version.middle < compare.middle)
-                || (this.version.left.equals(compare.left) && this.version.middle.equals(compare.middle)
-                && this.version.right < compare.right);
-    }
-
-    // --- PRIVATE METHODS (No JavaDocs) --- //
 
     private static ServerVersion register(Triple<Integer, Integer, Integer> version, ServerVersion parentVersion) {
         ServerVersion serverVersion = new ServerVersion(version, parentVersion);

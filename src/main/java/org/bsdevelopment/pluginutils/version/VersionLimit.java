@@ -1,7 +1,9 @@
 package org.bsdevelopment.pluginutils.version;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Specifies a minimum and maximum server version range that the annotated element supports.
@@ -16,6 +18,12 @@ import java.lang.annotation.RetentionPolicy;
  * server version is within the {@code min} and {@code max} values (inclusive).
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Target({
+        ElementType.TYPE,
+        ElementType.FIELD,
+        ElementType.METHOD,
+        ElementType.CONSTRUCTOR
+})
 public @interface VersionLimit {
     /**
      * The minimum supported server version range (major, minor, patch).
