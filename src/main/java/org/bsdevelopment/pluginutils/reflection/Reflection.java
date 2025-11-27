@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2025
+ * BSDevelopment <https://bsdevelopment.org>
+ */
+
 package org.bsdevelopment.pluginutils.reflection;
 
 import io.papermc.lib.PaperLib;
@@ -12,8 +17,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides reflection utilities for Minecraft and CraftBukkit internals.
@@ -40,38 +47,35 @@ import java.util.Objects;
  * </pre>
  */
 public class Reflection {
+    private static final Map<Class<? extends Entity>, Method> ENTITY_HANDLE_CACHE = new ConcurrentHashMap<>();
 
-    private static final HashMap<Class<? extends Entity>, Method> entityHandleCache = new HashMap<>();
-
-    // =====================================
-    // Minecraft (NMS) Methods
-    // =====================================
+    private static final Map<String, Class<?>> MINECRAFT_CLASS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Class<?>> CRAFT_BUKKIT_CLASS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Class<?>> BUKKIT_CLASS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<MethodKey, Method> METHOD_CACHE = new ConcurrentHashMap<>();
+    private static final Map<FieldKey, Field> FIELD_CACHE = new ConcurrentHashMap<>();
+    private static final Map<ConstructorKey, Constructor<?>> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
 
     /**
      * Invokes a Minecraft (NMS) method on the given target.
      *
-     * @param className
-     *         The Minecraft class name.
-     * @param subLocation
-     *         The subpackage location, if any.
-     * @param methodName
-     *         The name of the method to invoke.
-     * @param target
-     *         The target object, or null for static methods.
-     * @param parameterTypes
-     *         The types of the method parameters.
-     * @param args
-     *         The arguments to pass to the method.
-     * @param <T>
-     *         The expected return type.
+     * @param className      The Minecraft class name.
+     * @param subLocation    The subpackage location, if any.
+     * @param methodName     The name of the method to invoke.
+     * @param target         The target object, or null for static methods.
+     * @param parameterTypes The types of the method parameters.
+     * @param args           The arguments to pass to the method.
+     * @param <T>            The expected return type.
      *
      * @return The result of the method call, or null if an error occurs.
      */
     public static <T> T invokeMinecraftMethod(String className, String subLocation, String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
         try {
             Class<?> clazz = resolveMinecraftClass(className, subLocation);
-            Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
-            method.setAccessible(true);
+            if (clazz == null) return null;
+
+            Method method = resolveMethod(clazz, methodName, parameterTypes);
+            if (method == null) return null;
 
             return (T) method.invoke(target, args);
         } catch (Exception ex) {
@@ -83,16 +87,11 @@ public class Reflection {
     /**
      * Invokes a Minecraft (NMS) method using the target's class name.
      *
-     * @param methodName
-     *         The method name.
-     * @param target
-     *         The target object.
-     * @param parameterTypes
-     *         The parameter types.
-     * @param args
-     *         The method arguments.
-     * @param <T>
-     *         The expected return type.
+     * @param methodName     The method name.
+     * @param target         The target object.
+     * @param parameterTypes The parameter types.
+     * @param args           The method arguments.
+     * @param <T>            The expected return type.
      *
      * @return The result of the method call.
      */
@@ -105,12 +104,9 @@ public class Reflection {
     /**
      * Invokes a Minecraft (NMS) method with no parameters.
      *
-     * @param methodName
-     *         The method name.
-     * @param target
-     *         The target object.
-     * @param <T>
-     *         The expected return type.
+     * @param methodName The method name.
+     * @param target     The target object.
+     * @param <T>        The expected return type.
      *
      * @return The result of the method call.
      */
@@ -120,25 +116,27 @@ public class Reflection {
         return invokeMinecraftMethod(methodName, target, new Class[0], new Object[0]);
     }
 
+    // =====================================
+    // Minecraft (NMS) Methods
+    // =====================================
+
     /**
      * Creates a new instance of a Minecraft (NMS) class.
      *
-     * @param className
-     *         The Minecraft class name.
-     * @param subLocation
-     *         The subpackage location, if any.
-     * @param parameterTypes
-     *         The parameter types for the constructor.
-     * @param args
-     *         The arguments to pass to the constructor.
+     * @param className      The Minecraft class name.
+     * @param subLocation    The subpackage location, if any.
+     * @param parameterTypes The parameter types for the constructor.
+     * @param args           The arguments to pass to the constructor.
      *
      * @return A new instance, or null if an error occurs.
      */
     public static Object createMinecraftInstance(String className, String subLocation, Class<?>[] parameterTypes, Object... args) {
         try {
             Class<?> clazz = resolveMinecraftClass(className, subLocation);
-            Constructor<?> constructor = clazz.getDeclaredConstructor(parameterTypes);
-            constructor.setAccessible(true);
+            if (clazz == null) return null;
+
+            Constructor<?> constructor = retrieveConstructor(clazz, parameterTypes);
+            if (constructor == null) return null;
 
             return constructor.newInstance(args);
         } catch (Exception ex) {
@@ -150,27 +148,23 @@ public class Reflection {
     /**
      * Fetches the value of a Minecraft (NMS) field.
      *
-     * @param className
-     *         The Minecraft class name.
-     * @param subLocation
-     *         The subpackage location, if any.
-     * @param target
-     *         The target object from which to fetch the field.
-     * @param fieldName
-     *         The name of the field.
-     * @param <T>
-     *         The expected field type.
+     * @param className   The Minecraft class name.
+     * @param subLocation The subpackage location, if any.
+     * @param target      The target object from which to fetch the field.
+     * @param fieldName   The name of the field.
+     * @param <T>         The expected field type.
      *
      * @return The value of the field.
-     * @throws NoSuchFieldException
-     *         If the field does not exist.
-     * @throws IllegalAccessException
-     *         If the field is not accessible.
+     *
+     * @throws NoSuchFieldException   If the field does not exist.
+     * @throws IllegalAccessException If the field is not accessible.
      */
     public static <T> T fetchMinecraftField(String className, String subLocation, Object target, String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Class<?> clazz = resolveMinecraftClass(className, subLocation);
-        Field field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
+        if (clazz == null) throw new NoSuchFieldException("Class could not be resolved for: " + className);
+
+        Field field = retrieveField(clazz, fieldName);
+        if (field == null) throw new NoSuchFieldException(fieldName);
 
         return (T) field.get(target);
     }
@@ -178,14 +172,10 @@ public class Reflection {
     /**
      * Attempts to fetch the value of one of several Minecraft (NMS) fields.
      *
-     * @param target
-     *         The target object.
-     * @param subLocation
-     *         The subpackage location, if any.
-     * @param fieldNames
-     *         Possible field names.
-     * @param <T>
-     *         The expected field type.
+     * @param target      The target object.
+     * @param subLocation The subpackage location, if any.
+     * @param fieldNames  Possible field names.
+     * @param <T>         The expected field type.
      *
      * @return The value of the first matching field, or null if none are found.
      */
@@ -193,40 +183,31 @@ public class Reflection {
         for (String fieldName : fieldNames) {
             try {
                 return fetchMinecraftField(target.getClass().getSimpleName(), subLocation, target, fieldName);
-            } catch (NoSuchFieldException | IllegalAccessException ignored) {
-            }
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {}
         }
 
         return null;
     }
 
-    // =====================================
-    // CraftBukkit Methods
-    // =====================================
-
     /**
      * Invokes a CraftBukkit method on the given target.
      *
-     * @param className
-     *         The CraftBukkit class name.
-     * @param methodName
-     *         The method name.
-     * @param target
-     *         The target object, or null for static methods.
-     * @param parameterTypes
-     *         The parameter types.
-     * @param args
-     *         The method arguments.
-     * @param <T>
-     *         The expected return type.
+     * @param className      The CraftBukkit class name.
+     * @param methodName     The method name.
+     * @param target         The target object, or null for static methods.
+     * @param parameterTypes The parameter types.
+     * @param args           The method arguments.
+     * @param <T>            The expected return type.
      *
      * @return The result of the method call, or null if an error occurs.
      */
     public static <T> T invokeCraftBukkitMethod(String className, String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
         try {
             Class<?> clazz = resolveCraftBukkitClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
-            method.setAccessible(true);
+            if (clazz == null) return null;
+
+            Method method = resolveMethod(clazz, methodName, parameterTypes);
+            if (method == null) return null;
 
             return (T) method.invoke(target, args);
         } catch (Exception ex) {
@@ -238,24 +219,17 @@ public class Reflection {
     /**
      * Invokes a CraftBukkit method using the target's class.
      *
-     * @param methodName
-     *         The method name.
-     * @param target
-     *         The target object.
-     * @param parameterTypes
-     *         The parameter types.
-     * @param args
-     *         The method arguments.
-     * @param <T>
-     *         The expected return type.
+     * @param methodName     The method name.
+     * @param target         The target object.
+     * @param parameterTypes The parameter types.
+     * @param args           The method arguments.
+     * @param <T>            The expected return type.
      *
      * @return The result of the method call.
      */
     public static <T> T invokeCraftBukkitMethod(String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
-
-        if (PaperLib.isPaper())
-            version = "";
+        if (PaperLib.isPaper()) version = "";
 
         String className = target.getClass().getName().replace("org.bukkit.craftbukkit." + version, "");
 
@@ -265,12 +239,9 @@ public class Reflection {
     /**
      * Invokes a CraftBukkit method with no parameters.
      *
-     * @param methodName
-     *         The method name.
-     * @param target
-     *         The target object.
-     * @param <T>
-     *         The expected return type.
+     * @param methodName The method name.
+     * @param target     The target object.
+     * @param <T>        The expected return type.
      *
      * @return The result of the method call.
      */
@@ -278,23 +249,26 @@ public class Reflection {
         return invokeCraftBukkitMethod(methodName, target, new Class[0], new Object[0]);
     }
 
+    // =====================================
+    // CraftBukkit Methods
+    // =====================================
+
     /**
      * Creates a new instance of a CraftBukkit class.
      *
-     * @param className
-     *         The CraftBukkit class name.
-     * @param parameterTypes
-     *         The parameter types for the constructor.
-     * @param args
-     *         The constructor arguments.
+     * @param className      The CraftBukkit class name.
+     * @param parameterTypes The parameter types for the constructor.
+     * @param args           The constructor arguments.
      *
      * @return A new instance, or null if an error occurs.
      */
     public static Object createCraftBukkitInstance(String className, Class<?>[] parameterTypes, Object... args) {
         try {
             Class<?> clazz = resolveCraftBukkitClass(className);
-            Constructor<?> constructor = clazz.getConstructor(parameterTypes);
-            constructor.setAccessible(true);
+            if (clazz == null) return null;
+
+            Constructor<?> constructor = retrieveConstructor(clazz, parameterTypes);
+            if (constructor == null) return null;
 
             return constructor.newInstance(args);
         } catch (Exception ex) {
@@ -306,22 +280,20 @@ public class Reflection {
     /**
      * Fetches the value of a CraftBukkit field.
      *
-     * @param className
-     *         The CraftBukkit class name.
-     * @param target
-     *         The target object.
-     * @param fieldName
-     *         The name of the field.
-     * @param <T>
-     *         The expected field type.
+     * @param className The CraftBukkit class name.
+     * @param target    The target object.
+     * @param fieldName The name of the field.
+     * @param <T>       The expected field type.
      *
      * @return The value of the field, or null if an error occurs.
      */
     public static <T> T fetchCraftBukkitField(String className, Object target, String fieldName) {
         try {
             Class<?> clazz = resolveCraftBukkitClass(className);
-            Field field = clazz.getDeclaredField(fieldName);
-            field.setAccessible(true);
+            if (clazz == null) return null;
+
+            Field field = retrieveField(clazz, fieldName);
+            if (field == null) return null;
 
             return (T) field.get(target);
         } catch (Exception ex) {
@@ -333,20 +305,15 @@ public class Reflection {
     /**
      * Fetches the value of a CraftBukkit field using the target's class.
      *
-     * @param target
-     *         The target object.
-     * @param fieldName
-     *         The field name.
-     * @param <T>
-     *         The expected field type.
+     * @param target    The target object.
+     * @param fieldName The field name.
+     * @param <T>       The expected field type.
      *
      * @return The value of the field.
      */
     public static <T> T fetchCraftBukkitField(Object target, String fieldName) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
-
-        if (PaperLib.isPaper())
-            version = "";
+        if (PaperLib.isPaper()) version = "";
 
         String className = target.getClass().getName().replace("org.bukkit.craftbukkit." + version, "");
 
@@ -356,12 +323,9 @@ public class Reflection {
     /**
      * Fetches the value of a static CraftBukkit field.
      *
-     * @param className
-     *         The CraftBukkit class name.
-     * @param fieldName
-     *         The static field name.
-     * @param <T>
-     *         The expected field type.
+     * @param className The CraftBukkit class name.
+     * @param fieldName The static field name.
+     * @param <T>       The expected field type.
      *
      * @return The field value.
      */
@@ -369,26 +333,28 @@ public class Reflection {
         return fetchCraftBukkitField(className, null, fieldName);
     }
 
-    // =====================================
-    // Entity Handle Methods
-    // =====================================
-
     /**
      * Retrieves the underlying Minecraft entity handle for a Bukkit Entity.
      * This method caches the reflective lookup for performance.
      *
-     * @param entity
-     *         The Bukkit Entity.
+     * @param entity The Bukkit Entity.
      *
      * @return The underlying Minecraft entity.
      */
     public static Object fetchEntityHandle(Entity entity) {
         try {
-            if (entityHandleCache.containsKey(entity.getClass()))
-                return entityHandleCache.get(entity.getClass()).invoke(entity);
+            Method handleMethod = ENTITY_HANDLE_CACHE.computeIfAbsent(entity.getClass(), type -> {
+                try {
+                    Method method = type.getMethod("getHandle");
+                    method.setAccessible(true);
+                    return method;
+                } catch (NoSuchMethodException ex) {
+                    ex.printStackTrace();
+                    return null;
+                }
+            });
 
-            Method handleMethod = entity.getClass().getMethod("getHandle");
-            entityHandleCache.put(entity.getClass(), handleMethod);
+            if (handleMethod == null) return null;
 
             return handleMethod.invoke(entity);
         } catch (Exception ex) {
@@ -398,31 +364,23 @@ public class Reflection {
         return null;
     }
 
-    // =====================================
-    // Field Access Helpers
-    // =====================================
-
     /**
      * Retrieves the value of a private field from a target object.
      *
-     * @param fieldName
-     *         The field name.
-     * @param clazz
-     *         The class that declares the field.
-     * @param target
-     *         The target object.
-     * @param <T>
-     *         The expected field type.
+     * @param fieldName The field name.
+     * @param clazz     The class that declares the field.
+     * @param target    The target object.
+     * @param <T>       The expected field type.
      *
      * @return The field value, or null if an error occurs.
      */
     public static <T> T fetchPrivateField(String fieldName, Class<?> clazz, Object target) {
         try {
-            Field field = clazz.getDeclaredField(fieldName);
-            field.setAccessible(true);
+            Field field = retrieveField(clazz, fieldName);
+            if (field == null) return null;
 
             return (T) field.get(target);
-        } catch (NoSuchFieldException | IllegalAccessException ex) {
+        } catch (IllegalAccessException ex) {
             ex.printStackTrace();
         }
 
@@ -430,31 +388,10 @@ public class Reflection {
     }
 
     /**
-     * Retrieves the value of a private static field.
-     *
-     * @param clazz
-     *         The class that declares the field.
-     * @param fieldName
-     *         The static field name.
-     *
-     * @return The field value.
-     * @throws Exception
-     *         if the field cannot be accessed.
-     */
-    public Object fetchPrivateStaticField(Class<?> clazz, String fieldName) throws Exception {
-        Field field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-
-        return field.get(null);
-    }
-
-    /**
      * Extracts the value from a given field of a target object.
      *
-     * @param field
-     *         The field.
-     * @param target
-     *         The target object.
+     * @param field  The field.
+     * @param target The target object.
      *
      * @return The value of the field.
      */
@@ -470,30 +407,40 @@ public class Reflection {
     /**
      * Retrieves a field from the specified class.
      *
-     * @param clazz
-     *         The class containing the field.
-     * @param fieldName
-     *         The field name.
+     * @param clazz     The class containing the field.
+     * @param fieldName The field name.
      *
      * @return The field, or null if not found.
      */
     public static Field retrieveField(Class<?> clazz, String fieldName) {
+        FieldKey key = new FieldKey(clazz, fieldName);
+        Field cached = FIELD_CACHE.get(key);
+        if (cached != null) return cached;
+
         try {
-            return makeFieldAccessible(clazz.getDeclaredField(fieldName));
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            FIELD_CACHE.put(key, field);
+            return field;
         } catch (Throwable ex) {
             return null;
         }
     }
 
+    // =====================================
+    // Field Access Helpers
+    // =====================================
+
     /**
      * Makes the given field accessible.
      *
-     * @param field
-     *         The field to modify.
+     * @param field The field to modify.
      *
      * @return The accessible field.
      */
     public static Field makeFieldAccessible(Field field) {
+        if (field == null) return null;
+
         try {
             field.setAccessible(true);
             return field;
@@ -505,17 +452,20 @@ public class Reflection {
     /**
      * Retrieves a constructor from the specified class.
      *
-     * @param clazz
-     *         The class.
-     * @param parameterTypes
-     *         The parameter types for the constructor.
+     * @param clazz          The class.
+     * @param parameterTypes The parameter types for the constructor.
      *
      * @return The constructor, or null if not found.
      */
     public static Constructor<?> retrieveConstructor(Class<?> clazz, Class<?>... parameterTypes) {
+        ConstructorKey key = new ConstructorKey(clazz, Arrays.asList(parameterTypes));
+        Constructor<?> cached = CONSTRUCTOR_CACHE.get(key);
+        if (cached != null) return cached;
+
         try {
             Constructor<?> constructor = clazz.getDeclaredConstructor(parameterTypes);
             constructor.setAccessible(true);
+            CONSTRUCTOR_CACHE.put(key, constructor);
             return constructor;
         } catch (Throwable ex) {
             return null;
@@ -525,14 +475,10 @@ public class Reflection {
     /**
      * Executes a method on a target object with the provided arguments.
      *
-     * @param method
-     *         The method to execute.
-     * @param target
-     *         The target object.
-     * @param args
-     *         The method arguments.
-     * @param <T>
-     *         The expected return type.
+     * @param method The method to execute.
+     * @param target The target object.
+     * @param args   The method arguments.
+     * @param <T>    The expected return type.
      *
      * @return The result of the method call, or null if an error occurs.
      */
@@ -550,12 +496,9 @@ public class Reflection {
     /**
      * Executes a method on a target object with no arguments.
      *
-     * @param method
-     *         The method to execute.
-     * @param target
-     *         The target object.
-     * @param <T>
-     *         The expected return type.
+     * @param method The method to execute.
+     * @param target The target object.
+     * @param <T>    The expected return type.
      *
      * @return The result of the method call.
      */
@@ -566,26 +509,27 @@ public class Reflection {
     /**
      * Fetches the underlying Minecraft world handle from a Bukkit World.
      *
-     * @param world
-     *         The Bukkit World.
-     * @param <T>
-     *         The expected return type.
+     * @param world The Bukkit World.
+     * @param <T>   The expected return type.
      *
      * @return The Minecraft world handle.
      */
     public static <T> T fetchWorldHandle(World world) {
-        return executeMethod(resolveMethod(resolveCraftBukkitClass("CraftWorld"), "getHandle"), world);
+        Class<?> craftWorldClass = resolveCraftBukkitClass("CraftWorld");
+        if (craftWorldClass == null) return null;
+
+        Method handleMethod = resolveMethod(craftWorldClass, "getHandle");
+        if (handleMethod == null) return null;
+
+        return executeMethod(handleMethod, world);
     }
 
     /**
      * Finds the first field in a class that matches the expected type and type parameter patterns.
      *
-     * @param clazz
-     *         The class to search.
-     * @param expectedType
-     *         The expected field type.
-     * @param typeNamePatterns
-     *         Patterns for matching generic type names.
+     * @param clazz            The class to search.
+     * @param expectedType     The expected field type.
+     * @param typeNamePatterns Patterns for matching generic type names.
      *
      * @return The matching field, or null if none found.
      */
@@ -604,8 +548,12 @@ public class Reflection {
                         }
                     }
 
-                    if (matches)
-                        return makeFieldAccessible(field);
+                    if (matches) {
+                        Field accessible = makeFieldAccessible(field);
+                        if (accessible != null) FIELD_CACHE.putIfAbsent(new FieldKey(clazz, accessible.getName()), accessible);
+
+                        return accessible;
+                    }
                 }
             }
         }
@@ -613,26 +561,26 @@ public class Reflection {
         return null;
     }
 
-    // =====================================
-    // Class Resolution Methods
-    // =====================================
-
     /**
      * Resolves a Minecraft (NMS) class using the provided name.
      *
-     * @param name
-     *         The Minecraft class name.
+     * @param name The Minecraft class name.
      *
      * @return The Class object, or null if not found.
      */
     public static Class<?> resolveMinecraftClass(String name) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
+        if (PaperLib.isPaper()) version = "";
 
-        if (PaperLib.isPaper())
-            version = "";
+        String string = "net.minecraft.server." + version + name;
+
+        Class<?> cached = MINECRAFT_CLASS_CACHE.get(string);
+        if (cached != null) return cached;
 
         try {
-            return Class.forName("net.minecraft.server." + version + name);
+            Class<?> clazz = Class.forName(string);
+            MINECRAFT_CLASS_CACHE.put(string, clazz);
+            return clazz;
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -643,20 +591,27 @@ public class Reflection {
     /**
      * Resolves a Minecraft (NMS) class using the provided name and sub-location.
      *
-     * @param name
-     *         The Minecraft class name.
-     * @param subLocation
-     *         The subpackage location.
+     * @param name        The Minecraft class name.
+     * @param subLocation The subpackage location.
      *
      * @return The Class object.
      */
     public static Class<?> resolveMinecraftClass(String name, String subLocation) {
+        String string;
+
+        if (subLocation == null || subLocation.isEmpty()) {
+            string = "net.minecraft." + name;
+        } else {
+            string = "net.minecraft." + subLocation + "." + name;
+        }
+
+        Class<?> cached = MINECRAFT_CLASS_CACHE.get(string);
+        if (cached != null) return cached;
+
         try {
-            if (subLocation == null || subLocation.isEmpty()) {
-                return Class.forName("net.minecraft." + name);
-            } else {
-                return Class.forName("net.minecraft." + subLocation + "." + name);
-            }
+            Class<?> clazz = Class.forName(string);
+            MINECRAFT_CLASS_CACHE.put(string, clazz);
+            return clazz;
         } catch (ClassNotFoundException ex) {
             return resolveMinecraftClass(name);
         }
@@ -665,19 +620,23 @@ public class Reflection {
     /**
      * Resolves a CraftBukkit class using the provided class name.
      *
-     * @param className
-     *         The CraftBukkit class name.
+     * @param className The CraftBukkit class name.
      *
      * @return The Class object, or null if not found.
      */
     public static Class<?> resolveCraftBukkitClass(String className) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
+        if (PaperLib.isPaper()) version = "";
 
-        if (PaperLib.isPaper())
-            version = "";
+        String string = "org.bukkit.craftbukkit." + version + className;
+
+        Class<?> cached = CRAFT_BUKKIT_CLASS_CACHE.get(string);
+        if (cached != null) return cached;
 
         try {
-            return Class.forName("org.bukkit.craftbukkit." + version + className);
+            Class<?> clazz = Class.forName(string);
+            CRAFT_BUKKIT_CLASS_CACHE.put(string, clazz);
+            return clazz;
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -688,14 +647,20 @@ public class Reflection {
     /**
      * Resolves a Bukkit class using the provided class name.
      *
-     * @param className
-     *         The Bukkit class name.
+     * @param className The Bukkit class name.
      *
      * @return The Class object, or null if not found.
      */
     public static Class<?> resolveBukkitClass(String className) {
+        String string = "org.bukkit." + className;
+
+        Class<?> cached = BUKKIT_CLASS_CACHE.get(string);
+        if (cached != null) return cached;
+
         try {
-            return Class.forName("org.bukkit." + className);
+            Class<?> clazz = Class.forName(string);
+            BUKKIT_CLASS_CACHE.put(string, clazz);
+            return clazz;
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -703,21 +668,29 @@ public class Reflection {
         return null;
     }
 
+    // =====================================
+    // Class Resolution Methods
+    // =====================================
+
     /**
      * Resolves a method from a class with the specified name and parameter types.
      *
-     * @param clazz
-     *         The class to search.
-     * @param methodName
-     *         The method name.
-     * @param parameterTypes
-     *         The parameter types.
+     * @param clazz          The class to search.
+     * @param methodName     The method name.
+     * @param parameterTypes The parameter types.
      *
      * @return The Method object, or null if not found.
      */
     public static Method resolveMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
+        MethodKey key = new MethodKey(clazz, methodName, Arrays.asList(parameterTypes));
+        Method cached = METHOD_CACHE.get(key);
+        if (cached != null) return cached;
+
         try {
-            return clazz.getDeclaredMethod(methodName, parameterTypes);
+            Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
+            method.setAccessible(true);
+            METHOD_CACHE.put(key, method);
+            return method;
         } catch (NoSuchMethodException ex) {
             ex.printStackTrace();
             return null;
@@ -727,21 +700,16 @@ public class Reflection {
     /**
      * Attempts to resolve one of several method names from a class.
      *
-     * @param clazz
-     *         The class to search.
-     * @param methodNames
-     *         An array of possible method names.
-     * @param parameterTypes
-     *         The parameter types.
+     * @param clazz          The class to search.
+     * @param methodNames    An array of possible method names.
+     * @param parameterTypes The parameter types.
      *
      * @return The first matching Method object.
      */
     public static Method resolveMethod(Class<?> clazz, String[] methodNames, Class<?>... parameterTypes) {
         for (String name : methodNames) {
-            try {
-                return clazz.getDeclaredMethod(name, parameterTypes);
-            } catch (NoSuchMethodException ignored) {
-            }
+            Method method = resolveMethod(clazz, name, parameterTypes);
+            if (method != null) return method;
         }
 
         try {
@@ -752,4 +720,25 @@ public class Reflection {
 
         return null;
     }
+
+    /**
+     * Retrieves the value of a private static field.
+     *
+     * @param clazz     The class that declares the field.
+     * @param fieldName The static field name.
+     *
+     * @return The field value.
+     *
+     * @throws Exception if the field cannot be accessed.
+     */
+    public Object fetchPrivateStaticField(Class<?> clazz, String fieldName) throws Exception {
+        Field field = retrieveField(clazz, fieldName);
+        if (field == null) throw new NoSuchFieldException(fieldName);
+
+        return field.get(null);
+    }
+
+    private record MethodKey(Class<?> owner, String name, List<Class<?>> parameterTypes) {}
+    private record FieldKey(Class<?> owner, String name) {}
+    private record ConstructorKey(Class<?> owner, List<Class<?>> parameterTypes) {}
 }
