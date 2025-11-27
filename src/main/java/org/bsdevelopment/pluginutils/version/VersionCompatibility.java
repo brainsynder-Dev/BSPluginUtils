@@ -1,5 +1,6 @@
 package org.bsdevelopment.pluginutils.version;
 
+import org.bsdevelopment.pluginutils.reflection.Reflection;
 import org.bsdevelopment.pluginutils.utilities.Triple;
 
 import java.lang.reflect.AnnotatedElement;
@@ -29,14 +30,29 @@ import java.util.Optional;
  */
 public final class VersionCompatibility {
     /**
+     * Checks whether the given {@link Enum} constant is compatible with the current server version based on the {@link VersionLimit} annotation.
+     *
+     * <p>If the annotation is not present, it is assumed compatible.</p>
+     *
+     * @param constant the enum constant to check
+     *
+     * @return {@code true} if compatible, {@code false} otherwise
+     */
+    public static <E extends Enum<E>> boolean isCompatible(E constant) {
+        Field field = Reflection.retrieveField(constant.getDeclaringClass(), constant.name());
+        if (field == null) return false;
+
+        return isCompatible(field);
+    }
+
+    /**
      * Checks whether the given {@link AnnotatedElement} (class, method, or field)
      * is compatible with the current server version based on the
      * {@link VersionLimit} annotation.
      *
      * <p>If the annotation is not present, it is assumed compatible.</p>
      *
-     * @param element
-     *         the annotated element to check
+     * @param element the annotated element to check
      *
      * @return {@code true} if compatible, {@code false} otherwise
      */
@@ -71,10 +87,8 @@ public final class VersionCompatibility {
      *
      * <p>Enum constants without the annotation are treated as always compatible.</p>
      *
-     * @param enumClass
-     *         the enum type
-     * @param <E>
-     *         the enum type parameter
+     * @param enumClass the enum type
+     * @param <E>       the enum type parameter
      *
      * @return an array of compatible enum constants (possibly empty, never {@code null})
      */
@@ -87,7 +101,8 @@ public final class VersionCompatibility {
             try {
                 Field field = enumClass.getField(constant.name());
                 if (isCompatible(field)) compatible.add(constant);
-            } catch (NoSuchFieldException ignored) {}
+            } catch (NoSuchFieldException ignored) {
+            }
         }
 
         E[] result = (E[]) Array.newInstance(enumClass, compatible.size());
@@ -98,10 +113,8 @@ public final class VersionCompatibility {
      * Returns the enum constant if it is compatible with the current server version,
      * otherwise returns an empty {@link Optional}.
      *
-     * @param constant
-     *         the enum constant to check
-     * @param <E>
-     *         the enum type
+     * @param constant the enum constant to check
+     * @param <E>      the enum type
      *
      * @return optional containing the constant if compatible, otherwise empty
      */
