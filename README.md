@@ -1,7 +1,7 @@
 # BSPluginUtils
 ==========
 
-Current Version: 0.1.11
+Current Version: 0.1.12
 
 Maven Dependency:
 -----------------
@@ -14,7 +14,7 @@ Maven Dependency:
 <dependency>
     <groupId>org.bsdevelopment.pluginutils</groupId>
     <artifactId>BSPluginUtils</artifactId>
-    <version>0.1.11</version>  <!-- This version is automatically updated -->
+    <version>0.1.12</version>  <!-- This version is automatically updated -->
 </dependency>
 ```
 
@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.bsdevelopment.pluginutils:BSPluginUtils:0.1.11' // This version is automatically updated
+    implementation 'com.bsdevelopment.pluginutils:BSPluginUtils:0.1.12' // This version is automatically updated
 }
 ```
 
@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.bsdevelopment.pluginutils:BSPluginUtils:0.1.11") // This version is automatically updated
+    implementation("com.bsdevelopment.pluginutils:BSPluginUtils:0.1.12") // This version is automatically updated
 }
 ```
 
@@ -53,7 +53,7 @@ To publish the artifact to the Maven repository, run:
 
 When you run the publish task, the following occurs:
 1. Your artifact is published using the version defined in gradle.properties.
-2. This README file is updated automatically – all occurrences of version numbers (for example, "0.1.11") are replaced with the published version.
+2. This README file is updated automatically – all occurrences of version numbers (for example, "0.1.12") are replaced with the published version.
 3. The patch version in gradle.properties is incremented for the next release.
 
 License
