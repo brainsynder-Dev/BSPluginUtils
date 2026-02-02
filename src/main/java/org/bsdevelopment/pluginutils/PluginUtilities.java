@@ -26,9 +26,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class PluginUtilities extends JavaPlugin {
     private static Plugin plugin;
     private static TaskScheduler scheduler;
+    private static ServerInformation serverInformation;
 
     public static void initialize(Plugin plugin) {
         scheduler = UniversalScheduler.getScheduler(plugin);
+        serverInformation = new ServerInformation(plugin, plugin.getClass().getClassLoader());
     }
 
     public static Plugin getPlugin() {
@@ -54,5 +56,11 @@ public final class PluginUtilities extends JavaPlugin {
         if (scheduler == null)
             throw new UnsupportedOperationException("PluginUtilities.initialize() has not been initialized before this method was called.");
         return scheduler;
+    }
+
+    public static ServerInformation getServerInformation() {
+        if (serverInformation == null)
+            throw new UnsupportedOperationException("PluginUtilities.initialize() has not been initialized before this method was called.");
+        return serverInformation;
     }
 }
