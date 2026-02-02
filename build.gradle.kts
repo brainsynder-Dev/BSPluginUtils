@@ -32,6 +32,9 @@ dependencies {
     implementation(libs.nbtapi)
     implementation(libs.paperlib)
     implementation(libs.scheduler)
+
+    implementation(libs.dialogSpigot)
+    implementation(libs.dialogPaper)
 }
 
 tasks {
@@ -54,6 +57,7 @@ tasks {
         relocate("io.papermc.lib", "$mainPackage.libs.paperlib")
         relocate("com.eclipsesource.json", "$mainPackage.libs.json")
         relocate("de.tr7zw.changeme.nbtapi", "$mainPackage.libs.nbtapi")
+        relocate("io.github.projectunified.unidialog", "$mainPackage.libs.dialog")
     }
 }
 

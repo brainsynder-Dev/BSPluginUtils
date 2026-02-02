@@ -2,6 +2,9 @@ package org.bsdevelopment.pluginutils;
 
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
+import io.github.projectunified.unidialog.core.DialogManager;
+import io.github.projectunified.unidialog.paper.PaperDialogManager;
+import io.github.projectunified.unidialog.spigot.SpigotDialogManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,10 +30,17 @@ public final class PluginUtilities extends JavaPlugin {
     private static Plugin plugin;
     private static TaskScheduler scheduler;
     private static ServerInformation serverInformation;
+    private static DialogManager dialogManager;
 
     public static void initialize(Plugin plugin) {
         scheduler = UniversalScheduler.getScheduler(plugin);
         serverInformation = new ServerInformation(plugin, plugin.getClass().getClassLoader());
+
+        if (serverInformation.isPaper()){
+            dialogManager = new PaperDialogManager(plugin);
+        }else {
+            dialogManager = new SpigotDialogManager(plugin);
+        }
     }
 
     public static Plugin getPlugin() {
@@ -62,5 +72,11 @@ public final class PluginUtilities extends JavaPlugin {
         if (serverInformation == null)
             throw new UnsupportedOperationException("PluginUtilities.initialize() has not been initialized before this method was called.");
         return serverInformation;
+    }
+
+    public static DialogManager getDialogManager() {
+        if (dialogManager == null)
+            throw new UnsupportedOperationException("PluginUtilities.initialize() has not been initialized before this method was called.");
+        return dialogManager;
     }
 }

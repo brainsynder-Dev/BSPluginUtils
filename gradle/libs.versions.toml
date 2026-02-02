@@ -4,6 +4,7 @@ spigot = "1.21.8-R0.1-SNAPSHOT"
 nbtapi = "2.15.0"
 paperlib = "1.0.8"
 scheduler = "0.1.7"
+unidialog = "1.5.0"
 
 minimaljson = "0.11.0"
 
@@ -15,6 +16,8 @@ spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 nbtapi = { module = "de.tr7zw:item-nbt-api", version.ref = "nbtapi" }
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
 scheduler = { module = "com.github.Anon8281:UniversalScheduler", version.ref = "scheduler" }
+dialogSpigot = { module = "io.github.projectunified:uni-dialog-spigot", version.ref = "unidialog" }
+dialogPaper = { module = "io.github.projectunified:uni-dialog-paper", version.ref = "unidialog" }
 
 minimaljson = { module = "com.github.tonivade:minimal-json", version.ref = "minimaljson" }
 
