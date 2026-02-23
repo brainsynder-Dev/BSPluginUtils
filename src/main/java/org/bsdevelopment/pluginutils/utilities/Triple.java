@@ -1,5 +1,7 @@
 package org.bsdevelopment.pluginutils.utilities;
 
+import java.util.Objects;
+
 /**
  * A generic container class that holds three values.
  *
@@ -191,5 +193,17 @@ public final class Triple<L, M, R> {
                 ", middle=" + middle +
                 ", right=" + right +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Triple<?, ?, ?> triple = (Triple<?, ?, ?>) o;
+        return Objects.equals(left, triple.left) && Objects.equals(middle, triple.middle) && Objects.equals(right, triple.right);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(left, middle, right);
     }
 }
