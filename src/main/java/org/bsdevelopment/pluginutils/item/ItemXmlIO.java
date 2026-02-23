@@ -1,9 +1,9 @@
 package org.bsdevelopment.pluginutils.item;
 
+import org.bsdevelopment.nbt.JsonToNBT;
+import org.bsdevelopment.nbt.StorageTagCompound;
 import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
-import org.bsdevelopment.pluginutils.nbt.serialization.NBTJSON;
-import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -420,7 +420,7 @@ public final class ItemXmlIO {
 
         // raw NBT JSON (best-effort)
         try {
-            CompoundData tag = builder.toTag();
+            StorageTagCompound tag = builder.toTag();
             Element nbtElement = document.createElement("nbt-json");
             nbtElement.setTextContent(tag.toString());
             target.appendChild(nbtElement);
@@ -428,9 +428,9 @@ public final class ItemXmlIO {
         }
     }
 
-    private static CompoundData safeCompound(Element element, String json) {
+    private static StorageTagCompound safeCompound(Element element, String json) {
         try {
-            return (CompoundData) NBTJSON.readFromJsonString(json);
+            return JsonToNBT.getTagFromJson(json);
         } catch (Exception exception) {
             throw new XmlValidationException(element, "Invalid NBT JSON", "Ensure valid CompoundData JSON");
         }

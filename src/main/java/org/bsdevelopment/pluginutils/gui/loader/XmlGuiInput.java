@@ -1,5 +1,8 @@
 package org.bsdevelopment.pluginutils.gui.loader;
 
+import org.bsdevelopment.nbt.JsonToNBT;
+import org.bsdevelopment.nbt.StorageTagCompound;
+import org.bsdevelopment.nbt.other.NBTException;
 import org.bsdevelopment.pluginutils.gui.ActionRegistry;
 import org.bsdevelopment.pluginutils.gui.CustomGui;
 import org.bsdevelopment.pluginutils.gui.GuiAction;
@@ -7,8 +10,6 @@ import org.bsdevelopment.pluginutils.gui.parser.XmlUtils;
 import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.item.ItemRegistry;
-import org.bsdevelopment.pluginutils.nbt.serialization.NBTJSON;
-import org.bsdevelopment.pluginutils.nbt.types.CompoundData;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -148,14 +149,14 @@ public class XmlGuiInput {
     }
 
     /** Build an ItemBuilder from <item-definition> or inline <component>. */
-    private static ItemBuilder parseItemBuilder(Element element, JavaPlugin plugin) {
+    private static ItemBuilder parseItemBuilder(Element element, JavaPlugin plugin) throws NBTException {
         ItemBuilder builder;
 
         // 1) raw NBT JSON
         NodeList nbt = element.getElementsByTagName("nbt-json");
         if (nbt.getLength() > 0) {
             String json = nbt.item(0).getTextContent().trim();
-            CompoundData tag = (CompoundData) NBTJSON.readFromJsonString(json);
+            StorageTagCompound tag = JsonToNBT.getTagFromJson(json);
             builder = ItemBuilder.of(tag);
         }
         // 2) skull
