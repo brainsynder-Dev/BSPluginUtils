@@ -114,3 +114,5 @@ run/
 build/
 # Project exclude paths
 /.gradle/
+/src/test/
+/src/test/**
