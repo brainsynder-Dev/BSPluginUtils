@@ -36,17 +36,6 @@ dependencies {
 
     implementation(libs.dialogSpigot)
     implementation(libs.dialogPaper)
-
-    testImplementation(platform("org.junit:junit-bom:6.0.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    // Use whichever MockBukkit coordinate you’re actually using.
-    // (The README shows examples for both Maven Central + JitPack.) :contentReference[oaicite:3]{index=3}
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.101.0")
-
-    // If you want paper-api on the test classpath, align it to MockBukkit’s manifest:
-    testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-
 }
 
 tasks {
@@ -70,10 +59,6 @@ tasks {
         relocate("com.eclipsesource.json", "$mainPackage.libs.json")
         relocate("de.tr7zw.changeme.nbtapi", "$mainPackage.libs.nbtapi")
         relocate("io.github.projectunified.unidialog", "$mainPackage.libs.dialog")
-    }
-
-    test {
-        useJUnitPlatform()
     }
 }
 
