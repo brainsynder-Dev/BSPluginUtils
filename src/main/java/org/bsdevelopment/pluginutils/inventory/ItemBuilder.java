@@ -97,8 +97,8 @@ public class ItemBuilder {
      *
      * @return a new ItemBuilder created from the NBT data in the tag
      */
-        var item = NBTItem.convertNBTtoItem(new NBTContainer(tag.toString()));
     public static ItemBuilder of(StorageTagCompound tag) {
+        var item = NBTItem.convertNBTtoItem(new NBTContainer(tag.toString()));
         var builder = new ItemBuilder(item.getType(), item.getAmount());
         builder.item = item;
         builder.meta = item.getItemMeta();
@@ -144,8 +144,8 @@ public class ItemBuilder {
      * @throws RuntimeException
      *         if an error occurs during conversion
      */
-        String json = NBTItem.convertItemtoNBT(item).toString();
     public StorageTagCompound toTag() {
+        String json = NBTItem.convertItemtoNBT(item).toString();
         StorageTagCompound compound = new StorageTagCompound();
         try {
             compound = JsonToNBT.getTagFromJson(json);
@@ -386,7 +386,7 @@ public class ItemBuilder {
      * @return this ItemBuilder for chaining
      */
     public ItemBuilder clearLore() {
-        if (meta.hasLore()) meta.getLore().clear();
+        meta.setLore(new ArrayList<>());
         return this;
     }
 

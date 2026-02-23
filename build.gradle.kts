@@ -30,9 +30,9 @@ dependencies {
     compileOnly(libs.spigot)
     implementation(libs.minimaljson)
     implementation(libs.nbtapi)
+    implementation(libs.my.nbtapi)
     implementation(libs.paperlib)
     implementation(libs.scheduler)
-    implementation("org.bsdevelopment.nbt:BSNbt:V1-B1")
 
     implementation(libs.dialogSpigot)
     implementation(libs.dialogPaper)
