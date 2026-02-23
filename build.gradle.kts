@@ -30,7 +30,7 @@ dependencies {
     compileOnly(libs.spigot)
     implementation(libs.minimaljson)
     implementation(libs.nbtapi)
-    implementation(libs.my.nbtapi)
+    implementation(libs.bsnbt)
     implementation(libs.paperlib)
     implementation(libs.scheduler)
 
