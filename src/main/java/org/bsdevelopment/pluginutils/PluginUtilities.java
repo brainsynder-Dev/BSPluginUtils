@@ -43,6 +43,7 @@ public final class PluginUtilities extends JavaPlugin {
         }else {
             dialogManager = new SpigotDialogManager(plugin);
         }
+        dialogManager.register();
 
         if (!NBT.preloadApi()) {
             plugin.getLogger().warning("NBT-API wasn't initialized properly, disabling the plugin");
