@@ -1,7 +1,7 @@
 package org.bsdevelopment.pluginutils.item;
 
-import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
+import org.bsdevelopment.pluginutils.xml.XmlValidationException;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 

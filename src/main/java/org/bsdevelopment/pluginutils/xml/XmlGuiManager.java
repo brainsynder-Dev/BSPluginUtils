@@ -1,6 +1,5 @@
 package org.bsdevelopment.pluginutils.xml;
 
-import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.item.ItemRegistry;
 import org.bsdevelopment.pluginutils.text.Colorize;

@@ -1,8 +1,9 @@
 package org.bsdevelopment.pluginutils.xml.io;
 
-import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.item.ItemXmlIO;
+import org.bsdevelopment.pluginutils.xml.XmlUtils;
+import org.bsdevelopment.pluginutils.xml.XmlValidationException;
 import org.bsdevelopment.pluginutils.xml.model.XmlActionDefinition;
 import org.bsdevelopment.pluginutils.xml.model.XmlGuiDefinition;
 import org.bsdevelopment.pluginutils.xml.model.XmlSlotDefinition;
@@ -14,8 +15,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -84,17 +85,14 @@ public final class XmlGuiReader {
      */
     public static XmlGuiDefinition read(File file, JavaPlugin plugin) {
         try {
-            Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(file);
-            doc.getDocumentElement().normalize();
+            Document doc = XmlUtils.parseDocument(file);
             return parse(doc.getDocumentElement(), plugin);
         } catch (XmlValidationException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new XmlValidationException(null,
                     "Failed to read GUI XML '" + file.getName() + "': " + e.getMessage(),
-                    "Ensure the file is well-formed XML and the schema is correct");
+                    "Ensure the file exists and is readable");
         }
     }
 
@@ -112,17 +110,10 @@ public final class XmlGuiReader {
      */
     public static XmlGuiDefinition read(InputStream stream, JavaPlugin plugin) {
         try {
-            Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(stream);
-            doc.getDocumentElement().normalize();
+            Document doc = XmlUtils.parseDocument(stream);
             return parse(doc.getDocumentElement(), plugin);
         } catch (XmlValidationException e) {
             throw e;
-        } catch (Exception e) {
-            throw new XmlValidationException(null,
-                    "Failed to parse GUI XML stream: " + e.getMessage(),
-                    "Ensure the stream contains well-formed XML");
         }
     }
 
@@ -131,9 +122,9 @@ public final class XmlGuiReader {
     // -------------------------------------------------------------------------
 
     private static XmlGuiDefinition parse(Element root, JavaPlugin plugin) {
-        requireTag(root, "gui");
+        XmlUtils.requireTag(root, "gui");
 
-        String title = requireAttr(root, "title",
+        String title = XmlUtils.requireAttr(root, "title",
                 "Add a title attribute to <gui>, e.g. title=\"&6My Menu\"");
 
         // ── Inventory spec ────────────────────────────────────────────────────
@@ -150,7 +141,7 @@ public final class XmlGuiReader {
                         "Use a valid InventoryType such as CHEST, DROPPER, HOPPER, WORKBENCH");
             }
         } else {
-            rows = parseIntAttr(root, "rows", 1, 6,
+            rows = XmlUtils.parseIntAttr(root, "rows", 1, 6,
                     "rows must be between 1 and 6, e.g. rows=\"3\"");
         }
 
@@ -159,7 +150,7 @@ public final class XmlGuiReader {
                 ? XmlGuiDefinition.typed(title, inventoryType)
                 : XmlGuiDefinition.chest(title, rows);
 
-        Element defsBlock = firstChildElement(root, "definitions");
+        Element defsBlock = XmlUtils.firstChildElement(root, "definitions");
         if (defsBlock != null) {
             NodeList itemNodes = defsBlock.getElementsByTagName("item");
             Map<String, Boolean> seenIds = new LinkedHashMap<>();
@@ -169,7 +160,7 @@ public final class XmlGuiReader {
                 if (parent != defsBlock) continue;
 
                 Element itemEl = (Element) itemNodes.item(i);
-                String id = requireAttr(itemEl, "id",
+                String id = XmlUtils.requireAttr(itemEl, "id",
                         "Each <item> inside <definitions> needs an id attribute");
 
                 if (seenIds.containsKey(id)) {
@@ -185,7 +176,7 @@ public final class XmlGuiReader {
         }
 
         // ── Slots ─────────────────────────────────────────────────────────────
-        Element slotsBlock = firstChildElement(root, "slots");
+        Element slotsBlock = XmlUtils.firstChildElement(root, "slots");
         if (slotsBlock != null) {
             NodeList children = slotsBlock.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
@@ -209,7 +200,7 @@ public final class XmlGuiReader {
 
     private static XmlSlotDefinition parseSlot(Element slotEl, JavaPlugin plugin) {
         // ── Slot indices ──────────────────────────────────────────────────────
-        String indexExpr = requireAttr(slotEl, "index",
+        String indexExpr = XmlUtils.requireAttr(slotEl, "index",
                 "Each <slot> needs an index attribute (e.g. index=\"4\" or index=\"0-8,18-26\")");
 
         List<Integer> slotIndices;
@@ -242,7 +233,7 @@ public final class XmlGuiReader {
 
         // ── Actions ───────────────────────────────────────────────────────────
         List<XmlActionDefinition> actions = new ArrayList<>();
-        Element actionsEl = firstChildElement(slotEl, "actions");
+        Element actionsEl = XmlUtils.firstChildElement(slotEl, "actions");
         if (actionsEl != null) {
             NodeList actionNodes = actionsEl.getChildNodes();
             for (int i = 0; i < actionNodes.getLength(); i++) {
@@ -258,7 +249,7 @@ public final class XmlGuiReader {
     }
 
     private static XmlActionDefinition parseAction(Element actionEl) {
-        String type = requireAttr(actionEl, "type",
+        String type = XmlUtils.requireAttr(actionEl, "type",
                 "Each <action> needs a type attribute, e.g. type=\"message\"");
 
         // Collect all attributes except "type"
@@ -279,18 +270,6 @@ public final class XmlGuiReader {
     // XML utilities
     // -------------------------------------------------------------------------
 
-    /** Returns the first direct child {@link Element} with the given tag name, or null. */
-    private static Element firstChildElement(Element parent, String tag) {
-        NodeList children = parent.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node node = children.item(i);
-            if (node instanceof Element el && el.getTagName().equals(tag)) {
-                return el;
-            }
-        }
-        return null;
-    }
-
     /**
      * Returns {@code true} if the element has attributes or children that signal an inline
      * item definition (material, skull-texture, or nbt-json child).
@@ -299,40 +278,5 @@ public final class XmlGuiReader {
         return el.hasAttribute("material")
                 || el.hasAttribute("skull-texture")
                 || el.getElementsByTagName("nbt-json").getLength() > 0;
-    }
-
-    private static void requireTag(Element el, String expected) {
-        if (!expected.equals(el.getTagName())) {
-            throw new XmlValidationException(el,
-                    "Expected <" + expected + ">, found <" + el.getTagName() + ">",
-                    "Rename the root element to <" + expected + ">");
-        }
-    }
-
-    private static String requireAttr(Element el, String name, String hint) {
-        String value = el.getAttribute(name);
-        if (value == null || value.isBlank()) {
-            throw new XmlValidationException(el,
-                    "Missing required attribute '" + name + "' on <" + el.getTagName() + ">",
-                    hint);
-        }
-        return value;
-    }
-
-    private static int parseIntAttr(Element el, String name, int min, int max, String hint) {
-        String raw = requireAttr(el, name, hint);
-        try {
-            int value = Integer.parseInt(raw.trim());
-            if (value < min || value > max) {
-                throw new XmlValidationException(el,
-                        "Value " + value + " for '" + name + "' is out of range [" + min + ", " + max + "]",
-                        hint);
-            }
-            return value;
-        } catch (NumberFormatException e) {
-            throw new XmlValidationException(el,
-                    "Cannot parse '" + raw + "' as integer for attribute '" + name + "'",
-                    hint);
-        }
     }
 }

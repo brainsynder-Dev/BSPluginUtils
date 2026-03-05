@@ -2,18 +2,13 @@ package org.bsdevelopment.pluginutils.xml.io;
 
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.item.ItemXmlIO;
+import org.bsdevelopment.pluginutils.xml.XmlUtils;
 import org.bsdevelopment.pluginutils.xml.model.XmlActionDefinition;
 import org.bsdevelopment.pluginutils.xml.model.XmlGuiDefinition;
 import org.bsdevelopment.pluginutils.xml.model.XmlSlotDefinition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -72,21 +67,9 @@ public final class XmlGuiWriter {
      * @throws RuntimeException wrapping any XML serialization exception
      */
     public static void write(OutputStream out, XmlGuiDefinition definition) {
-        try {
-            Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .newDocument();
-
-            doc.appendChild(buildGuiElement(doc, definition));
-
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.transform(new DOMSource(doc), new StreamResult(out));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize GUI definition: " + e.getMessage(), e);
-        }
+        Document doc = XmlUtils.newDocument();
+        doc.appendChild(buildGuiElement(doc, definition));
+        XmlUtils.writeDocument(doc, out);
     }
 
     // -------------------------------------------------------------------------

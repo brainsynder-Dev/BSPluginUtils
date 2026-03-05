@@ -2,13 +2,13 @@ package org.bsdevelopment.pluginutils.item;
 
 import org.bsdevelopment.nbt.JsonToNBT;
 import org.bsdevelopment.nbt.StorageTagCompound;
-import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.text.Colorize;
+import org.bsdevelopment.pluginutils.xml.XmlUtils;
+import org.bsdevelopment.pluginutils.xml.XmlValidationException;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -25,11 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -61,9 +56,10 @@ public final class ItemXmlIO {
 
     public static ItemBuilder read(InputStream inputStream, JavaPlugin plugin) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
-            document.getDocumentElement().normalize();
+            Document document = XmlUtils.parseDocument(inputStream);
             return read(document.getDocumentElement(), plugin);
+        } catch (XmlValidationException e) {
+            throw e;
         } catch (Exception e) {
             throw new XmlValidationException(null, "Failed to parse XML: " + e.getMessage(), "Check for well-formed XML");
         }
@@ -71,10 +67,11 @@ public final class ItemXmlIO {
 
     public static ItemIdEntry readIdEntry(File file, JavaPlugin plugin) {
         try (InputStream inputStream = new FileInputStream(file)) {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
-            document.getDocumentElement().normalize();
+            Document document = XmlUtils.parseDocument(inputStream);
             Element root = document.getDocumentElement();
             return new ItemIdEntry(readItemId(root, plugin), read(root, plugin));
+        } catch (XmlValidationException e) {
+            throw e;
         } catch (Exception e) {
             throw new XmlValidationException(null, "Failed to read item entry: " + e.getMessage(), "Ensure the file has <item ... item-id=\"namespace:id\">");
         }
@@ -92,14 +89,14 @@ public final class ItemXmlIO {
             require(!texture.isBlank(), element, "Empty skull-texture", "Provide a valid texture URL");
             builder = ItemBuilder.playerSkull(texture);
         } else {
-            String rawMaterial = requireAttr(element, "material", "Provide a Material, e.g. DIAMOND_SWORD");
+            String rawMaterial = XmlUtils.requireAttr(element, "material", "Provide a Material, e.g. DIAMOND_SWORD");
             Material material;
             try {
                 material = Material.valueOf(rawMaterial.toUpperCase(Locale.ROOT));
             } catch (Exception e) {
                 throw new XmlValidationException(element, "Invalid Material: " + rawMaterial, "Use a valid Bukkit Material");
             }
-            int amount = element.hasAttribute("amount") ? parseIntAttr(element, "amount", 1, 64, "Amount must be 1–64") : 1;
+            int amount = element.hasAttribute("amount") ? XmlUtils.parseIntAttr(element, "amount", 1, 64, "Amount must be 1–64") : 1;
             builder = ItemBuilder.of(material, amount);
         }
 
@@ -136,7 +133,7 @@ public final class ItemXmlIO {
             String raw = enchantElement.getTextContent().trim();
             int colon = raw.lastIndexOf(':');
             require(colon > 0, enchantElement, "Invalid enchant format: '" + raw + "'", "Use NAME:LEVEL (e.g. SHARPNESS:5)");
-            Enchantment enchantment = lookupEnchantment(enchantElement, raw.substring(0, colon), "Use a valid enchantment key or name");
+            Enchantment enchantment = XmlUtils.lookupEnchantment(enchantElement, raw.substring(0, colon), "Use a valid enchantment key or name");
             int level;
             try {
                 level = Integer.parseInt(raw.substring(colon + 1));
@@ -149,10 +146,10 @@ public final class ItemXmlIO {
         NodeList attributeElements = element.getElementsByTagName("attribute");
         for (int i = 0; i < attributeElements.getLength(); i++) {
             Element attrElement = (Element) attributeElements.item(i);
-            Attribute attribute = lookupAttribute(attrElement, requireAttr(attrElement, "attribute", "Provide an attribute key, e.g. minecraft:generic_attack_speed"), "Use a valid Attribute key");
-            double amount = Double.parseDouble(requireAttr(attrElement, "amount", "Provide a numeric amount"));
-            Operation operation = parseEnum(Operation.class, requireAttr(attrElement, "operation", "Provide operation"), attrElement, "Use ADD_NUMBER, MULTIPLY_SCALAR, ADD_SCALAR");
-            EquipmentSlotGroup group = lookupSlotGroup(attrElement, requireAttr(attrElement, "slot", "Provide slot group: hand, head, armor, etc."), "Use: any, mainhand, offhand, hand, feet, legs, chest, head, armor, saddle");
+            Attribute attribute = XmlUtils.lookupAttribute(attrElement, XmlUtils.requireAttr(attrElement, "attribute", "Provide an attribute key, e.g. minecraft:generic_attack_speed"), "Use a valid Attribute key");
+            double amount = Double.parseDouble(XmlUtils.requireAttr(attrElement, "amount", "Provide a numeric amount"));
+            Operation operation = XmlUtils.parseEnum(Operation.class, XmlUtils.requireAttr(attrElement, "operation", "Provide operation"), attrElement, "Use ADD_NUMBER, MULTIPLY_SCALAR, ADD_SCALAR");
+            EquipmentSlotGroup group = XmlUtils.lookupSlotGroup(attrElement, XmlUtils.requireAttr(attrElement, "slot", "Provide slot group: hand, head, armor, etc."), "Use: any, mainhand, offhand, hand, feet, legs, chest, head, armor, saddle");
             NamespacedKey key = new NamespacedKey(plugin, (attribute.getKey().getKey() + "_" + group).toLowerCase(Locale.ROOT));
             AttributeModifier modifier = new AttributeModifier(key, amount, operation, group);
             builder.handleMeta(ItemMeta.class, meta -> {
@@ -164,8 +161,8 @@ public final class ItemXmlIO {
         NodeList pdcElements = element.getElementsByTagName("persistent-data");
         for (int i = 0; i < pdcElements.getLength(); i++) {
             Element pdcElement = (Element) pdcElements.item(i);
-            NamespacedKey key = NamespacedKey.fromString(requireAttr(pdcElement, "key", "Provide a namespaced key"));
-            String type = requireAttr(pdcElement, "type", "Provide a supported PDC type");
+            NamespacedKey key = NamespacedKey.fromString(XmlUtils.requireAttr(pdcElement, "key", "Provide a namespaced key"));
+            String type = XmlUtils.requireAttr(pdcElement, "type", "Provide a supported PDC type");
             String value = pdcElement.getTextContent().trim();
             builder.handleMeta(ItemMeta.class, meta -> {
                 var pdc = meta.getPersistentDataContainer();
@@ -197,15 +194,13 @@ public final class ItemXmlIO {
 
     public static void write(OutputStream outputStream, ItemBuilder builder) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Document document = XmlUtils.newDocument();
             Element root = document.createElement("item");
             writeInto(document, root, builder);
             document.appendChild(root);
-
-            var transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.transform(new DOMSource(document), new StreamResult(outputStream));
+            XmlUtils.writeDocument(document, outputStream);
+        } catch (XmlValidationException e) {
+            throw e;
         } catch (Exception e) {
             throw new XmlValidationException(null, "Failed to serialize item: " + e.getMessage(), "Verify the ItemBuilder/ItemMeta is valid");
         }
@@ -339,56 +334,8 @@ public final class ItemXmlIO {
         }
     }
 
-    private static String requireAttr(Element element, String name, String hint) {
-        String value = element.getAttribute(name);
-        if (value == null || value.isBlank())
-            throw new XmlValidationException(element, "Missing required attribute '" + name + "'", hint);
-        return value;
-    }
-
     private static void require(boolean condition, Element element, String message, String hint) {
         if (!condition) throw new XmlValidationException(element, message, hint);
-    }
-
-    private static int parseIntAttr(Element element, String name, int min, int max, String hint) {
-        String raw = requireAttr(element, name, hint);
-        try {
-            int value = Integer.parseInt(raw);
-            if (value < min || value > max) throw new NumberFormatException();
-            return value;
-        } catch (NumberFormatException e) {
-            throw new XmlValidationException(element, "Invalid integer for '" + name + "': " + raw, hint);
-        }
-    }
-
-    private static <T extends Enum<T>> T parseEnum(Class<T> type, String raw, Element element, String hint) {
-        try {
-            return Enum.valueOf(type, raw.trim().toUpperCase(Locale.ROOT));
-        } catch (Exception e) {
-            throw new XmlValidationException(element, "Invalid " + type.getSimpleName() + ": " + raw, hint);
-        }
-    }
-
-    private static Enchantment lookupEnchantment(Element element, String raw, String hint) {
-        Enchantment enchantment = Registry.ENCHANTMENT.get(toKey(raw));
-        if (enchantment == null) throw new XmlValidationException(element, "Unknown Enchantment key: '" + raw + "'", hint);
-        return enchantment;
-    }
-
-    private static Attribute lookupAttribute(Element element, String raw, String hint) {
-        Attribute attribute = Registry.ATTRIBUTE.get(toKey(raw));
-        if (attribute == null) throw new XmlValidationException(element, "Unknown Attribute key: '" + raw + "'", hint);
-        return attribute;
-    }
-
-    private static EquipmentSlotGroup lookupSlotGroup(Element element, String raw, String hint) {
-        EquipmentSlotGroup group = EquipmentSlotGroup.getByName(raw.toLowerCase(Locale.ROOT));
-        if (group == null) throw new XmlValidationException(element, "Unknown EquipmentSlotGroup: '" + raw + "'", hint);
-        return group;
-    }
-
-    private static NamespacedKey toKey(String raw) {
-        return raw.contains(":") ? NamespacedKey.fromString(raw.toLowerCase(Locale.ROOT)) : NamespacedKey.minecraft(raw.toLowerCase(Locale.ROOT));
     }
 
     private static String colorize(String string) {

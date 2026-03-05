@@ -6,11 +6,11 @@ import org.bsdevelopment.nbt.other.NBTException;
 import org.bsdevelopment.pluginutils.gui.ActionRegistry;
 import org.bsdevelopment.pluginutils.gui.CustomGui;
 import org.bsdevelopment.pluginutils.gui.GuiAction;
-import org.bsdevelopment.pluginutils.gui.parser.XmlUtils;
-import org.bsdevelopment.pluginutils.gui.parser.XmlValidationException;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.item.ItemRegistry;
 import org.bsdevelopment.pluginutils.text.Colorize;
+import org.bsdevelopment.pluginutils.xml.XmlUtils;
+import org.bsdevelopment.pluginutils.xml.XmlValidationException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -29,8 +29,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,22 +45,20 @@ public class XmlGuiInput {
 
     public static CustomGui load(JavaPlugin plugin, File xmlFile) {
         try {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile);
-            doc.getDocumentElement().normalize();
-
+            Document doc = XmlUtils.parseDocument(xmlFile);
             Element guiElement = doc.getDocumentElement();
             XmlUtils.requireTag(guiElement, "gui");
 
-            String title = Colorize.translateBungeeHex(XmlUtils.requireAttribute(guiElement, "title"));
+            String title = Colorize.translateBungeeHex(XmlUtils.requireAttr(guiElement, "title", "Add title=\"...\" to <gui>"));
 
             Inventory inv;
             if (guiElement.hasAttribute("inventory-type")) {
-                String typeRaw = XmlUtils.requireAttribute(guiElement, "inventory-type");
+                String typeRaw = XmlUtils.requireAttr(guiElement, "inventory-type", "Use a valid InventoryType, e.g. CHEST, DROPPER, WORKBENCH");
                 InventoryType invType = XmlUtils.parseEnum(InventoryType.class, typeRaw, guiElement,
                         "Use a valid InventoryType, e.g. CHEST, DROPPER, WORKBENCH");
                 inv = Bukkit.createInventory(null, invType, title);
             } else {
-                int rows = XmlUtils.parseIntAttribute(guiElement, "rows", 1, 6, "Rows must be between 1 and 6");
+                int rows = XmlUtils.parseIntAttr(guiElement, "rows", 1, 6, "Rows must be between 1 and 6");
                 inv = Bukkit.createInventory(null, rows * 9, title);
             }
 
@@ -69,7 +67,7 @@ public class XmlGuiInput {
             NodeList itemDefinitions = guiElement.getElementsByTagName("item-definition");
             for (int i = 0; i < itemDefinitions.getLength(); i++) {
                 Element def = (Element) itemDefinitions.item(i);
-                String id = XmlUtils.requireAttribute(def, "id");
+                String id = XmlUtils.requireAttr(def, "id", "Add id=\"...\" to <item-definition>");
                 if (definitions.containsKey(id))
                     throw new XmlValidationException(def, "Duplicate definition id='" + id + "'", "Use a unique id per <item-definition>");
 
@@ -83,7 +81,7 @@ public class XmlGuiInput {
                 Element component = (Element) components.item(i);
                 XmlUtils.requireTag(component, "component");
 
-                int slot = XmlUtils.parseIntAttribute(component, "slot", 0, inv.getSize() - 1,
+                int slot = XmlUtils.parseIntAttr(component, "slot", 0, inv.getSize() - 1,
                         "slot must be between 0 and " + (inv.getSize() - 1));
 
                 ItemBuilder builder;
@@ -134,6 +132,8 @@ public class XmlGuiInput {
             return gui;
         } catch (XmlValidationException xmlValidationException) {
             throw xmlValidationException;
+        } catch (IOException ioException) {
+            throw new XmlValidationException(null, "Failed to read GUI XML file: " + ioException.getMessage(), "Ensure the file exists and is readable");
         } catch (Exception exception) {
             throw new XmlValidationException(
                     null,
@@ -161,14 +161,14 @@ public class XmlGuiInput {
         }
         // 2) skull
         else if (element.hasAttribute("skull-texture")) {
-            builder = ItemBuilder.playerSkull(XmlUtils.parseTextureUrl("skull-texture", element,
+            builder = ItemBuilder.playerSkull(XmlUtils.parseTextureUrl(element, "skull-texture",
                     "Use texture URL like, e.g. http://textures.minecraft.net/texture/5eedfaf69ff40304faad7ea4dbf10ed8a7a49245108199f222ee9d77b45a2f6d").toString());
         }
         // 3) material & amount
         else {
-            String rawMaterial = XmlUtils.requireAttribute(element, "material");
+            String rawMaterial = XmlUtils.requireAttr(element, "material", "Add material=\"MATERIAL_NAME\" to this element");
             var material = XmlUtils.parseEnum(Material.class, rawMaterial, element, "Use a valid Material name");
-            int amount = element.hasAttribute("amount") ? XmlUtils.parseIntAttribute(element, "amount", 1, 64, "1–64") : 1;
+            int amount = element.hasAttribute("amount") ? XmlUtils.parseIntAttr(element, "amount", 1, 64, "1–64") : 1;
             builder = ItemBuilder.of(material, amount);
         }
 
@@ -214,7 +214,7 @@ public class XmlGuiInput {
             Element enchantElement = (Element) enchantments.item(i);
             String raw = enchantElement.getTextContent().trim();               // e.g. "SHARPNESS:5"
             String[] parts = raw.split(":", 2);
-            Enchantment enchantment = XmlUtils.parseEnchantment(enchantElement, parts[0], "Use a valid Enchantment key, e.g. SHARPNESS");
+            Enchantment enchantment = XmlUtils.lookupEnchantment(enchantElement, parts[0], "Use a valid Enchantment key, e.g. SHARPNESS");
             int level = Integer.parseInt(parts[1]);
 
             builder.withEnchant(enchantment, level);
@@ -225,19 +225,19 @@ public class XmlGuiInput {
         for (int i = 0; i < attributeElement.getLength(); i++) {
             Element attrElement = (Element) attributeElement.item(i);
 
-            String rawAttr = XmlUtils.requireAttribute(attrElement, "attribute");
-            Attribute attribute = XmlUtils.parseAttribute(attrElement, rawAttr, "Use a valid Attribute key, e.g. GENERIC_ATTACK_DAMAGE");
+            String rawAttr = XmlUtils.requireAttr(attrElement, "attribute", "Add attribute=\"minecraft:key\" to <attribute>");
+            Attribute attribute = XmlUtils.lookupAttribute(attrElement, rawAttr, "Use a valid Attribute key, e.g. GENERIC_ATTACK_DAMAGE");
 
-            double amountVal = Double.parseDouble(XmlUtils.requireAttribute(attrElement, "amount"));
+            double amountVal = Double.parseDouble(XmlUtils.requireAttr(attrElement, "amount", "Add amount=\"...\" to <attribute>"));
             Operation op = XmlUtils.parseEnum(
                     Operation.class,
-                    XmlUtils.requireAttribute(attrElement, "operation"),
+                    XmlUtils.requireAttr(attrElement, "operation", "Use ADD_NUMBER, MULTIPLY_SCALAR, etc."),
                     attrElement,
                     "Use ADD_NUMBER, MULTIPLY_SCALAR, etc."
             );
 
-            String rawSlot = XmlUtils.requireAttribute(attrElement, "slot");
-            EquipmentSlotGroup slotGroup = XmlUtils.parseSlotGroup(
+            String rawSlot = XmlUtils.requireAttr(attrElement, "slot", "Add slot=\"hand|armor|...\" to <attribute>");
+            EquipmentSlotGroup slotGroup = XmlUtils.lookupSlotGroup(
                     attrElement,
                     rawSlot,
                     "Use: any, mainhand, offhand, hand, feet, legs, chest, head, armor, saddle"
@@ -264,8 +264,8 @@ public class XmlGuiInput {
         NodeList pdcs = element.getElementsByTagName("persistent-data");
         for (int i = 0; i < pdcs.getLength(); i++) {
             Element pd = (Element) pdcs.item(i);
-            String key = XmlUtils.requireAttribute(pd, "key");
-            String type = XmlUtils.requireAttribute(pd, "type");
+            String key = XmlUtils.requireAttr(pd, "key", "Add key=\"namespace:id\" to <persistent-data>");
+            String type = XmlUtils.requireAttr(pd, "type", "Add type=\"STRING|INT|...\" to <persistent-data>");
             String val = pd.getTextContent().trim();
             NamespacedKey namespacedKey = NamespacedKey.fromString(key);
 
