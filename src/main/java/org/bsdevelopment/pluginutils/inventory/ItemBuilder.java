@@ -9,35 +9,36 @@ import org.bsdevelopment.pluginutils.text.WordUtils;
 import org.bsdevelopment.pluginutils.utilities.PlayerProfileHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.BlocksAttacksComponent;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
+import org.bukkit.inventory.meta.components.EquippableComponent;
+import org.bukkit.inventory.meta.components.FoodComponent;
+import org.bukkit.inventory.meta.components.JukeboxPlayableComponent;
+import org.bukkit.inventory.meta.components.ToolComponent;
+import org.bukkit.inventory.meta.components.UseCooldownComponent;
+import org.bukkit.inventory.meta.components.WeaponComponent;
+import org.bukkit.inventory.meta.components.consumable.ConsumableComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
- * A builder class to create and customize {@link ItemStack} objects.
+ * Fluent builder for creating and customising {@link ItemStack} objects.
  *
- * <p>This builder provides a fluent API to set properties such as display name,
- * enchantments, lore, item flags, and more.
- *
- * <p><b>Examples:</b>
- * <pre>
- * // Create an ItemStack of DIAMOND_SWORD with a custom name, lore, enchantments, and flags.
- * ItemStack sword = ItemBuilder.of(Material.DIAMOND_SWORD)
- *     .withName("&aEpic Sword")
- *     .withLore(Arrays.asList("&7This sword is", "&7truly epic!"))
- *     .withEnchant(Enchantment.DAMAGE_ALL, 5)
- *     .withFlag(ItemFlag.HIDE_ENCHANTS)
- *     .setUnbreakable(true)
- *     .build();
- * </pre>
+ * <p>Supports all standard item properties plus the 1.21.6+ data component API:
+ * food, tool, equippable, consumable, jukebox-playable, weapon, blocks-attacks,
+ * use-cooldown, custom model data, enchantable value, tooltip style, and custom
+ * max stack size.
  */
 public class ItemBuilder {
     private ItemStack item;
@@ -48,40 +49,14 @@ public class ItemBuilder {
         meta = item.getItemMeta();
     }
 
-    /**
-     * Creates a new ItemBuilder with the specified material and a default amount of 1.
-     *
-     * @param material
-     *         the material for the item
-     *
-     * @return a new ItemBuilder instance
-     */
     public static ItemBuilder of(Material material) {
         return of(material, 1);
     }
 
-    /**
-     * Creates a new ItemBuilder with the specified material and amount.
-     *
-     * @param material
-     *         the material for the item
-     * @param amount
-     *         the amount for the item
-     *
-     * @return a new ItemBuilder instance
-     */
     public static ItemBuilder of(Material material, int amount) {
         return new ItemBuilder(material, amount);
     }
 
-    /**
-     * Creates a new ItemBuilder from an existing ItemStack.
-     *
-     * @param item
-     *         the ItemStack to copy
-     *
-     * @return a new ItemBuilder with the same material, amount, and meta as the provided item
-     */
     public static ItemBuilder of(ItemStack item) {
         var builder = new ItemBuilder(item.getType(), item.getAmount());
         builder.item = item;
@@ -89,14 +64,6 @@ public class ItemBuilder {
         return builder;
     }
 
-    /**
-     * Creates a new ItemBuilder from a given CompoundTag.
-     *
-     * @param tag
-     *         the CompoundTag to convert
-     *
-     * @return a new ItemBuilder created from the NBT data in the tag
-     */
     public static ItemBuilder of(StorageTagCompound tag) {
         var item = NBTItem.convertNBTtoItem(new NBTContainer(tag.toString()));
         var builder = new ItemBuilder(item.getType(), item.getAmount());
@@ -105,14 +72,6 @@ public class ItemBuilder {
         return builder;
     }
 
-    /**
-     * Creates a new ItemBuilder for a player skull with the specified texture.
-     *
-     * @param texture
-     *         the texture url to set
-     *
-     * @return a new ItemBuilder for a PLAYER_HEAD with the custom texture applied
-     */
     public static ItemBuilder playerSkull(String texture) {
         var builder = new ItemBuilder(Material.PLAYER_HEAD, 1);
         builder.handleMeta(SkullMeta.class, meta -> {
@@ -122,28 +81,19 @@ public class ItemBuilder {
         return builder;
     }
 
-    /**
-     * Builds and returns a clone of the customized ItemStack.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * ItemStack customItem = builder.build();
-     * </pre>
-     *
-     * @return a clone of the final ItemStack with applied modifications
-     */
+    public static boolean isAir(Material mat) {
+        return mat.name().endsWith("AIR") && !mat.name().endsWith("AIRS");
+    }
+
+    public static boolean isAir(ItemStack item) {
+        return item == null || isAir(item.getType());
+    }
+
     public ItemStack build() {
         item.setItemMeta(meta);
         return item.clone();
     }
 
-    /**
-     * Converts the current ItemStack into a CompoundTag representation.
-     *
-     * @return the CompoundTag representing the ItemStack's NBT data
-     * @throws RuntimeException
-     *         if an error occurs during conversion
-     */
     public StorageTagCompound toTag() {
         String json = NBTItem.convertItemtoNBT(item).toString();
         StorageTagCompound compound = new StorageTagCompound();
@@ -155,361 +105,354 @@ public class ItemBuilder {
         return compound;
     }
 
-    // --- DISPLAY NAME METHODS --- //
-
-    /**
-     * Sets the display name of the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.withName("&aEpic Sword");
-     * </pre>
-     *
-     * @param name
-     *         the display name to set (supports color codes)
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder withName(String name) {
         meta.setDisplayName(translate(name, false));
         return this;
     }
 
-    /**
-     * Retrieves the display name of the item. If no display name is set, returns a capitalized
-     * version of the item's material name.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * String name = builder.getName();
-     * </pre>
-     *
-     * @return the display name if set; otherwise, a capitalized material name
-     */
     public String getName() {
         if (meta.hasDisplayName()) return meta.getDisplayName();
         return WordUtils.capitalizeFully(item.getType().name().toLowerCase().replace("_", " "));
     }
 
-    // --- ENCHANT METHODS --- //
-
-    /**
-     * Adds an unsafe enchantment to the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.withEnchant(Enchantment.DAMAGE_ALL, 5);
-     * </pre>
-     *
-     * @param enchant
-     *         the enchantment to add
-     * @param level
-     *         the level of the enchantment
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder withEnchant(Enchantment enchant, int level) {
         item.addUnsafeEnchantment(enchant, level);
         return this;
     }
 
-    /**
-     * Removes the specified enchantment from the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.removeEnchant(Enchantment.DAMAGE_ALL);
-     * </pre>
-     *
-     * @param enchant
-     *         the enchantment to remove
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder removeEnchant(Enchantment enchant) {
         item.removeEnchantment(enchant);
         return this;
     }
 
-    /**
-     * Retrieves a map of all enchantments on the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * Map&lt;Enchantment, Integer&gt; enchants = builder.getEnchantments();
-     * </pre>
-     *
-     * @return a map of enchantments to their levels
-     */
     public Map<Enchantment, Integer> getEnchantments() {
         return meta.getEnchants();
     }
 
-    // --- ITEMFLAG METHODS --- //
-
-    /**
-     * Adds an item flag to the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.withFlag(ItemFlag.HIDE_ENCHANTS);
-     * </pre>
-     *
-     * @param flag
-     *         the item flag to add
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder withFlag(ItemFlag flag) {
         meta.addItemFlags(flag);
         return this;
     }
 
-    /**
-     * Removes an item flag from the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.removeFlag(ItemFlag.HIDE_ENCHANTS);
-     * </pre>
-     *
-     * @param flag
-     *         the item flag to remove
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder removeFlag(ItemFlag flag) {
         meta.removeItemFlags(flag);
         return this;
     }
 
-    /**
-     * Retrieves all item flags present on the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * Set&lt;ItemFlag&gt; flags = builder.getFlags();
-     * </pre>
-     *
-     * @return a set of item flags
-     */
     public Set<ItemFlag> getFlags() {
         return meta.getItemFlags();
     }
 
-    // --- UNBREAKABLE METHODS --- //
-
-    /**
-     * Sets whether the item is unbreakable.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.setUnbreakable(true);
-     * </pre>
-     *
-     * @param unbreakable
-     *         true to mark the item as unbreakable; false otherwise
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder setUnbreakable(boolean unbreakable) {
         meta.setUnbreakable(unbreakable);
         return this;
     }
 
-    /**
-     * Checks if the item is unbreakable.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean unbreakable = builder.isUnbreakable();
-     * </pre>
-     *
-     * @return true if the item is unbreakable; false otherwise
-     */
     public boolean isUnbreakable() {
         return meta.isUnbreakable();
     }
 
-    // --- LORE METHODS --- //
-
-    /**
-     * Sets the lore (list of text lines) of the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.withLore(Arrays.asList("&7This is a cool item", "&7Use it wisely"));
-     * </pre>
-     *
-     * @param lore
-     *         a list of lore lines (supports color codes)
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder withLore(List<String> lore) {
         meta.setLore(translate(lore, false));
         return this;
     }
 
-    /**
-     * Appends additional lore lines to the current lore.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.addLore("&7Extra lore line 1", "&7Extra lore line 2");
-     * </pre>
-     *
-     * @param lore
-     *         one or more lore lines (supports color codes)
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder addLore(String... lore) {
-        List<String> itemLore = new ArrayList<>();
-
-        if (meta.hasLore()) itemLore = meta.getLore();
-
-        List<String> finalItemLore = itemLore;
-        Arrays.asList(lore).forEach(s -> finalItemLore.add(translate(s, false)));
-        meta.setLore(finalItemLore);
+        List<String> itemLore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+        Arrays.asList(lore).forEach(s -> itemLore.add(translate(s, false)));
+        meta.setLore(itemLore);
         return this;
     }
 
-    /**
-     * Clears all lore from the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.clearLore();
-     * </pre>
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder clearLore() {
         meta.setLore(new ArrayList<>());
         return this;
     }
 
-    /**
-     * Removes a specific lore line from the item.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.removeLore("&7Extra lore line");
-     * </pre>
-     *
-     * @param lore
-     *         the lore line to remove (supports color codes)
-     *
-     * @return this ItemBuilder for chaining
-     */
     public ItemBuilder removeLore(String lore) {
-        List<String> itemLore = new ArrayList<>();
-
-        if (meta.hasLore()) itemLore = meta.getLore();
-
+        List<String> itemLore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
         itemLore.remove(translate(lore, false));
         meta.setLore(itemLore);
         return this;
     }
 
-    // --- STATIC UTILITY METHODS --- //
-
     /**
-     * Checks if the given material is considered "air".
+     * Sets a simple integer custom model data value.
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean isAir = ItemBuilder.isAir(Material.AIR);
-     * </pre>
-     *
-     * @param mat
-     *         the material to check
-     *
-     * @return true if the material's name ends with "AIR" but not "AIRS"
+     * @see #withCustomModelDataComponent(Consumer) for the full component API
      */
-    public static boolean isAir(Material mat) {
-        return mat.name().endsWith("AIR") && !mat.name().endsWith("AIRS");
+    public ItemBuilder withCustomModelData(int modelData) {
+        meta.setCustomModelData(modelData);
+        return this;
     }
 
     /**
-     * Checks if the given ItemStack is null or represents air.
+     * Configures the {@link CustomModelDataComponent}, which supports floats, flags,
+     * colors, and strings in addition to the legacy integer value.
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean isAir = ItemBuilder.isAir(itemStack);
-     * </pre>
-     *
-     * @param item
-     *         the ItemStack to check
-     *
-     * @return true if the item is null or its material is considered air
+     * <pre>{@code
+     * builder.withCustomModelDataComponent(cmd -> {
+     *     cmd.setFloats(List.of(1.0f, 2.5f));
+     *     cmd.setFlags(List.of(true));
+     * });
+     * }</pre>
      */
-    public static boolean isAir(ItemStack item) {
-        return item == null || isAir(item.getType());
+    public ItemBuilder withCustomModelDataComponent(Consumer<CustomModelDataComponent> consumer) {
+        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+        consumer.accept(component);
+        meta.setCustomModelDataComponent(component);
+        return this;
+    }
+
+    /**
+     * Controls whether any tooltip is shown for this item.
+     */
+    public ItemBuilder setHideTooltip(boolean hideTooltip) {
+        meta.setHideTooltip(hideTooltip);
+        return this;
+    }
+
+    /**
+     * Sets a custom tooltip style applied when the item is hovered.
+     * The key references a tooltip style defined in a resource pack.
+     */
+    public ItemBuilder withTooltipStyle(NamespacedKey tooltipStyle) {
+        meta.setTooltipStyle(tooltipStyle);
+        return this;
+    }
+
+    /**
+     * Sets the custom max stack size for this item (1–99).
+     * Overrides the material's default stack size.
+     */
+    public ItemBuilder withMaxStackSize(int maxStackSize) {
+        meta.setMaxStackSize(maxStackSize);
+        return this;
+    }
+
+    /**
+     * Sets the enchantability value for this item, which influences the quality of
+     * enchantments offered at an enchanting table. Higher values yield better results.
+     */
+    public ItemBuilder withEnchantable(int value) {
+        meta.setEnchantable(value);
+        return this;
+    }
+
+    /**
+     * Removes the enchantable override, restoring the material's default enchantability.
+     */
+    public ItemBuilder clearEnchantable() {
+        meta.setEnchantable(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link FoodComponent}.
+     *
+     * <pre>{@code
+     * builder.withFood(food -> {
+     *     food.setNutrition(4);
+     *     food.setSaturation(0.3f);
+     *     food.setCanAlwaysEat(true);
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withFood(Consumer<FoodComponent> consumer) {
+        FoodComponent food = meta.getFood();
+        consumer.accept(food);
+        meta.setFood(food);
+        return this;
+    }
+
+    public ItemBuilder clearFood() {
+        meta.setFood(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link ConsumableComponent}, controlling how the item is consumed.
+     *
+     * <pre>{@code
+     * builder.withConsumable(c -> {
+     *     c.setConsumeSeconds(2.0f);
+     *     c.setAnimation(ConsumableComponent.Animation.DRINK);
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withConsumable(Consumer<ConsumableComponent> consumer) {
+        ConsumableComponent consumable = meta.getConsumable();
+        consumer.accept(consumable);
+        meta.setConsumable(consumable);
+        return this;
+    }
+
+    public ItemBuilder clearConsumable() {
+        meta.setConsumable(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link ToolComponent}, defining mining speed and damage per block.
+     *
+     * <pre>{@code
+     * builder.withTool(tool -> {
+     *     tool.setDefaultMiningSpeed(1.5f);
+     *     tool.setDamagePerBlock(1);
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withTool(Consumer<ToolComponent> consumer) {
+        ToolComponent tool = meta.getTool();
+        consumer.accept(tool);
+        meta.setTool(tool);
+        return this;
+    }
+
+    public ItemBuilder clearTool() {
+        meta.setTool(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link WeaponComponent}, adjusting melee attack behavior.
+     *
+     * <pre>{@code
+     * builder.withWeapon(weapon -> {
+     *     weapon.setItemDamagePerAttack(1);
+     *     weapon.setDisableBlockingForSeconds(0.4f);
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withWeapon(Consumer<WeaponComponent> consumer) {
+        WeaponComponent weapon = meta.getWeapon();
+        consumer.accept(weapon);
+        meta.setWeapon(weapon);
+        return this;
+    }
+
+    public ItemBuilder clearWeapon() {
+        meta.setWeapon(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link BlocksAttacksComponent}, allowing the item to function as a shield.
+     *
+     * <pre>{@code
+     * builder.withBlocksAttacks(shield -> {
+     *     shield.setBlockDelaySeconds(0.0f);
+     *     shield.setDisableCooldownSeconds(1.0f);
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withBlocksAttacks(Consumer<BlocksAttacksComponent> consumer) {
+        BlocksAttacksComponent component = meta.getBlocksAttacks();
+        consumer.accept(component);
+        meta.setBlocksAttacks(component);
+        return this;
+    }
+
+    public ItemBuilder clearBlocksAttacks() {
+        meta.setBlocksAttacks(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link EquippableComponent}, allowing any item to be worn in an armor slot.
+     *
+     * <pre>{@code
+     * builder.withEquippable(equip -> {
+     *     equip.setSlot(EquipmentSlot.HEAD);
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withEquippable(Consumer<EquippableComponent> consumer) {
+        EquippableComponent equippable = meta.getEquippable();
+        consumer.accept(equippable);
+        meta.setEquippable(equippable);
+        return this;
+    }
+
+    public ItemBuilder clearEquippable() {
+        meta.setEquippable(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link UseCooldownComponent}, adding a use cooldown to the item.
+     *
+     * <pre>{@code
+     * builder.withUseCooldown(cd -> {
+     *     cd.setCooldownSeconds(1.5f);
+     *     cd.setCooldownGroup(new NamespacedKey("myplugin", "special_item"));
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withUseCooldown(Consumer<UseCooldownComponent> consumer) {
+        UseCooldownComponent cooldown = meta.getUseCooldown();
+        consumer.accept(cooldown);
+        meta.setUseCooldown(cooldown);
+        return this;
+    }
+
+    public ItemBuilder clearUseCooldown() {
+        meta.setUseCooldown(null);
+        return this;
+    }
+
+    /**
+     * Configures the {@link JukeboxPlayableComponent}, allowing the item to be inserted into a jukebox.
+     *
+     * <pre>{@code
+     * builder.withJukeboxPlayable(jukebox -> {
+     *     jukebox.setSongKey(new NamespacedKey("minecraft", "music_disc.13"));
+     * });
+     * }</pre>
+     */
+    public ItemBuilder withJukeboxPlayable(Consumer<JukeboxPlayableComponent> consumer) {
+        JukeboxPlayableComponent jukebox = meta.getJukeboxPlayable();
+        consumer.accept(jukebox);
+        meta.setJukeboxPlayable(jukebox);
+        return this;
+    }
+
+    public ItemBuilder clearJukeboxPlayable() {
+        meta.setJukeboxPlayable(null);
+        return this;
     }
 
     /**
      * Applies a transformation to the {@link ItemMeta} if it matches the specified class.
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * builder.handleMeta(SkullMeta.class, meta -&gt; {
-     *     // Modify meta as needed
+     * <pre>{@code
+     * builder.handleMeta(SkullMeta.class, meta -> {
+     *     meta.setOwnerProfile(profile);
      *     return meta;
      * });
-     * </pre>
-     *
-     * @param clazz
-     *         the meta class to transform
-     * @param meta
-     *         a function that transforms the meta
-     * @param <T>
-     *         the type of the meta
-     *
-     * @return this ItemBuilder for chaining
+     * }</pre>
      */
     public <T extends ItemMeta> ItemBuilder handleMeta(Class<T> clazz, ItemMetaValue<T> meta) {
         if (!clazz.isAssignableFrom(this.meta.getClass())) return this;
-
         this.meta = meta.accept(clazz.cast(this.meta));
         item.setItemMeta(this.meta);
         return this;
     }
 
-    // --- PRIVATE METHODS --- //
-
     private List<String> translate(List<String> message, boolean strip) {
-        var newLore = new ArrayList<String>();
-
-        message.forEach(msg -> {
-            if (strip) {
-                msg = msg.replace(ChatColor.COLOR_CHAR, '&');
-                msg = Colorize.removeHexColor(msg);
-            } else {
-                msg = Colorize.translateBungeeHex(msg);
-            }
-            newLore.add(msg);
-        });
-        return newLore;
+        var result = new ArrayList<String>();
+        message.forEach(msg -> result.add(translate(msg, strip)));
+        return result;
     }
 
     private String translate(String message, boolean strip) {
         if (strip) {
             message = message.replace(ChatColor.COLOR_CHAR, '&');
-            message = Colorize.removeHexColor(message);
-        } else {
-            message = Colorize.translateBungeeHex(message);
+            return Colorize.removeHexColor(message);
         }
-        return message;
+        return Colorize.translateBungeeHex(message);
     }
 
-    /**
-     * Functional interface for transforming an {@link ItemMeta} object.
-     *
-     * @param <T>
-     *         the type of item meta
-     */
     public interface ItemMetaValue<T> {
         T accept(T value);
     }
