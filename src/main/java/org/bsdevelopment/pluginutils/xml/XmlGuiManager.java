@@ -78,7 +78,7 @@ public class XmlGuiManager {
     /**
      * Register a hardcoded default definition under the given id.
      *
-     * <p>The id is normalised to lower-case. Registering the same id again replaces the
+     * <p>The id is normalized to lower-case. Registering the same id again replaces the
      * previous default.
      *
      * @param id         unique GUI identifier (e.g. {@code "main_menu"})
