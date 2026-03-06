@@ -17,10 +17,13 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,15 @@ public class CommandBuilder {
 
     public static CommandBuilder create(String name) {
         return new CommandBuilder(name);
+    }
+
+    private static void collectPermissionsInto(CommandBuilder cmd, Set<String> result) {
+        String node = cmd.permission.getNode();
+        if (node != null) result.add(node);
+
+        for (CommandBuilder sub : cmd.subcommands.values().stream().distinct().toList()) {
+            collectPermissionsInto(sub, result);
+        }
     }
 
     public CommandBuilder withDescription(String description) {
@@ -103,6 +115,36 @@ public class CommandBuilder {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public CommandPermission getPermission() {
+        return permission;
+    }
+
+    public Predicate<CommandSender> getRequirement() {
+        return requirement;
+    }
+
+    public List<String> getAliases() {
+        return Collections.unmodifiableList(aliases);
+    }
+
+    public List<Argument<?>> getArguments() {
+        return Collections.unmodifiableList(arguments);
+    }
+
+    public Collection<CommandBuilder> getSubcommands() {
+        return subcommands.values().stream().distinct().toList();
+    }
+
+    public Set<String> collectPermissions() {
+        Set<String> result = new LinkedHashSet<>();
+        collectPermissionsInto(this, result);
+        return result;
     }
 
     Command toBukkitCommand(Plugin plugin) {
