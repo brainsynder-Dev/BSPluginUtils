@@ -14,6 +14,7 @@ import org.bsdevelopment.pluginutils.chat.components.CompositeComponent;
 import org.bsdevelopment.pluginutils.chat.components.KeybindComponent;
 import org.bsdevelopment.pluginutils.chat.components.ScoreComponent;
 import org.bsdevelopment.pluginutils.chat.components.SelectorComponent;
+import org.bsdevelopment.pluginutils.chat.components.StyledComponent;
 import org.bsdevelopment.pluginutils.chat.components.TextComponent;
 import org.bsdevelopment.pluginutils.chat.components.TranslatableComponent;
 import org.bsdevelopment.pluginutils.chat.decoration.NamedTextColor;
@@ -24,6 +25,7 @@ import org.bsdevelopment.pluginutils.chat.events.HoverEvent;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (De)serializes {@link Component} instances to/from JSON compatible with
@@ -35,8 +37,6 @@ public final class ComponentJsonSerializer {
             .registerTypeAdapter(Style.class, new StyleAdapter())
             .create();
 
-    private ComponentJsonSerializer() { /* no instantiation */ }
-
     /** Serialize a Component to its Minecraft-compatible JSON. */
     public static String toJson(Component component) {
         return GSON.toJson(component, Component.class);
@@ -47,23 +47,21 @@ public final class ComponentJsonSerializer {
         return GSON.fromJson(json, Component.class);
     }
 
-    // ─── Adapter for Component ─────────────────────────────────────────────────
-
     private static class ComponentAdapter
             implements JsonSerializer<Component>, JsonDeserializer<Component> {
 
         @Override
-        public JsonElement serialize(
-                Component component,
-                Type typeOfComponent,
-                JsonSerializationContext context
-        ) {
+        public JsonElement serialize(Component component, Type typeOfComponent, JsonSerializationContext context) {
             JsonObject componentJson = new JsonObject();
 
-            // 1️⃣ Type-specific content
-            if (component instanceof TextComponent textComponent) {
+            Component inner = component;
+            while (inner instanceof StyledComponent sc) {
+                inner = sc.inner();
+            }
+
+            if (inner instanceof TextComponent textComponent) {
                 componentJson.addProperty("text", textComponent.content());
-            } else if (component instanceof TranslatableComponent translatableComponent) {
+            } else if (inner instanceof TranslatableComponent translatableComponent) {
                 componentJson.addProperty("translate", translatableComponent.key());
                 if (!translatableComponent.args().isEmpty()) {
                     JsonArray withArray = new JsonArray();
@@ -72,24 +70,27 @@ public final class ComponentJsonSerializer {
                     }
                     componentJson.add("with", withArray);
                 }
-            } else if (component instanceof KeybindComponent keybindComponent) {
+            } else if (inner instanceof KeybindComponent keybindComponent) {
                 componentJson.addProperty("keybind", keybindComponent.keybind());
-            } else if (component instanceof ScoreComponent scoreComponent) {
+            } else if (inner instanceof ScoreComponent scoreComponent) {
                 JsonObject scoreJson = new JsonObject();
                 scoreJson.addProperty("name", scoreComponent.name());
                 scoreJson.addProperty("objective", scoreComponent.objective());
                 componentJson.add("score", scoreJson);
-            } else if (component instanceof SelectorComponent selectorComponent) {
+            } else if (inner instanceof SelectorComponent selectorComponent) {
                 componentJson.addProperty("selector", selectorComponent.selector());
+            } else {
+                componentJson.addProperty("text", "");
             }
 
-            // 2️⃣ Style
             Style componentStyle = component.style();
             if (!componentStyle.equals(Style.empty())) {
-                componentJson.add("style", context.serialize(componentStyle, Style.class));
+                JsonElement styleElement = context.serialize(componentStyle, Style.class);
+                for (Map.Entry<String, JsonElement> entry : styleElement.getAsJsonObject().entrySet()) {
+                    componentJson.add(entry.getKey(), entry.getValue());
+                }
             }
 
-            // 3️⃣ Children (extra)
             if (!component.children().isEmpty()) {
                 JsonArray childrenArray = new JsonArray();
                 for (Component childComponent : component.children()) {
@@ -102,19 +103,11 @@ public final class ComponentJsonSerializer {
         }
 
         @Override
-        public Component deserialize(
-                JsonElement jsonElement,
-                Type typeOfComponent,
-                JsonDeserializationContext context
-        ) throws JsonParseException {
+        public Component deserialize(JsonElement jsonElement, Type typeOfComponent, JsonDeserializationContext context) throws JsonParseException {
             JsonObject rootJsonObject = jsonElement.getAsJsonObject();
 
-            // Style
-            Style deserializedStyle = rootJsonObject.has("style")
-                    ? context.deserialize(rootJsonObject.get("style"), Style.class)
-                    : Style.empty();
+            Style deserializedStyle = context.deserialize(rootJsonObject, Style.class);
 
-            // Children
             List<Component> childComponents = new ArrayList<>();
             if (rootJsonObject.has("extra")) {
                 for (JsonElement childElement : rootJsonObject.getAsJsonArray("extra")) {
@@ -122,7 +115,6 @@ public final class ComponentJsonSerializer {
                 }
             }
 
-            // Reconstruct by known keys
             if (rootJsonObject.has("text")) {
                 return new TextComponent(
                         rootJsonObject.get("text").getAsString(),
@@ -160,22 +152,13 @@ public final class ComponentJsonSerializer {
                 );
             }
 
-            // Fallback to a generic composite
             return new CompositeComponent(childComponents, deserializedStyle);
         }
     }
 
-    // ─── Adapter for Style ──────────────────────────────────────────────────────
-
-    private static class StyleAdapter
-            implements JsonSerializer<Style>, JsonDeserializer<Style> {
-
+    private static class StyleAdapter implements JsonSerializer<Style>, JsonDeserializer<Style> {
         @Override
-        public JsonElement serialize(
-                Style style,
-                Type typeOfStyle,
-                JsonSerializationContext context
-        ) {
+        public JsonElement serialize(Style style, Type typeOfStyle, JsonSerializationContext context) {
             JsonObject styleJsonObject = new JsonObject();
 
             if (style.color() != null) {
@@ -213,11 +196,7 @@ public final class ComponentJsonSerializer {
         }
 
         @Override
-        public Style deserialize(
-                JsonElement jsonElement,
-                Type typeOfStyle,
-                JsonDeserializationContext context
-        ) throws JsonParseException {
+        public Style deserialize(JsonElement jsonElement, Type typeOfStyle, JsonDeserializationContext context) throws JsonParseException {
             JsonObject styleJsonObject = jsonElement.getAsJsonObject();
             Style.Builder styleBuilder = new Style.Builder();
 
