@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Collection;
 import java.util.Collections;
 
-public class GreedyStringArgument extends Argument<String> {
+public class GreedyStringArgument extends Argument<String> implements GreedyArgument {
     public GreedyStringArgument(String nodeName) {
         super(nodeName);
     }

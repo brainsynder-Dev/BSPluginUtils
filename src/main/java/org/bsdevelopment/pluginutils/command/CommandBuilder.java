@@ -1,7 +1,7 @@
 package org.bsdevelopment.pluginutils.command;
 
 import org.bsdevelopment.pluginutils.command.arguments.Argument;
-import org.bsdevelopment.pluginutils.command.arguments.GreedyStringArgument;
+import org.bsdevelopment.pluginutils.command.arguments.GreedyArgument;
 import org.bsdevelopment.pluginutils.command.arguments.LiteralArgument;
 import org.bsdevelopment.pluginutils.command.arguments.suggestions.SuggestionInfo;
 import org.bsdevelopment.pluginutils.command.exception.ArgumentParseException;
@@ -268,7 +268,7 @@ public class CommandBuilder {
                 continue;
             }
 
-            if (arg instanceof GreedyStringArgument) {
+            if (arg instanceof GreedyArgument) {
                 String joined = String.join(" ", Arrays.copyOfRange(rawArgs, rawIndex, rawArgs.length));
                 builder.put(arg.getNodeName(), arg.parse(sender, joined));
                 break;
