@@ -47,4 +47,19 @@ public interface HelpFormatter {
      * @param totalPages the total number of available pages
      */
     void sendInvalidPage(CommandSender sender, int totalPages);
+
+    /**
+     * Sends the navigation footer shown after all entries on the current page.
+     *
+     * <p>The default implementation is a no-op, so existing custom {@link HelpFormatter}
+     * implementations are not required to override this method.
+     *
+     * @param sender     the command sender
+     * @param command    the parent command name (e.g. {@code "admin"})
+     * @param helpName   the help subcommand name (e.g. {@code "help"})
+     * @param page       the current page number (1-based)
+     * @param totalPages the total number of pages
+     */
+    default void sendFooter(CommandSender sender, String command, String helpName, int page, int totalPages) {
+    }
 }

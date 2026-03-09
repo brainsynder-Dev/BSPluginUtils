@@ -170,6 +170,7 @@ public final class HelpCommand {
                     for (HelpEntry entry : pager.getPage(page)) {
                         localFormatter.sendEntry(sender, entry);
                     }
+                    localFormatter.sendFooter(sender, parent.getName(), helpName, page, totalPages);
                 });
     }
 }

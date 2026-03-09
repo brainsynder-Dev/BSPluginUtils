@@ -11,11 +11,12 @@ import org.bukkit.command.CommandSender;
  *
  * <p>Placeholder tokens:
  * <ul>
- *   <li>{@code {command}} — parent command name (header only)</li>
- *   <li>{@code {page}} — current page number (header only)</li>
- *   <li>{@code {pages}} — total pages (header and invalid-page)</li>
+ *   <li>{@code {command}} — parent command name (header, footer)</li>
+ *   <li>{@code {page}} — current page number (header); target page number (footer)</li>
+ *   <li>{@code {pages}} — total pages (header, invalid-page)</li>
  *   <li>{@code {usage}} — full usage path (entry only)</li>
  *   <li>{@code {description}} — command description (entry only)</li>
+ *   <li>{@code {helpName}} — help subcommand name (footer only)</li>
  * </ul>
  *
  * <p>Example:
@@ -33,6 +34,8 @@ public class PlainTextHelpFormatter implements HelpFormatter {
     private String entryNoDescTemplate = "&e/{usage}";
     private String emptyTemplate = "&cNo commands available.";
     private String invalidPageTemplate = "&cInvalid page. There are {pages} page(s) available.";
+    private String prevTemplate = "&8[&7◀ /{command} {helpName} {page}&8]";
+    private String nextTemplate = "&8[&7/{command} {helpName} {page} ▶&8]";
 
     /**
      * Sets the header template shown once before any entries.
@@ -40,6 +43,7 @@ public class PlainTextHelpFormatter implements HelpFormatter {
      * <p>Supports the placeholders {@code {command}}, {@code {page}}, and {@code {pages}}.
      *
      * @param template the new header template string
+     *
      * @return this formatter, for chaining
      */
     public PlainTextHelpFormatter header(String template) {
@@ -53,6 +57,7 @@ public class PlainTextHelpFormatter implements HelpFormatter {
      * <p>Supports the placeholders {@code {usage}} and {@code {description}}.
      *
      * @param template the new entry template string
+     *
      * @return this formatter, for chaining
      */
     public PlainTextHelpFormatter entry(String template) {
@@ -66,6 +71,7 @@ public class PlainTextHelpFormatter implements HelpFormatter {
      * <p>Supports the placeholder {@code {usage}}.
      *
      * @param template the new no-description entry template string
+     *
      * @return this formatter, for chaining
      */
     public PlainTextHelpFormatter entryNoDesc(String template) {
@@ -77,6 +83,7 @@ public class PlainTextHelpFormatter implements HelpFormatter {
      * Sets the message shown when no accessible commands are found.
      *
      * @param template the new empty-list message template
+     *
      * @return this formatter, for chaining
      */
     public PlainTextHelpFormatter empty(String template) {
@@ -90,10 +97,41 @@ public class PlainTextHelpFormatter implements HelpFormatter {
      * <p>Supports the placeholder {@code {pages}}.
      *
      * @param template the new invalid-page message template
+     *
      * @return this formatter, for chaining
      */
     public PlainTextHelpFormatter invalidPage(String template) {
         this.invalidPageTemplate = template;
+        return this;
+    }
+
+    /**
+     * Sets the template for the previous-page hint shown in the footer.
+     *
+     * <p>Supports the placeholders {@code {command}}, {@code {helpName}}, and {@code {page}}
+     * (where {@code {page}} is the previous page number).
+     *
+     * @param template the new previous-page footer template
+     *
+     * @return this formatter, for chaining
+     */
+    public PlainTextHelpFormatter prevFooter(String template) {
+        this.prevTemplate = template;
+        return this;
+    }
+
+    /**
+     * Sets the template for the next-page hint shown in the footer.
+     *
+     * <p>Supports the placeholders {@code {command}}, {@code {helpName}}, and {@code {page}}
+     * (where {@code {page}} is the next page number).
+     *
+     * @param template the new next-page footer template
+     *
+     * @return this formatter, for chaining
+     */
+    public PlainTextHelpFormatter nextFooter(String template) {
+        this.nextTemplate = template;
         return this;
     }
 
@@ -124,5 +162,35 @@ public class PlainTextHelpFormatter implements HelpFormatter {
     public void sendInvalidPage(CommandSender sender, int totalPages) {
         sender.sendMessage(Colorize.translateBungeeHex(
                 invalidPageTemplate.replace("{pages}", String.valueOf(totalPages))));
+    }
+
+    @Override
+    public void sendFooter(CommandSender sender, String command, String helpName, int page, int totalPages) {
+        if (totalPages <= 1) return;
+
+        boolean hasPrev = page > 1;
+        boolean hasNext = page < totalPages;
+
+        StringBuilder footer = new StringBuilder();
+
+        if (hasPrev) {
+            footer.append(prevTemplate
+                    .replace("{command}", command)
+                    .replace("{helpName}", helpName)
+                    .replace("{page}", String.valueOf(page - 1)));
+        }
+
+        if (hasPrev && hasNext) {
+            footer.append("  ");
+        }
+
+        if (hasNext) {
+            footer.append(nextTemplate
+                    .replace("{command}", command)
+                    .replace("{helpName}", helpName)
+                    .replace("{page}", String.valueOf(page + 1)));
+        }
+
+        sender.sendMessage(Colorize.translateBungeeHex(footer.toString()));
     }
 }

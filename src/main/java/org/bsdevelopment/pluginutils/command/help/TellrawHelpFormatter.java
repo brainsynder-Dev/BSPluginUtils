@@ -1,30 +1,25 @@
 package org.bsdevelopment.pluginutils.command.help;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import org.bsdevelopment.pluginutils.chat.TellrawMessage;
 import org.bsdevelopment.pluginutils.chat.decoration.NamedTextColor;
-import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
- * A {@link HelpFormatter} that sends interactive chat components for players.
+ * A {@link HelpFormatter} that sends interactive chat components for players using
+ * {@link TellrawMessage}.
  *
- * <p>Uses the BungeeCord chat API ({@code net.md_5.bungee.api.chat}) via
- * {@code player.spigot().sendMessage()} — compatible with both Spigot and Paper.
+ * <p>Messages are delivered via {@code player.spigot().sendMessage()} — compatible with
+ * both Spigot and Paper. Console senders automatically receive a plain-text fallback.
  *
  * <p>Each entry is rendered as a clickable line:
  * <ul>
  *   <li><b>Click</b> — suggests the base command in the player's chat bar</li>
- *   <li><b>Hover</b> — shows the description (or a fallback hint if none is set)</li>
+ *   <li><b>Hover</b> — shows the description, or a fallback hint if none is set</li>
  * </ul>
  *
- * <p>For console senders, a plain-text fallback is used automatically.
- * Header, empty, and invalid-page messages are sent as plain colorized text.
+ * <p>After the last entry a navigation footer is shown with clickable
+ * {@code [◀ Prev]} and {@code [Next ▶]} buttons (only the buttons relevant to the
+ * current page are included). The footer is omitted entirely when there is only one page.
  *
  * <p>Example:
  * <pre>{@code
@@ -44,18 +39,20 @@ public class TellrawHelpFormatter implements HelpFormatter {
     private NamedTextColor usageColor = NamedTextColor.YELLOW;
     private NamedTextColor descriptionColor = NamedTextColor.GRAY;
     private NamedTextColor separatorColor = NamedTextColor.DARK_GRAY;
+    private NamedTextColor navColor = NamedTextColor.GOLD;
+
+    private String prevLabel = "[◀ Prev]";
+    private String nextLabel = "[Next ▶]";
 
     private boolean displayDescription = false;
 
     /**
-     * Builds the suggest-command string from a usage path.
-     *
-     * <p>Strips argument placeholders so the player's chat bar is pre-filled with
-     * the base command and a trailing space ready for input.
+     * Strips argument placeholders from a usage path so the player's chat bar is
+     * pre-filled with just the base command and a trailing space.
      *
      * <p>For example, {@code "admin kick <target> [reason]"} becomes {@code "/admin kick "}.
      *
-     * @param usage the full usage string (e.g. {@code "admin kick <target> [reason]"})
+     * @param usage the full usage string
      *
      * @return the suggest-command string prefixed with {@code /} and suffixed with a space
      */
@@ -70,16 +67,6 @@ public class TellrawHelpFormatter implements HelpFormatter {
         return sb.toString();
     }
 
-    /**
-     * Converts a {@link NamedTextColor} to a BungeeCord {@link ChatColor}.
-     *
-     * @param color the color to convert
-     *
-     * @return the equivalent BungeeCord {@link ChatColor}
-     */
-    private static ChatColor toChat(NamedTextColor color) {
-        return ChatColor.of(color.asHexString());
-    }
 
     /**
      * Sets the header template shown once before any entries.
@@ -108,6 +95,20 @@ public class TellrawHelpFormatter implements HelpFormatter {
     }
 
     /**
+     * Sets the message shown when the requested page does not exist.
+     *
+     * <p>Supports the placeholder {@code {pages}}.
+     *
+     * @param template the new invalid-page message template
+     *
+     * @return this formatter, for chaining
+     */
+    public TellrawHelpFormatter invalidPage(String template) {
+        this.invalidPageTemplate = template;
+        return this;
+    }
+
+    /**
      * Controls whether the description is displayed inline after the usage text.
      *
      * <p>When {@code true}, each entry shows {@code /usage - description}.
@@ -120,20 +121,6 @@ public class TellrawHelpFormatter implements HelpFormatter {
      */
     public TellrawHelpFormatter displayDescription(boolean displayDescription) {
         this.displayDescription = displayDescription;
-        return this;
-    }
-
-    /**
-     * Sets the message shown when the requested page does not exist.
-     *
-     * <p>Supports the placeholder {@code {pages}}.
-     *
-     * @param template the new invalid-page message template
-     *
-     * @return this formatter, for chaining
-     */
-    public TellrawHelpFormatter invalidPage(String template) {
-        this.invalidPageTemplate = template;
         return this;
     }
 
@@ -173,63 +160,94 @@ public class TellrawHelpFormatter implements HelpFormatter {
         return this;
     }
 
+    /**
+     * Sets the color of the {@code [◀ Prev]} and {@code [Next ▶]} navigation buttons
+     * in the footer (default: gold).
+     *
+     * @param color the new navigation button color
+     *
+     * @return this formatter, for chaining
+     */
+    public TellrawHelpFormatter navColor(NamedTextColor color) {
+        this.navColor = color;
+        return this;
+    }
+
+    /**
+     * Sets the label shown for the previous-page button (default: {@code "[◀ Prev]"}).
+     *
+     * @param label the new previous-page button label
+     *
+     * @return this formatter, for chaining
+     */
+    public TellrawHelpFormatter prevLabel(String label) {
+        this.prevLabel = label;
+        return this;
+    }
+
+    /**
+     * Sets the label shown for the next-page button (default: {@code "[Next ▶]"}).
+     *
+     * @param label the new next-page button label
+     *
+     * @return this formatter, for chaining
+     */
+    public TellrawHelpFormatter nextLabel(String label) {
+        this.nextLabel = label;
+        return this;
+    }
+
     @Override
     public void sendHeader(CommandSender sender, String command, int page, int totalPages) {
-        sender.sendMessage(Colorize.translateBungeeHex(headerTemplate
-                .replace("{command}", command)
-                .replace("{page}", String.valueOf(page))
-                .replace("{pages}", String.valueOf(totalPages))));
+        TellrawMessage.of(headerTemplate.replace("{command}", command).replace("{page}", String.valueOf(page))
+                .replace("{pages}", String.valueOf(totalPages))).send(sender);
     }
 
     @Override
     public void sendEntry(CommandSender sender, HelpEntry entry) {
-        if (!(sender instanceof Player player)) {
-            // Plain-text fallback for console
-            boolean hasDesc = entry.description() != null && !entry.description().isBlank();
-            sender.sendMessage("/" + entry.usage() + (hasDesc ? " - " + entry.description() : ""));
-            return;
-        }
-
         boolean hasDesc = entry.description() != null && !entry.description().isBlank();
         String suggestCmd = buildSuggestCommand(entry.usage());
+        String hoverText = hasDesc ? entry.description() : "Click to suggest command";
+        TellrawMessage msg = TellrawMessage.empty().then("/" + entry.usage()).color(usageColor).suggest(suggestCmd).tooltip(hoverText);
 
-        // Hover tooltip
-        BaseComponent[] hoverText = new ComponentBuilder(
-                hasDesc ? entry.description() : "Click to suggest command")
-                .color(toChat(descriptionColor))
-                .create();
-
-        // Clickable usage part
-        TextComponent usagePart = new TextComponent("/" + entry.usage());
-        usagePart.setColor(toChat(usageColor));
-        usagePart.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, suggestCmd));
-        usagePart.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText));
-
-        if (hasDesc) {
-            TextComponent separator = new TextComponent(" - ");
-            separator.setColor(toChat(separatorColor));
-
-            TextComponent description = new TextComponent(entry.description());
-            description.setColor(toChat(descriptionColor));
-
-            if (displayDescription) {
-                player.spigot().sendMessage(usagePart, separator, description);
-            } else {
-                player.spigot().sendMessage(usagePart);
-            }
-        } else {
-            player.spigot().sendMessage(usagePart);
+        if (hasDesc && displayDescription) {
+            msg.then(" - ").color(separatorColor).then(entry.description()).color(descriptionColor);
         }
+
+        msg.send(sender);
     }
 
     @Override
     public void sendEmpty(CommandSender sender) {
-        sender.sendMessage(Colorize.translateBungeeHex(emptyTemplate));
+        TellrawMessage.of(emptyTemplate).send(sender);
     }
 
     @Override
     public void sendInvalidPage(CommandSender sender, int totalPages) {
-        sender.sendMessage(Colorize.translateBungeeHex(
-                invalidPageTemplate.replace("{pages}", String.valueOf(totalPages))));
+        TellrawMessage.of(invalidPageTemplate.replace("{pages}", String.valueOf(totalPages))).send(sender);
+    }
+
+    @Override
+    public void sendFooter(CommandSender sender, String command, String helpName, int page, int totalPages) {
+        if (totalPages <= 1) return;
+
+        boolean hasPrev = page > 1;
+        boolean hasNext = page < totalPages;
+        TellrawMessage footer = TellrawMessage.empty();
+
+        if (hasPrev) {
+            footer.then(prevLabel).color(navColor).command("/" + command + " " + helpName + " " + (page - 1)).tooltip("&7Go to page " + (page - 1));
+        }
+
+        if (hasPrev && hasNext) {
+            footer.then("  ");
+        }
+
+        if (hasNext) {
+            footer.then(nextLabel).color(navColor).command("/" + command + " " + helpName + " " + (page + 1))
+                    .tooltip("&7Go to page " + (page + 1));
+        }
+
+        footer.send(sender);
     }
 }
