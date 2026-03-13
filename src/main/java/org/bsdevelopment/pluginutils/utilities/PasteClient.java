@@ -16,6 +16,17 @@ public class PasteClient {
      * Uploads content and returns the paste key (e.g. "aB3dEf12").
      *
      * @param content  the text to upload
+     *
+     * @return the paste key
+     */
+    public static String upload(String content) throws Exception {
+        return upload(content, "plain");
+    }
+
+    /**
+     * Uploads content and returns the paste key (e.g. "aB3dEf12").
+     *
+     * @param content  the text to upload
      * @param language the language id, e.g. "plain", "java", "json"
      *
      * @return the paste key
