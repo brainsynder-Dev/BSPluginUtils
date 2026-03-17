@@ -51,7 +51,7 @@ public class ServerVersion {
     // ---- AUTOMATION: END ---- //
 
     /**
-     * Retrieves the current server version.
+     * Returns the current server version, resolving and caching it on first call.
      *
      * <p><b>Example:</b>
      * <pre>
@@ -89,22 +89,21 @@ public class ServerVersion {
                 : Bukkit.getServer().getClass().getPackage().getName().substring(23));
     }
 
+    /**
+     * Returns all registered server versions.
+     *
+     * @return an unmodifiable view of all {@link ServerVersion} instances
+     */
     public static Set<ServerVersion> getVersions() {
         return VERSIONS;
     }
 
     /**
-     * Retrieves a ServerVersion based on the provided version triple.
+     * Looks up or creates a {@link ServerVersion} for the given version triple without
+     * affecting the cached current version.
      *
-     * <p><b>Example:</b>
-     * <pre>
-     * ServerVersion version = ServerVersion.of(Triple.of(1, 21, 0));
-     * </pre>
-     *
-     * @param triple
-     *         the triple representing the version (major, minor, patch)
-     *
-     * @return the corresponding ServerVersion
+     * @param triple the (major, minor, patch) triple
+     * @return the matching or newly registered {@link ServerVersion}
      */
     public static ServerVersion of(Triple<Integer, Integer, Integer> triple) {
         if (VERSION_MAP.containsKey(triple)) return VERSION_MAP.get(triple);
@@ -114,16 +113,12 @@ public class ServerVersion {
                 : String.format("v%d_%d_%d", triple.getLeft(), triple.getMiddle(), triple.getRight());
 
         for (ServerVersion version : VERSIONS) {
-            if (version.versionName.equalsIgnoreCase(versionName)) {
-                CURRENT_VERSION = version;
-                return version;
-            }
+            if (version.versionName.equalsIgnoreCase(versionName)) return version;
         }
 
         if (getVersion().version.equals(triple)) return getVersion();
 
-        // No version was found, register the current version to have access to it.
-        return CURRENT_VERSION = register(triple, "");
+        return register(triple, "");
     }
 
     private final Triple<Integer, Integer, Integer> version;
@@ -137,112 +132,67 @@ public class ServerVersion {
     private ServerVersion(Triple<Integer, Integer, Integer> version, String spigotNMS) {
         this.version = version;
         this.spigotNMS = spigotNMS;
-
         this.versionName = (version.right == 0)
                 ? String.format("v%d_%d", version.left, version.middle)
                 : String.format("v%d_%d_%d", version.left, version.middle, version.right);
     }
 
     /**
-     * Retrieves the version numbers as a Triple (major, minor, patch).
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * Triple&lt;Integer, Integer, Integer&gt; nums = current.getVersionNumbers();
-     * </pre>
-     *
-     * @return the Triple representing the version numbers
+     * @return the (major, minor, patch) triple for this version
      */
     public Triple<Integer, Integer, Integer> getVersionNumbers() {
         return version;
     }
 
     /**
-     * Retrieves the version name.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * String name = current.getVersionName();
-     * </pre>
-     *
-     * @return the version name as a string
+     * @return the version name string, e.g. {@code v1_21} or {@code v1_21_4}
      */
     public String getVersionName() {
         return versionName;
     }
 
     /**
-     * Retrieves the Spigot NMS string.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * String nms = current.getSpigotNMS();
-     * </pre>
-     *
-     * @return the Spigot NMS string
+     * @return the Spigot NMS package suffix, e.g. {@code v1_21_R1}, or empty on Paper
      */
     public String getSpigotNMS() {
         return spigotNMS;
     }
 
     /**
-     * Determines if this version is equal to or newer than the specified version.
-     *
      * @param version version to compare against
-     *
-     * @return true if this version >= version; false otherwise
+     * @return {@code true} if this version &gt;= the given version
      */
     public boolean isEqualOrNewer(ServerVersion version) {
         return compareVersion(this.version, version.getVersionNumbers()) >= 0;
     }
 
     /**
-     * Determines if this version is strictly newer than the specified version.
-     *
      * @param version version to compare against
-     *
-     * @return true if this version > version; false otherwise
+     * @return {@code true} if this version &gt; the given version
      */
     public boolean isStrictlyNewer(ServerVersion version) {
         return compareVersion(this.version, version.getVersionNumbers()) > 0;
     }
 
     /**
-     * Determines if this version is equal to or older than the specified version.
-     *
      * @param version version to compare against
-     *
-     * @return true if this version <= version; false otherwise
+     * @return {@code true} if this version &lt;= the given version
      */
     public boolean isEqualOrOlder(ServerVersion version) {
         return compareVersion(this.version, version.getVersionNumbers()) <= 0;
     }
 
     /**
-     * Determines if this version is strictly older than the specified version.
-     *
      * @param version version to compare against
-     *
-     * @return true if this version < version; false otherwise
+     * @return {@code true} if this version &lt; the given version
      */
     public boolean isStrictlyOlder(ServerVersion version) {
         return compareVersion(this.version, version.getVersionNumbers()) < 0;
     }
 
     /**
-     * Determines if this version is exactly the same as the specified version.
-     *
-     * <p>Equality is determined by comparing the major, minor, and patch numbers.
-     *
-     * <p><b>Example:</b>
-     * <pre>
-     * boolean equal = current.isSameVersion(ServerVersion.v1_21);
-     * </pre>
-     *
-     * @param version
-     *         the version to compare against
-     *
-     * @return true if both versions are exactly equal; false otherwise
+     * @param version version to compare against
+     * @return {@code true} if both versions share the same major, minor, and patch numbers
      */
     public boolean isSameVersion(ServerVersion version) {
         Triple<Integer, Integer, Integer> compare = version.getVersionNumbers();
@@ -251,8 +201,7 @@ public class ServerVersion {
                 && this.version.right.equals(compare.right);
     }
 
-    private static int compareVersion(Triple<Integer, Integer, Integer> a,
-                                      Triple<Integer, Integer, Integer> b) {
+    private static int compareVersion(Triple<Integer, Integer, Integer> a, Triple<Integer, Integer, Integer> b) {
         int majorCmp = Integer.compare(a.getLeft(), b.getLeft());
         if (majorCmp != 0) return majorCmp;
 
@@ -266,7 +215,6 @@ public class ServerVersion {
         ServerVersion serverVersion = new ServerVersion(version, parentVersion);
         VERSIONS.add(serverVersion);
         VERSION_MAP.put(version, serverVersion);
-
         return serverVersion;
     }
 
@@ -274,7 +222,6 @@ public class ServerVersion {
         ServerVersion serverVersion = new ServerVersion(version, spigotNMS);
         VERSIONS.add(serverVersion);
         VERSION_MAP.put(version, serverVersion);
-
         return serverVersion;
     }
 }
