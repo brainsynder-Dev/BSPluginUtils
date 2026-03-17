@@ -89,6 +89,10 @@ public class ServerVersion {
                 : Bukkit.getServer().getClass().getPackage().getName().substring(23));
     }
 
+    public static Set<ServerVersion> getVersions() {
+        return VERSIONS;
+    }
+
     /**
      * Retrieves a ServerVersion based on the provided version triple.
      *
