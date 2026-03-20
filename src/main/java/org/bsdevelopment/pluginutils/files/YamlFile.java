@@ -410,6 +410,7 @@ public abstract class YamlFile implements ConfigurationSection {
                     break;
                 } else {
                     writeComment(fetchKey(path), divisions, iteration, i + 1);
+                    break;
                 }
             }
         }
@@ -475,6 +476,7 @@ public abstract class YamlFile implements ConfigurationSection {
                     break;
                 } else {
                     writeSection(fetchKey(path), divisions, iteration);
+                    break;
                 }
             }
         }
