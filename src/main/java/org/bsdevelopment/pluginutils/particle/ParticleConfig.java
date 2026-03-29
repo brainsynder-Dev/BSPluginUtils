@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * XML-serializable definition of a particle effect.
@@ -46,14 +48,33 @@ public record ParticleConfig(
                 ? ParticleTypeWrapper.named(typeName, ParticleTypeWrapper.named(fallbackName))
                 : ParticleTypeWrapper.named(typeName);
 
-        int count       = XmlUtils.parseIntAttr(element, "count",   1,   "count must be an integer, e.g. count=\"10\".");
-        double offsetX  = XmlUtils.parseDoubleAttr(element, "offsetX", 0.0, "offsetX must be a number, e.g. offsetX=\"0.25\".");
-        double offsetY  = XmlUtils.parseDoubleAttr(element, "offsetY", 0.0, "offsetY must be a number, e.g. offsetY=\"0.25\".");
-        double offsetZ  = XmlUtils.parseDoubleAttr(element, "offsetZ", 0.0, "offsetZ must be a number, e.g. offsetZ=\"0.25\".");
-        double extra    = XmlUtils.parseDoubleAttr(element, "extra",   0.0, "extra must be a number (speed/extra parameter).");
-        boolean force   = XmlUtils.parseBoolAttr(element, "force", false);
+        int count    = XmlUtils.parseIntAttr(element, "count", 1, "count must be an integer, e.g. count=\"10\".");
+        double extra = XmlUtils.parseDoubleAttr(element, "extra", 0.0, "extra must be a number (speed/extra parameter).");
+        boolean force = XmlUtils.parseBoolAttr(element, "force", false);
 
-        Element payloadElement = XmlUtils.firstChildElement(element);
+        // Offsets: new format uses <offset x="..." y="..." z="..."/>, legacy uses flat attributes.
+        double offsetX, offsetY, offsetZ;
+        Element offsetEl = XmlUtils.firstChildElement(element, "offset");
+        if (offsetEl != null) {
+            offsetX = XmlUtils.parseDoubleAttr(offsetEl, "x", 0.0, "x must be a number, e.g. x=\"0.25\".");
+            offsetY = XmlUtils.parseDoubleAttr(offsetEl, "y", 0.0, "y must be a number, e.g. y=\"0.25\".");
+            offsetZ = XmlUtils.parseDoubleAttr(offsetEl, "z", 0.0, "z must be a number, e.g. z=\"0.25\".");
+        } else {
+            offsetX = XmlUtils.parseDoubleAttr(element, "offsetX", 0.0, "offsetX must be a number, e.g. offsetX=\"0.25\".");
+            offsetY = XmlUtils.parseDoubleAttr(element, "offsetY", 0.0, "offsetY must be a number, e.g. offsetY=\"0.25\".");
+            offsetZ = XmlUtils.parseDoubleAttr(element, "offsetZ", 0.0, "offsetZ must be a number, e.g. offsetZ=\"0.25\".");
+        }
+
+        // Payload: first child element that is not <offset>.
+        Element payloadElement = null;
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if (node instanceof Element el && !"offset".equals(el.getTagName())) {
+                payloadElement = el;
+                break;
+            }
+        }
         ParticlePayload payload = ParticlePayload.fromXml(payloadElement);
 
         return new ParticleConfig(handle, count, offsetX, offsetY, offsetZ, extra, force, payload);
@@ -72,12 +93,15 @@ public record ParticleConfig(
         root.setAttribute("type", handle.bukkitName());
         if (handle.fallback() != null) root.setAttribute("fallback", handle.fallback().bukkitName());
 
-        root.setAttribute("count",   Integer.toString(count));
-        root.setAttribute("offsetX", Double.toString(offsetX));
-        root.setAttribute("offsetY", Double.toString(offsetY));
-        root.setAttribute("offsetZ", Double.toString(offsetZ));
-        root.setAttribute("extra",   Double.toString(extra));
-        root.setAttribute("force",   Boolean.toString(force));
+        root.setAttribute("count", Integer.toString(count));
+        root.setAttribute("extra", Double.toString(extra));
+        root.setAttribute("force", Boolean.toString(force));
+
+        Element offsetEl = doc.createElement("offset");
+        offsetEl.setAttribute("x", Double.toString(offsetX));
+        offsetEl.setAttribute("y", Double.toString(offsetY));
+        offsetEl.setAttribute("z", Double.toString(offsetZ));
+        root.appendChild(offsetEl);
 
         if (payload != null && !(payload instanceof ParticlePayload.None)) {
             root.appendChild(payload.toXml(doc));
