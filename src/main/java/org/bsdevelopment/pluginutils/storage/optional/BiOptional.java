@@ -1,6 +1,7 @@
 package org.bsdevelopment.pluginutils.storage.optional;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
