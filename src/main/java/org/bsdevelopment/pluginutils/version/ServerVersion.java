@@ -65,16 +65,25 @@ public class ServerVersion {
         if (CURRENT_VERSION != null) return CURRENT_VERSION;
 
         String mc = AdvString.between("MC: ", ")", Bukkit.getVersion());
-        String mcVersion = "v" + mc.replace(".", "_");
+        String[] versionParts = mc.split("\\.");
 
-        String[] args = mc.split("\\.");
-        int[] ints = new int[]{0, 0, 0};
+        // (e.g. "MC: 26.1"), so fall back to getBukkitVersion() to get the patch number
+        // (e.g. "26.1.1-R0.1-SNAPSHOT" or "26.1.1.build.28-alpha").
+        if (versionParts.length < 3) {
+            String[] bukkitParts = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+            if (bukkitParts.length >= 3) versionParts = bukkitParts;
+        }
 
-        if (args.length >= 1) ints[0] = Integer.parseInt(args[0]);
-        if (args.length >= 2) ints[1] = Integer.parseInt(args[1]);
-        if (args.length >= 3) ints[2] = Integer.parseInt(args[2]);
+        int major = 0, minor = 0, patch = 0;
+        try {
+            if (versionParts.length >= 1) major = Integer.parseInt(versionParts[0]);
+            if (versionParts.length >= 2) minor = Integer.parseInt(versionParts[1]);
+            if (versionParts.length >= 3) patch = Integer.parseInt(versionParts[2]);
+        } catch (NumberFormatException ignored) {}
 
-        Triple<Integer, Integer, Integer> triple = Triple.of(ints[0], ints[1], ints[2]);
+        String mcVersion = String.format("v%d_%d_%d", major, minor, patch);
+
+        Triple<Integer, Integer, Integer> triple = Triple.of(major, minor, patch);
 
         if (VERSION_MAP.containsKey(triple)) return VERSION_MAP.get(triple);
 
