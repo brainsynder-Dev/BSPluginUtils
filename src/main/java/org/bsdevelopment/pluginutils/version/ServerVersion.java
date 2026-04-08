@@ -65,7 +65,7 @@ public class ServerVersion {
         if (CURRENT_VERSION != null) return CURRENT_VERSION;
 
         String mc = AdvString.between("MC: ", ")", Bukkit.getVersion());
-        String[] versionParts = mc.split("\\.");
+        String[] versionParts = (mc.contains(" ") ? AdvString.before(" ", mc).split("\\.") : mc.split("\\."));
 
         // (e.g. "MC: 26.1"), so fall back to getBukkitVersion() to get the patch number
         // (e.g. "26.1.1-R0.1-SNAPSHOT" or "26.1.1.build.28-alpha").
