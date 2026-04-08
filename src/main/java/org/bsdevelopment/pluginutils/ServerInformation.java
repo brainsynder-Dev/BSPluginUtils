@@ -3,6 +3,7 @@ package org.bsdevelopment.pluginutils;
 import io.papermc.lib.PaperLib;
 import org.bsdevelopment.pluginutils.reflection.Reflection;
 import org.bsdevelopment.pluginutils.text.AdvString;
+import org.bsdevelopment.pluginutils.version.ServerVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -125,7 +126,7 @@ public class ServerInformation {
             buildVersion = AdvString.before("-", rawVersion);
         }
 
-        minecraftVersion = AdvString.between("(MC: ", ")", rawVersion);
+        minecraftVersion = ServerVersion.getVersion().getVersionName().replaceFirst("v", "").replace("_", ".");
 
         try {
             var livingClass = Class.forName("net,minecraft,core,registries,BuiltInRegistries".replace(",", "."), false, classLoader);
