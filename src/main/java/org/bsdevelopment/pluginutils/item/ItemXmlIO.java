@@ -1,7 +1,7 @@
 package org.bsdevelopment.pluginutils.item;
 
-import org.bsdevelopment.nbt.JsonToNBT;
 import org.bsdevelopment.nbt.StorageTagCompound;
+import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.pluginutils.inventory.ItemBuilder;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.xml.XmlUtils;
@@ -328,7 +328,7 @@ public final class ItemXmlIO {
 
     private static StorageTagCompound safeCompound(Element element, String json) {
         try {
-            return JsonToNBT.getTagFromJson(json);
+            return StorageStringParser.getTagFromJson(json);
         } catch (Exception e) {
             throw new XmlValidationException(element, "Invalid NBT JSON", "Ensure valid CompoundData JSON");
         }

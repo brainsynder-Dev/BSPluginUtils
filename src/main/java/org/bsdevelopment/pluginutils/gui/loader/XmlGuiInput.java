@@ -1,7 +1,7 @@
 package org.bsdevelopment.pluginutils.gui.loader;
 
-import org.bsdevelopment.nbt.JsonToNBT;
 import org.bsdevelopment.nbt.StorageTagCompound;
+import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.nbt.other.NBTException;
 import org.bsdevelopment.pluginutils.gui.ActionRegistry;
 import org.bsdevelopment.pluginutils.gui.CustomGui;
@@ -156,7 +156,7 @@ public class XmlGuiInput {
         NodeList nbt = element.getElementsByTagName("nbt-json");
         if (nbt.getLength() > 0) {
             String json = nbt.item(0).getTextContent().trim();
-            StorageTagCompound tag = JsonToNBT.getTagFromJson(json);
+            StorageTagCompound tag = StorageStringParser.getTagFromJson(json);
             builder = ItemBuilder.of(tag);
         }
         // 2) skull

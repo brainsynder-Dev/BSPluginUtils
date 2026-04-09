@@ -2,8 +2,8 @@ package org.bsdevelopment.pluginutils.inventory;
 
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bsdevelopment.nbt.JsonToNBT;
 import org.bsdevelopment.nbt.StorageTagCompound;
+import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.text.WordUtils;
 import org.bsdevelopment.pluginutils.utilities.PlayerProfileHelper;
@@ -98,7 +98,7 @@ public class ItemBuilder {
         String json = NBTItem.convertItemtoNBT(item).toString();
         StorageTagCompound compound = new StorageTagCompound();
         try {
-            compound = JsonToNBT.getTagFromJson(json);
+            compound = StorageStringParser.getTagFromJson(json);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

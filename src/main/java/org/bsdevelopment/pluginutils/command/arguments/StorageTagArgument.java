@@ -1,7 +1,7 @@
 package org.bsdevelopment.pluginutils.command.arguments;
 
-import org.bsdevelopment.nbt.JsonToNBT;
 import org.bsdevelopment.nbt.StorageTagCompound;
+import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.pluginutils.command.arguments.suggestions.SuggestionInfo;
 import org.bsdevelopment.pluginutils.command.exception.ArgumentParseException;
 import org.bukkit.command.CommandSender;
@@ -205,7 +205,7 @@ public class StorageTagArgument extends Argument<StorageTagCompound> implements 
     @Override
     public StorageTagCompound parse(CommandSender sender, String input) throws ArgumentParseException {
         try {
-            return JsonToNBT.getTagFromJson(input);
+            return StorageStringParser.getTagFromJson(input);
         } catch (Exception e) {
             throw ArgumentParseException.fromString("Invalid NBT: " + e.getMessage());
         }
