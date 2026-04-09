@@ -22,9 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Resolution is lazy and cached:
  * <ul>
- *     <li>Try primary name via {@link Sound#valueOf(String)}</li>
- *     <li>If not found, try fallback name</li>
- *     <li>If neither exists for this server version, returns {@code null}</li>
+ *     <li>Try primary name via {@link Registry#SOUNDS} (namespaced) or {@link Sound#valueOf(String)}</li>
+ *     <li>If not found, try the fallback</li>
+ *     <li>If neither exists on this server version, returns {@code null}</li>
  * </ul>
  */
 public final class SafeSound {
@@ -52,11 +52,20 @@ public final class SafeSound {
         return new SafeSound(primaryName, fallbackName);
     }
 
-    /**
-     * Creates a wrapper that always resolves to the given {@link Sound}.
-     */
-    public static @NotNull SafeSound of(@NotNull Sound sound) {
-        return new SafeSound(sound.getKey().toString(), null);
+    public static @NotNull SafeSound of(@NotNull Sound primary) {
+        return new SafeSound(primary.getKey().toString(), null);
+    }
+
+    public static @NotNull SafeSound of(@NotNull Sound primary, @NotNull Sound fallback) {
+        return new SafeSound(primary.getKey().toString(), fallback.getKey().toString());
+    }
+
+    public static @NotNull SafeSound of(@NotNull Sound primary, @NotNull String fallback) {
+        return new SafeSound(primary.getKey().toString(), fallback);
+    }
+
+    public static @NotNull SafeSound of(@NotNull String primary, @NotNull Sound fallback) {
+        return new SafeSound(primary, fallback.getKey().toString());
     }
 
     /**
@@ -67,6 +76,11 @@ public final class SafeSound {
     public @Nullable Sound resolve() {
         String cacheKey = primaryName + "|" + (fallbackName == null ? "" : fallbackName);
         return CACHE.computeIfAbsent(cacheKey, key -> compute());
+    }
+
+    public @NotNull Sound resolve(@NotNull Sound defaultSound) {
+        Sound sound = resolve();
+        return sound != null ? sound : defaultSound;
     }
 
     private @Nullable Sound compute() {
@@ -86,8 +100,8 @@ public final class SafeSound {
         try {
             if (name.contains(":")) {
                 return Registry.SOUNDS.get(NamespacedKey.fromString(name));
-            }else {
-                return Sound.valueOf(name);
+            } else {
+                return Sound.valueOf(name.toUpperCase());
             }
         } catch (IllegalArgumentException ignored) {
             return null;
@@ -101,14 +115,17 @@ public final class SafeSound {
         return resolve() != null;
     }
 
-    /**
-     * Plays this sound to a player if it can be resolved.
-     */
+    public void playTo(@NotNull Player player) {
+        playTo(player, 1f, 1f);
+    }
+
     public void playTo(@NotNull Player player, float volume, float pitch) {
         Sound sound = resolve();
-        if (sound != null) {
-            player.playSound(player.getLocation(), sound, volume, pitch);
-        }
+        if (sound != null) player.playSound(player.getLocation(), sound, volume, pitch);
+    }
+
+    public void playAt(@NotNull Location location) {
+        playAt(location, 1f, 1f);
     }
 
     /**
@@ -116,9 +133,7 @@ public final class SafeSound {
      */
     public void playAt(@NotNull Location location, float volume, float pitch) {
         Sound sound = resolve();
-        if (sound != null) {
-            location.getWorld().playSound(location, sound, volume, pitch);
-        }
+        if (sound != null) location.getWorld().playSound(location, sound, volume, pitch);
     }
 
     public @NotNull String primaryName() {
