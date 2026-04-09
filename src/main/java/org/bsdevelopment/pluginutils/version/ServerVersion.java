@@ -95,8 +95,9 @@ public class ServerVersion {
         }
 
         // No version was found, register the current version to have access to it.
-        return CURRENT_VERSION = register(triple, PaperLib.isPaper() ? ""
-                : Bukkit.getServer().getClass().getPackage().getName().substring(23));
+        boolean hasNmsVersion = !PaperLib.isPaper() && major == 1;
+        String nmsVersion = hasNmsVersion ? Bukkit.getServer().getClass().getPackage().getName().substring(23) : "";
+        return CURRENT_VERSION = register(triple, nmsVersion);
     }
 
     /**
