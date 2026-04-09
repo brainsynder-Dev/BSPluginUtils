@@ -27,6 +27,7 @@ import org.bukkit.inventory.meta.components.consumable.ConsumableComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,7 @@ import java.util.function.Consumer;
 public class ItemBuilder {
     private ItemStack item;
     private ItemMeta meta;
+    private final Map<String, String> replacements = new LinkedHashMap<>();
 
     private ItemBuilder(Material material, int amount) {
         item = new ItemStack(material, amount);
@@ -89,7 +91,42 @@ public class ItemBuilder {
         return item == null || isAir(item.getType());
     }
 
+    /**
+     * Registers a placeholder and its replacement value.
+     * All registered placeholders are applied to the item name and every lore line when {@link #build()} is called.
+     *
+     * <pre>{@code
+     * builder.replaceString("{player}", player.getName())
+     *        .replaceString("{kills}", killCount);
+     * }</pre>
+     *
+     * @param placeholder the token to replace (e.g. {@code "{player}"})
+     * @param replacement the value to substitute in; {@link Object#toString()} is called on it
+     */
+    public ItemBuilder replaceString(String placeholder, Object replacement) {
+        replacements.put(placeholder, String.valueOf(replacement));
+        return this;
+    }
+
     public ItemStack build() {
+        if (!replacements.isEmpty()) {
+            if (meta.hasDisplayName()) {
+                String name = meta.getDisplayName();
+                for (var entry : replacements.entrySet()) name = name.replace(entry.getKey(), entry.getValue());
+                meta.setDisplayName(name);
+            }
+
+            if (meta.hasLore()) {
+                List<String> lore = new ArrayList<>(meta.getLore());
+                for (int i = 0; i < lore.size(); i++) {
+                    String line = lore.get(i);
+                    for (var entry : replacements.entrySet()) line = line.replace(entry.getKey(), entry.getValue());
+                    lore.set(i, line);
+                }
+                meta.setLore(lore);
+            }
+        }
+
         item.setItemMeta(meta);
         return item.clone();
     }
