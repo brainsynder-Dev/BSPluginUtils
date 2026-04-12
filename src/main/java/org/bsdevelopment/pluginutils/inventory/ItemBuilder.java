@@ -1,7 +1,6 @@
 package org.bsdevelopment.pluginutils.inventory;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
 import org.bsdevelopment.nbt.StorageTagCompound;
 import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.pluginutils.text.Colorize;
@@ -67,7 +66,7 @@ public class ItemBuilder {
     }
 
     public static ItemBuilder of(StorageTagCompound tag) {
-        var item = NBTItem.convertNBTtoItem(new NBTContainer(tag.toString()));
+        var item = NBT.itemStackFromNBT(NBT.parseNBT(tag.toString()));
         var builder = new ItemBuilder(item.getType(), item.getAmount());
         builder.item = item;
         builder.meta = item.getItemMeta();
@@ -132,14 +131,17 @@ public class ItemBuilder {
     }
 
     public StorageTagCompound toTag() {
-        String json = NBTItem.convertItemtoNBT(item).toString();
-        StorageTagCompound compound = new StorageTagCompound();
+        item.setItemMeta(meta);
         try {
-            compound = StorageStringParser.getTagFromJson(json);
+            return StorageStringParser.getTagFromJson(NBT.itemStackToNBT(item).toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return compound;
+    }
+
+    public ItemBuilder setAmount (int amount) {
+        item.setAmount(amount);
+        return this;
     }
 
     public ItemBuilder withName(String name) {
