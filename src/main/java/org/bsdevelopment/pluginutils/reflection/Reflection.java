@@ -10,12 +10,7 @@ import org.bsdevelopment.pluginutils.version.ServerVersion;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -230,6 +225,7 @@ public class Reflection {
     public static <T> T invokeCraftBukkitMethod(String methodName, Object target, Class<?>[] parameterTypes, Object... args) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
         if (PaperLib.isPaper()) version = "";
+        if (ServerVersion.getVersion().isEqualOrNewer(ServerVersion.v26_1)) version = "";
 
         String className = target.getClass().getName().replace("org.bukkit.craftbukkit." + version, "");
 
@@ -314,6 +310,7 @@ public class Reflection {
     public static <T> T fetchCraftBukkitField(Object target, String fieldName) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
         if (PaperLib.isPaper()) version = "";
+        if (ServerVersion.getVersion().isEqualOrNewer(ServerVersion.v26_1)) version = "";
 
         String className = target.getClass().getName().replace("org.bukkit.craftbukkit." + version, "");
 
@@ -571,6 +568,7 @@ public class Reflection {
     public static Class<?> resolveMinecraftClass(String name) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
         if (PaperLib.isPaper()) version = "";
+        if (ServerVersion.getVersion().isEqualOrNewer(ServerVersion.v26_1)) version = "";
 
         String string = "net.minecraft.server." + version + name;
 
@@ -627,6 +625,7 @@ public class Reflection {
     public static Class<?> resolveCraftBukkitClass(String className) {
         String version = ServerVersion.getVersion().getSpigotNMS() + ".";
         if (PaperLib.isPaper()) version = "";
+        if (ServerVersion.getVersion().isEqualOrNewer(ServerVersion.v26_1)) version = "";
 
         String string = "org.bukkit.craftbukkit." + version + className;
 
