@@ -222,9 +222,10 @@ tasks.register("incrementPatchVersion") {
                 ),
                 listOf("git", "push")
             ).forEach { cmd ->
-                exec {
-                    commandLine = cmd
-                }
+                ProcessBuilder(*cmd.toTypedArray())
+                    .inheritIO()
+                    .start()
+                    .waitFor()
             }
         } else {
             println("WARNING: Version '$currentVersion' is not in 'X.Y.Z[-SNAPSHOT]' format. Skipping increment.")
@@ -270,9 +271,10 @@ tasks.register("updateReadmeVersion") {
             ),
             listOf("git", "push")
         ).forEach { cmd ->
-            exec {
-                commandLine = cmd
-            }
+            ProcessBuilder(*cmd.toTypedArray())
+                .inheritIO()
+                .start()
+                .waitFor()
         }
     }
 }
