@@ -1,10 +1,13 @@
 package org.bsdevelopment.pluginutils.inventory;
 
-import de.tr7zw.changeme.nbtapi.NBT;
+import org.bsdevelopment.nbt.StorageBase;
 import org.bsdevelopment.nbt.StorageTagCompound;
+import org.bsdevelopment.nbt.StorageTagList;
+import org.bsdevelopment.nbt.StorageTagString;
 import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.text.WordUtils;
+import org.bsdevelopment.pluginutils.utilities.NBTCodec;
 import org.bsdevelopment.pluginutils.utilities.PlayerProfileHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,22 +17,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.inventory.meta.components.BlocksAttacksComponent;
-import org.bukkit.inventory.meta.components.CustomModelDataComponent;
-import org.bukkit.inventory.meta.components.EquippableComponent;
-import org.bukkit.inventory.meta.components.FoodComponent;
-import org.bukkit.inventory.meta.components.JukeboxPlayableComponent;
-import org.bukkit.inventory.meta.components.ToolComponent;
-import org.bukkit.inventory.meta.components.UseCooldownComponent;
-import org.bukkit.inventory.meta.components.WeaponComponent;
+import org.bukkit.inventory.meta.components.*;
 import org.bukkit.inventory.meta.components.consumable.ConsumableComponent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -41,9 +32,10 @@ import java.util.function.Consumer;
  * max stack size.
  */
 public class ItemBuilder {
+    private final Map<String, String> replacements = new LinkedHashMap<>();
+
     private ItemStack item;
     private ItemMeta meta;
-    private final Map<String, String> replacements = new LinkedHashMap<>();
 
     private ItemBuilder(Material material, int amount) {
         item = new ItemStack(material, amount);
@@ -66,11 +58,66 @@ public class ItemBuilder {
     }
 
     public static ItemBuilder of(StorageTagCompound tag) {
-        var item = NBT.itemStackFromNBT(NBT.parseNBT(tag.toString()));
-        var builder = new ItemBuilder(item.getType(), item.getAmount());
-        builder.item = item;
-        builder.meta = item.getItemMeta();
-        return builder;
+        try {
+            StorageTagCompound working = tag.copy();
+            String extractedName = null;
+            List<String> extractedLore = null;
+
+            if (working.hasKey("components")) {
+                StorageTagCompound components = working.getCompoundTag("components");
+
+                if (components.hasKey("minecraft:custom_name")) {
+                    StorageBase base = components.getTag("minecraft:custom_name");
+                    if (base instanceof StorageTagString str && isPlainAmpersandString(str.getString())) {
+                        extractedName = str.getString();
+                        components.remove("minecraft:custom_name");
+                    }
+                }
+
+                if (components.hasKey("minecraft:lore")) {
+                    StorageBase base = components.getTag("minecraft:lore");
+                    if (base instanceof StorageTagList list) {
+                        List<StorageBase> entries = list.getTagList();
+                        boolean allPlain = !entries.isEmpty();
+                        for (StorageBase entry : entries) {
+                            if (!(entry instanceof StorageTagString str) || !isPlainAmpersandString(str.getString())) {
+                                allPlain = false;
+                                break;
+                            }
+                        }
+                        if (allPlain) {
+                            extractedLore = new ArrayList<>(entries.size());
+                            for (StorageBase entry : entries) extractedLore.add(((StorageTagString) entry).getString());
+                            components.remove("minecraft:lore");
+                        }
+                    }
+                }
+
+                if (components.hasKey("minecraft:profile")) {
+                    StorageBase base = components.getTag("minecraft:profile");
+                    if (base instanceof StorageTagCompound profile) profile.remove("name");
+                }
+            }
+
+            ItemStack parsed = NBTCodec.nbtStringToBukkit(working.toString());
+            ItemMeta parsedMeta = parsed.getItemMeta();
+            if (parsedMeta != null && (extractedName != null || extractedLore != null)) {
+                if (extractedName != null) parsedMeta.setDisplayName(Colorize.translateBungeeHex(extractedName));
+                if (extractedLore != null) {
+                    List<String> lore = new ArrayList<>(extractedLore.size());
+                    for (String line : extractedLore) lore.add(Colorize.translateBungeeHex(line));
+                    parsedMeta.setLore(lore);
+                }
+                parsed.setItemMeta(parsedMeta);
+            }
+
+            var builder = new ItemBuilder(parsed.getType(), parsed.getAmount());
+            builder.item = parsed;
+            builder.meta = parsed.getItemMeta();
+            return builder;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static ItemBuilder playerSkull(String texture) {
@@ -133,13 +180,31 @@ public class ItemBuilder {
     public StorageTagCompound toTag() {
         item.setItemMeta(meta);
         try {
-            return StorageStringParser.getTagFromJson(NBT.itemStackToNBT(item).toString());
+            StorageTagCompound tag = StorageStringParser.getTagFromJson(NBTCodec.bukkitToNbtString(item));
+            StorageTagCompound components = tag.hasKey("components") ? tag.getCompoundTag("components") : null;
+            if (components != null) {
+                if (meta.hasDisplayName()) {
+                    components.remove("minecraft:custom_name");
+                    components.setString("minecraft:custom_name", toAmpersand(meta.getDisplayName()));
+                }
+                if (meta.hasLore()) {
+                    components.remove("minecraft:lore");
+                    StorageTagList loreList = new StorageTagList();
+                    for (String line : meta.getLore()) loreList.appendTag(new StorageTagString(toAmpersand(line)));
+                    components.setTag("minecraft:lore", loreList);
+                }
+                if (components.hasKey("minecraft:profile")) {
+                    StorageBase base = components.getTag("minecraft:profile");
+                    if (base instanceof StorageTagCompound profile) profile.remove("name").remove("id");
+                }
+            }
+            return tag;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ItemBuilder setAmount (int amount) {
+    public ItemBuilder setAmount(int amount) {
         item.setAmount(amount);
         return this;
     }
@@ -215,27 +280,11 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Sets a simple integer custom model data value.
-     *
-     * @see #withCustomModelDataComponent(Consumer) for the full component API
-     */
     public ItemBuilder withCustomModelData(int modelData) {
         meta.setCustomModelData(modelData);
         return this;
     }
 
-    /**
-     * Configures the {@link CustomModelDataComponent}, which supports floats, flags,
-     * colors, and strings in addition to the legacy integer value.
-     *
-     * <pre>{@code
-     * builder.withCustomModelDataComponent(cmd -> {
-     *     cmd.setFloats(List.of(1.0f, 2.5f));
-     *     cmd.setFlags(List.of(true));
-     * });
-     * }</pre>
-     */
     public ItemBuilder withCustomModelDataComponent(Consumer<CustomModelDataComponent> consumer) {
         CustomModelDataComponent component = meta.getCustomModelDataComponent();
         consumer.accept(component);
@@ -243,60 +292,31 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Controls whether any tooltip is shown for this item.
-     */
     public ItemBuilder setHideTooltip(boolean hideTooltip) {
         meta.setHideTooltip(hideTooltip);
         return this;
     }
 
-    /**
-     * Sets a custom tooltip style applied when the item is hovered.
-     * The key references a tooltip style defined in a resource pack.
-     */
     public ItemBuilder withTooltipStyle(NamespacedKey tooltipStyle) {
         meta.setTooltipStyle(tooltipStyle);
         return this;
     }
 
-    /**
-     * Sets the custom max stack size for this item (1–99).
-     * Overrides the material's default stack size.
-     */
     public ItemBuilder withMaxStackSize(int maxStackSize) {
         meta.setMaxStackSize(maxStackSize);
         return this;
     }
 
-    /**
-     * Sets the enchantability value for this item, which influences the quality of
-     * enchantments offered at an enchanting table. Higher values yield better results.
-     */
     public ItemBuilder withEnchantable(int value) {
         meta.setEnchantable(value);
         return this;
     }
 
-    /**
-     * Removes the enchantable override, restoring the material's default enchantability.
-     */
     public ItemBuilder clearEnchantable() {
         meta.setEnchantable(null);
         return this;
     }
 
-    /**
-     * Configures the {@link FoodComponent}.
-     *
-     * <pre>{@code
-     * builder.withFood(food -> {
-     *     food.setNutrition(4);
-     *     food.setSaturation(0.3f);
-     *     food.setCanAlwaysEat(true);
-     * });
-     * }</pre>
-     */
     public ItemBuilder withFood(Consumer<FoodComponent> consumer) {
         FoodComponent food = meta.getFood();
         consumer.accept(food);
@@ -309,16 +329,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link ConsumableComponent}, controlling how the item is consumed.
-     *
-     * <pre>{@code
-     * builder.withConsumable(c -> {
-     *     c.setConsumeSeconds(2.0f);
-     *     c.setAnimation(ConsumableComponent.Animation.DRINK);
-     * });
-     * }</pre>
-     */
     public ItemBuilder withConsumable(Consumer<ConsumableComponent> consumer) {
         ConsumableComponent consumable = meta.getConsumable();
         consumer.accept(consumable);
@@ -331,16 +341,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link ToolComponent}, defining mining speed and damage per block.
-     *
-     * <pre>{@code
-     * builder.withTool(tool -> {
-     *     tool.setDefaultMiningSpeed(1.5f);
-     *     tool.setDamagePerBlock(1);
-     * });
-     * }</pre>
-     */
     public ItemBuilder withTool(Consumer<ToolComponent> consumer) {
         ToolComponent tool = meta.getTool();
         consumer.accept(tool);
@@ -353,16 +353,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link WeaponComponent}, adjusting melee attack behavior.
-     *
-     * <pre>{@code
-     * builder.withWeapon(weapon -> {
-     *     weapon.setItemDamagePerAttack(1);
-     *     weapon.setDisableBlockingForSeconds(0.4f);
-     * });
-     * }</pre>
-     */
     public ItemBuilder withWeapon(Consumer<WeaponComponent> consumer) {
         WeaponComponent weapon = meta.getWeapon();
         consumer.accept(weapon);
@@ -375,16 +365,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link BlocksAttacksComponent}, allowing the item to function as a shield.
-     *
-     * <pre>{@code
-     * builder.withBlocksAttacks(shield -> {
-     *     shield.setBlockDelaySeconds(0.0f);
-     *     shield.setDisableCooldownSeconds(1.0f);
-     * });
-     * }</pre>
-     */
     public ItemBuilder withBlocksAttacks(Consumer<BlocksAttacksComponent> consumer) {
         BlocksAttacksComponent component = meta.getBlocksAttacks();
         consumer.accept(component);
@@ -397,15 +377,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link EquippableComponent}, allowing any item to be worn in an armor slot.
-     *
-     * <pre>{@code
-     * builder.withEquippable(equip -> {
-     *     equip.setSlot(EquipmentSlot.HEAD);
-     * });
-     * }</pre>
-     */
     public ItemBuilder withEquippable(Consumer<EquippableComponent> consumer) {
         EquippableComponent equippable = meta.getEquippable();
         consumer.accept(equippable);
@@ -418,16 +389,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link UseCooldownComponent}, adding a use cooldown to the item.
-     *
-     * <pre>{@code
-     * builder.withUseCooldown(cd -> {
-     *     cd.setCooldownSeconds(1.5f);
-     *     cd.setCooldownGroup(new NamespacedKey("myplugin", "special_item"));
-     * });
-     * }</pre>
-     */
     public ItemBuilder withUseCooldown(Consumer<UseCooldownComponent> consumer) {
         UseCooldownComponent cooldown = meta.getUseCooldown();
         consumer.accept(cooldown);
@@ -440,15 +401,6 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Configures the {@link JukeboxPlayableComponent}, allowing the item to be inserted into a jukebox.
-     *
-     * <pre>{@code
-     * builder.withJukeboxPlayable(jukebox -> {
-     *     jukebox.setSongKey(new NamespacedKey("minecraft", "music_disc.13"));
-     * });
-     * }</pre>
-     */
     public ItemBuilder withJukeboxPlayable(Consumer<JukeboxPlayableComponent> consumer) {
         JukeboxPlayableComponent jukebox = meta.getJukeboxPlayable();
         consumer.accept(jukebox);
@@ -461,21 +413,22 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Applies a transformation to the {@link ItemMeta} if it matches the specified class.
-     *
-     * <pre>{@code
-     * builder.handleMeta(SkullMeta.class, meta -> {
-     *     meta.setOwnerProfile(profile);
-     *     return meta;
-     * });
-     * }</pre>
-     */
     public <T extends ItemMeta> ItemBuilder handleMeta(Class<T> clazz, ItemMetaValue<T> meta) {
         if (!clazz.isAssignableFrom(this.meta.getClass())) return this;
         this.meta = meta.accept(clazz.cast(this.meta));
         item.setItemMeta(this.meta);
         return this;
+    }
+
+    private static boolean isPlainAmpersandString(String s) {
+        if (s == null || s.isEmpty()) return true;
+        char c = s.charAt(0);
+        return c != '{' && c != '[';
+    }
+
+    private static String toAmpersand(String s) {
+        if (s == null) return "";
+        return Colorize.removeHexColor(s);
     }
 
     private List<String> translate(List<String> message, boolean strip) {
