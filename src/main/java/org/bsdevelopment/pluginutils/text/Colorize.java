@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 public class Colorize {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("&#(\\w{5}[0-9a-fA-F])");
+    private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("&x(?:&[0-9a-fA-F]){6}");
 
     private static Method of;
 
@@ -191,17 +192,13 @@ public class Colorize {
         StringBuffer buffer = new StringBuffer();
 
         while (matcher.find()) {
-            String replacement = "";
-
-            if (of != null) {
-                // This is mostly in case someone is using a legacy version (e.g., below 1.16)
-                try {
-                    replacement = String.valueOf(Reflection.executeMethod(of, null, "#" + matcher.group(1)));
-                } catch (Exception ignored) {
-                }
+            String hexDigits = matcher.group(1).toLowerCase();
+            StringBuilder code = new StringBuilder();
+            code.append(ChatColor.COLOR_CHAR).append('x');
+            for (char c : hexDigits.toCharArray()) {
+                code.append(ChatColor.COLOR_CHAR).append(c);
             }
-
-            matcher.appendReplacement(buffer, replacement).toString();
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(code.toString()));
         }
 
         return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
@@ -225,26 +222,13 @@ public class Colorize {
 
         text = text.replace(ChatColor.COLOR_CHAR, '&');
 
-        Pattern word = Pattern.compile("&x");
-        Matcher matcher = word.matcher(text);
-
-        char[] chars = text.toCharArray();
+        Matcher matcher = LEGACY_HEX_PATTERN.matcher(text);
+        StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
-            StringBuilder builder = new StringBuilder();
-            int start = matcher.start();
-            int end = start + 13;
-
-            if (end > text.length()) continue;
-
-            for (int i = start; i < end; i++) builder.append(chars[i]);
-
-            String hex = builder.toString();
-            hex = hex.replace("&x", "").replace("&", "");
-
-            text = text.replace(builder.toString(), "&#" + hex);
+            String hex = matcher.group().replace("&x", "").replace("&", "");
+            matcher.appendReplacement(buffer, "&#" + hex);
         }
-
-        return text;
+        return matcher.appendTail(buffer).toString();
     }
 
     /**
@@ -295,6 +279,7 @@ public class Colorize {
         if ((value == null) || value.isEmpty()) return parts;
 
         value = value.replace(org.bukkit.ChatColor.COLOR_CHAR, '&');
+        value = removeHexColor(value);
 
         if (value.contains("&")) {
             String[] args = value.split("&");
