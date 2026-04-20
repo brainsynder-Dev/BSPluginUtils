@@ -30,28 +30,14 @@ public class PlayerProfileHelper {
         }
     }
 
-    /**
-     * Generate a 16-character, hex-only name by hashing the given seed string
-     * (or a random UUID, if seed is null).
-     */
-    private static String generateProfileName(@Nullable String seed) {
+    private static UUID generateProfileId(@Nullable String seed) {
         String base = seed != null ? seed : UUID.randomUUID().toString();
-        String hex = UUID.nameUUIDFromBytes(base.getBytes(StandardCharsets.UTF_8))
-                .toString()
-                .replace("-", "");
-        // Take first 16 hex chars for a valid Minecraft name length
-        return hex.substring(0, 16);
+        return UUID.nameUUIDFromBytes(base.getBytes(StandardCharsets.UTF_8));
     }
 
-    /**
-     * If the passed profile is null, create a new one using a 16-char name
-     * derived from the seed; otherwise return the existing profile.
-     */
     private static PlayerProfile getOrCreateProfile(@Nullable PlayerProfile profile, @Nullable String seed) {
         if (profile != null) return profile;
-
-        String name = generateProfileName(seed);
-        return Bukkit.createPlayerProfile(null, name);
+        return Bukkit.createPlayerProfile(generateProfileId(seed));
     }
 
     /**
