@@ -58,6 +58,7 @@ public class ItemBuilder {
     }
 
     public static ItemBuilder of(StorageTagCompound tag) {
+        if (tag.hasKey("material") && !tag.hasKey("id")) return fromLegacyCompound(tag);
         try {
             StorageTagCompound working = tag.copy();
             String extractedName = null;
@@ -118,6 +119,47 @@ public class ItemBuilder {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static ItemBuilder fromLegacyCompound(StorageTagCompound compound) {
+        Material material = Material.getMaterial(compound.getString("material"));
+        if (material == null) material = Material.STONE;
+
+        var builder = new ItemBuilder(material, compound.getInteger("amount", 1));
+
+        if (compound.hasKey("name")) builder.withName(compound.getString("name"));
+
+        if (compound.hasKey("lore")) {
+            StorageTagList list = (StorageTagList) compound.getTag("lore");
+            List<String> lore = new ArrayList<>(list.tagCount());
+            list.getTagList().forEach(base -> lore.add(((StorageTagString) base).getString()));
+            builder.withLore(lore);
+        }
+
+        if (compound.hasKey("enchants")) {
+            StorageTagList enchants = (StorageTagList) compound.getTag("enchants");
+            enchants.getTagList().forEach(base -> {
+                StorageTagCompound enchant = (StorageTagCompound) base;
+                Enchantment enchantment = Enchantment.getByName(enchant.getString("name"));
+                if (enchantment != null) builder.withEnchant(enchantment, enchant.getInteger("level", 1));
+            });
+        }
+
+        if (compound.hasKey("flags")) {
+            StorageTagList flags = (StorageTagList) compound.getTag("flags");
+            flags.getTagList().forEach(base -> {
+                try {
+                    builder.withFlag(ItemFlag.valueOf(((StorageTagString) base).getString()));
+                } catch (IllegalArgumentException ignored) {}
+            });
+        }
+
+        if (compound.hasKey("custom-model-data")) builder.withCustomModelData(compound.getInteger("custom-model-data"));
+        else if (compound.hasKey("CustomModelData")) builder.withCustomModelData(compound.getInteger("CustomModelData"));
+
+        if (compound.hasKey("unbreakable")) builder.setUnbreakable(compound.getBoolean("unbreakable"));
+
+        return builder;
     }
 
     public static ItemBuilder playerSkull(String texture) {
