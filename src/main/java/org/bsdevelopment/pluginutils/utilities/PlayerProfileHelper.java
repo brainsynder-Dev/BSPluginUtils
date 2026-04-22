@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,14 +29,9 @@ public class PlayerProfileHelper {
         }
     }
 
-    private static UUID generateProfileId(@Nullable String seed) {
-        String base = seed != null ? seed : UUID.randomUUID().toString();
-        return UUID.nameUUIDFromBytes(base.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static PlayerProfile getOrCreateProfile(@Nullable PlayerProfile profile, @Nullable String seed) {
+    private static PlayerProfile getOrCreateProfile(@Nullable PlayerProfile profile) {
         if (profile != null) return profile;
-        return Bukkit.createPlayerProfile(generateProfileId(seed));
+        return Bukkit.createPlayerProfile(UUID.randomUUID(), "CustomHead");
     }
 
     /**
@@ -52,7 +46,7 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setSkin(@NotNull PlayerProfile profile, @Nullable String skinUrl) {
-        PlayerProfile effective = getOrCreateProfile(profile, skinUrl);
+        PlayerProfile effective = getOrCreateProfile(profile);
         var url = createUrl(skinUrl);
         if (url == null) return effective;
 
@@ -77,7 +71,7 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setSkin(@NotNull PlayerProfile profile, @Nullable String skinUrl, @Nullable PlayerTextures.SkinModel skinModel) {
-        PlayerProfile effective = getOrCreateProfile(profile, skinUrl);
+        PlayerProfile effective = getOrCreateProfile(profile);
         var url = createUrl(skinUrl);
         if (url == null) return effective;
 
@@ -99,7 +93,7 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile setCape(@NotNull PlayerProfile profile, @Nullable String capeUrl) {
-        PlayerProfile effective = getOrCreateProfile(profile, capeUrl);
+        PlayerProfile effective = getOrCreateProfile(profile);
         var url = createUrl(capeUrl);
         if (url == null) return effective;
 
@@ -118,7 +112,7 @@ public class PlayerProfileHelper {
      * @return The updated PlayerProfile.
      */
     public static @NotNull PlayerProfile clearTextures(@NotNull PlayerProfile profile) {
-        PlayerProfile effective = getOrCreateProfile(profile, null);
+        PlayerProfile effective = getOrCreateProfile(profile);
         var textures = effective.getTextures();
         textures.clear();
         effective.setTextures(textures);
