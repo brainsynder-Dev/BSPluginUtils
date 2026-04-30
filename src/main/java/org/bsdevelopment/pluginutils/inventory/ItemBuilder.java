@@ -1,5 +1,6 @@
 package org.bsdevelopment.pluginutils.inventory;
 
+import com.eclipsesource.json.Json;
 import org.bsdevelopment.nbt.StorageBase;
 import org.bsdevelopment.nbt.StorageTagCompound;
 import org.bsdevelopment.nbt.StorageTagList;
@@ -9,17 +10,20 @@ import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.text.WordUtils;
 import org.bsdevelopment.pluginutils.utilities.NBTCodec;
 import org.bsdevelopment.pluginutils.utilities.PlayerProfileHelper;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.TropicalFish;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.components.*;
 import org.bukkit.inventory.meta.components.consumable.ConsumableComponent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -136,6 +140,8 @@ public class ItemBuilder {
             builder.withLore(lore);
         }
 
+        if (compound.hasKey("meta")) applyLegacyMeta(builder, compound.getCompoundTag("meta"));
+
         if (compound.hasKey("enchants")) {
             StorageTagList enchants = (StorageTagList) compound.getTag("enchants");
             enchants.getTagList().forEach(base -> {
@@ -160,6 +166,170 @@ public class ItemBuilder {
         if (compound.hasKey("unbreakable")) builder.setUnbreakable(compound.getBoolean("unbreakable"));
 
         return builder;
+    }
+
+    private static void applyLegacyMeta(ItemBuilder builder, StorageTagCompound metaCompound) {
+        builder.handleMeta(SkullMeta.class, skullMeta -> {
+            if (metaCompound.hasKey("owner")) skullMeta.setOwner(metaCompound.getString("owner"));
+            if (metaCompound.hasKey("texture")) {
+                String texture = decodeLegacyTexture(metaCompound.getString("texture"));
+                if (texture != null) {
+                    var profile = skullMeta.getOwnerProfile();
+                    if (profile == null) profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+                    skullMeta.setOwnerProfile(PlayerProfileHelper.setSkin(profile, texture));
+                }
+            }
+            return skullMeta;
+        });
+
+        builder.handleMeta(LeatherArmorMeta.class, armorMeta -> {
+            if (metaCompound.hasKey("color")) armorMeta.setColor(metaCompound.getColor("color", Color.fromRGB(10511680)));
+            return armorMeta;
+        });
+
+        builder.handleMeta(PotionMeta.class, potionMeta -> {
+            if (metaCompound.hasKey("color")) potionMeta.setColor(metaCompound.getColor("color"));
+            if (metaCompound.hasKey("effects")) {
+                StorageTagList list = (StorageTagList) metaCompound.getTag("effects");
+                list.getTagList().forEach(base -> {
+                    StorageTagCompound effectCompound = (StorageTagCompound) base;
+                    PotionEffectType type = PotionEffectType.getByName(effectCompound.getString("type", "SPEED"));
+                    if (type == null) return;
+                    potionMeta.addCustomEffect(new PotionEffect(
+                        type,
+                        effectCompound.getInteger("duration", 60),
+                        effectCompound.getInteger("amplifier", 1),
+                        effectCompound.getBoolean("ambient", true),
+                        effectCompound.getBoolean("particles", true),
+                        effectCompound.getBoolean("icon", true)
+                    ), false);
+                });
+            }
+            return potionMeta;
+        });
+
+        builder.handleMeta(BannerMeta.class, bannerMeta -> {
+            if (metaCompound.hasKey("patterns")) {
+                List<Pattern> patterns = new ArrayList<>();
+                StorageTagList list = (StorageTagList) metaCompound.getTag("patterns");
+                list.getTagList().forEach(base -> {
+                    StorageTagCompound patternCompound = (StorageTagCompound) base;
+                    try {
+                        PatternType type = PatternType.valueOf(patternCompound.getString("type", "BASE"));
+                        DyeColor color = DyeColor.valueOf(patternCompound.getString("color", "WHITE"));
+                        patterns.add(new Pattern(color, type));
+                    } catch (IllegalArgumentException ignored) {}
+                });
+                bannerMeta.setPatterns(patterns);
+            }
+            return bannerMeta;
+        });
+
+        builder.handleMeta(BookMeta.class, bookMeta -> {
+            if (metaCompound.hasKey("title")) bookMeta.setTitle(Colorize.translateBungeeHex(metaCompound.getString("title")));
+            if (metaCompound.hasKey("author")) bookMeta.setAuthor(metaCompound.getString("author"));
+            if (metaCompound.hasKey("generation")) {
+                try {
+                    bookMeta.setGeneration(BookMeta.Generation.valueOf(metaCompound.getString("generation")));
+                } catch (IllegalArgumentException ignored) {}
+            }
+            if (metaCompound.hasKey("pages")) {
+                List<String> pages = new ArrayList<>();
+                StorageTagList list = (StorageTagList) metaCompound.getTag("pages");
+                list.getTagList().forEach(base -> pages.add(Colorize.translateBungeeHex(((StorageTagString) base).getString())));
+                bookMeta.setPages(pages);
+            }
+            return bookMeta;
+        });
+
+        builder.handleMeta(FireworkMeta.class, fireworkMeta -> {
+            if (metaCompound.hasKey("power")) fireworkMeta.setPower(metaCompound.getInteger("power"));
+            if (metaCompound.hasKey("effects")) {
+                StorageTagList list = (StorageTagList) metaCompound.getTag("effects");
+                list.getTagList().forEach(base -> {
+                    FireworkEffect effect = fromLegacyFireworkEffect((StorageTagCompound) base);
+                    if (effect != null) fireworkMeta.addEffect(effect);
+                });
+            }
+            return fireworkMeta;
+        });
+
+        builder.handleMeta(MapMeta.class, mapMeta -> {
+            if (metaCompound.hasKey("color")) mapMeta.setColor(metaCompound.getColor("color"));
+            if (metaCompound.hasKey("scaling")) mapMeta.setScaling(metaCompound.getBoolean("scaling"));
+            if (metaCompound.hasKey("location-name")) mapMeta.setLocationName(metaCompound.getString("location-name"));
+            return mapMeta;
+        });
+
+        builder.handleMeta(KnowledgeBookMeta.class, bookMeta -> {
+            if (metaCompound.hasKey("recipes")) {
+                List<NamespacedKey> recipes = new ArrayList<>();
+                StorageTagList list = (StorageTagList) metaCompound.getTag("recipes");
+                list.getTagList().forEach(base -> {
+                    NamespacedKey key = NamespacedKey.fromString(((StorageTagString) base).getString());
+                    if (key != null) recipes.add(key);
+                });
+                bookMeta.setRecipes(recipes);
+            }
+            return bookMeta;
+        });
+
+        builder.handleMeta(TropicalFishBucketMeta.class, fishMeta -> {
+            if (metaCompound.hasKey("pattern-color")) {
+                try { fishMeta.setPatternColor(DyeColor.valueOf(metaCompound.getString("pattern-color"))); } catch (IllegalArgumentException ignored) {}
+            }
+            if (metaCompound.hasKey("body-color")) {
+                try { fishMeta.setBodyColor(DyeColor.valueOf(metaCompound.getString("body-color"))); } catch (IllegalArgumentException ignored) {}
+            }
+            if (metaCompound.hasKey("pattern")) {
+                try { fishMeta.setPattern(TropicalFish.Pattern.valueOf(metaCompound.getString("pattern"))); } catch (IllegalArgumentException ignored) {}
+            }
+            return fishMeta;
+        });
+    }
+
+    private static String decodeLegacyTexture(String texture) {
+        if (texture == null || texture.isEmpty()) return null;
+        if (texture.startsWith("http")) return texture;
+        try {
+            String decoded = new String(Base64.getDecoder().decode(texture), StandardCharsets.UTF_8);
+            return Json.parse(decoded).asObject()
+                .get("textures").asObject()
+                .get("SKIN").asObject()
+                .get("url").asString();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static FireworkEffect fromLegacyFireworkEffect(StorageTagCompound compound) {
+        try {
+            FireworkEffect.Builder fxBuilder = FireworkEffect.builder();
+            fxBuilder.with(FireworkEffect.Type.valueOf(compound.getString("type", "BALL")));
+            if (compound.hasKey("trail")) fxBuilder.trail(compound.getBoolean("trail"));
+            if (compound.hasKey("flicker")) fxBuilder.flicker(compound.getBoolean("flicker"));
+            if (compound.hasKey("colors")) {
+                List<Color> colors = new ArrayList<>();
+                StorageTagList list = (StorageTagList) compound.getTag("colors");
+                list.getTagList().forEach(base -> {
+                    Color color = ((StorageTagString) base).getAsColor();
+                    if (color != null) colors.add(color);
+                });
+                if (!colors.isEmpty()) fxBuilder.withColor(colors);
+            }
+            if (compound.hasKey("fade-colors")) {
+                List<Color> colors = new ArrayList<>();
+                StorageTagList list = (StorageTagList) compound.getTag("fade-colors");
+                list.getTagList().forEach(base -> {
+                    Color color = ((StorageTagString) base).getAsColor();
+                    if (color != null) colors.add(color);
+                });
+                if (!colors.isEmpty()) fxBuilder.withFade(colors);
+            }
+            return fxBuilder.build();
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public static ItemBuilder playerSkull(String texture) {
