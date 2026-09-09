@@ -50,6 +50,7 @@ public class ServerVersion {
     public static ServerVersion v26_1 = register(Triple.of(26, 1, 0));
     public static ServerVersion v26_1_1 = register(Triple.of(26, 1, 1));
     public static ServerVersion v26_2 = register(Triple.of(26, 2, 0));
+    public static ServerVersion v26_3 = register(Triple.of(26, 3, 0));
     // ---- AUTOMATION: END ---- //
 
     /**
