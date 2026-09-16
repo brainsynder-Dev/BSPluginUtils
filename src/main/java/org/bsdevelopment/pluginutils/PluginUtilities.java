@@ -2,10 +2,10 @@ package org.bsdevelopment.pluginutils;
 
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
-import de.tr7zw.changeme.nbtapi.NBT;
 import io.github.projectunified.unidialog.core.DialogManager;
 import io.github.projectunified.unidialog.paper.PaperDialogManager;
 import io.github.projectunified.unidialog.spigot.SpigotDialogManager;
+import org.bsdevelopment.pluginutils.utilities.NBTCodec;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -45,8 +45,8 @@ public final class PluginUtilities extends JavaPlugin {
         }
         dialogManager.register();
 
-        if (!NBT.preloadApi()) {
-            plugin.getLogger().warning("NBT-API wasn't initialized properly, disabling the plugin");
+        if (!NBTCodec.isSupported()) {
+            plugin.getLogger().warning("NBTCodec wasn't initialized properly, disabling the plugin");
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
     }

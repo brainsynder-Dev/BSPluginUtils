@@ -29,7 +29,6 @@ repositories {
 dependencies {
     compileOnly(libs.spigot)
     implementation(libs.minimaljson)
-    implementation(libs.nbtapi)
     implementation(libs.bsnbt)
     implementation(libs.paperlib)
     implementation(libs.scheduler)
@@ -57,7 +56,6 @@ tasks {
         relocate("com.github.Anon8281.universalScheduler", "$mainPackage.libs.scheduler")
         relocate("io.papermc.lib", "$mainPackage.libs.paperlib")
         relocate("com.eclipsesource.json", "$mainPackage.libs.json")
-        relocate("de.tr7zw.changeme.nbtapi", "$mainPackage.libs.nbtapi")
         relocate("io.github.projectunified.unidialog", "$mainPackage.libs.dialog")
     }
 }
@@ -77,7 +75,7 @@ println("Password: " + (System.getenv("BS_REPO_PASS") ?: findProperty("BS_REPO_P
 
 tasks.publish {
     dependsOn("clean", "build")
-    finalizedBy("updateReadmeVersion")
+    // finalizedBy("updateReadmeVersion")
 }
 
 publishing {

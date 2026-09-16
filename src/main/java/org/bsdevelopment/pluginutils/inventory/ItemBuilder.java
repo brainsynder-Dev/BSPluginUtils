@@ -5,7 +5,6 @@ import org.bsdevelopment.nbt.StorageBase;
 import org.bsdevelopment.nbt.StorageTagCompound;
 import org.bsdevelopment.nbt.StorageTagList;
 import org.bsdevelopment.nbt.StorageTagString;
-import org.bsdevelopment.nbt.io.StorageStringParser;
 import org.bsdevelopment.pluginutils.text.Colorize;
 import org.bsdevelopment.pluginutils.text.WordUtils;
 import org.bsdevelopment.pluginutils.utilities.NBTCodec;
@@ -104,7 +103,7 @@ public class ItemBuilder {
                 }
             }
 
-            ItemStack parsed = NBTCodec.nbtStringToBukkit(working.toString());
+            ItemStack parsed = NBTCodec.storageTagToBukkit(working);
             ItemMeta parsedMeta = parsed.getItemMeta();
             if (parsedMeta != null && (extractedName != null || extractedLore != null)) {
                 if (extractedName != null) parsedMeta.setDisplayName(Colorize.translateBungeeHex(extractedName));
@@ -392,7 +391,7 @@ public class ItemBuilder {
     public StorageTagCompound toTag() {
         item.setItemMeta(meta);
         try {
-            StorageTagCompound tag = StorageStringParser.getTagFromJson(NBTCodec.bukkitToNbtString(item));
+            StorageTagCompound tag = NBTCodec.bukkitToStorageTag(item);
             StorageTagCompound components = tag.hasKey("components") ? tag.getCompoundTag("components") : null;
             if (components != null) {
                 if (meta.hasDisplayName()) {
