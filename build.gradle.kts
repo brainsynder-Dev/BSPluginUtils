@@ -75,7 +75,7 @@ println("Password: " + (System.getenv("BS_REPO_PASS") ?: findProperty("BS_REPO_P
 
 tasks.publish {
     dependsOn("clean", "build")
-    // finalizedBy("updateReadmeVersion")
+    finalizedBy("updateReadmeVersion")
 }
 
 publishing {
